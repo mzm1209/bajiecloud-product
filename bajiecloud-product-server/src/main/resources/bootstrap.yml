@@ -1,0 +1,167 @@
+# bootstrap.yml - MSE Nacos 配置
+spring:
+  application:
+    name: ${APP_NAME:your-service-name}  # 应用名称，用于服务注册
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}  # 环境变量
+  cloud:
+    nacos:
+      # ========== 配置中心 ==========
+      config:
+        # MSE Nacos 地址（从 MSE 控制台获取）
+        server-addr: ${mse.nacos.server-addr:mse-xxxxxxx-nacos-ans.mse.aliyuncs.com:8848}
+
+        # 命名空间（必须使用命名空间ID，不是名称）
+        namespace: ${nacos.namespace:dev-namespace-id}
+
+        # 分组（可选，默认 DEFAULT_GROUP）
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+
+        # 文件扩展名
+        file-extension: ${NACOS_FILE_EXTENSION:yml}
+
+        # 共享配置（可以配置多个）
+        shared-configs:
+          - data-id: common.yml
+            group: COMMON_GROUP
+            refresh: true
+          - data-id: database.yml
+            group: COMMON_GROUP
+            refresh: true
+          - data-id: redis.yml
+            group: COMMON_GROUP
+            refresh: true
+
+        # 扩展配置
+        extension-configs:
+          - data-id: ${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+            group: ${spring.cloud.nacos.config.group}
+            refresh: true
+
+        # 启用配置刷新
+        refresh-enabled: true
+
+        # 鉴权配置（如果 MSE 开启了鉴权）
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:}
+        # 或者使用 AccessKey/SecretKey（阿里云鉴权方式）
+        access-key: ${ALIBABA_CLOUD_ACCESS_KEY:}
+        secret-key: ${ALIBABA_CLOUD_SECRET_KEY:}
+
+        # 长轮询超时时间（毫秒）
+        config-long-poll-timeout: 30000
+
+        # 配置重试时间（毫秒）
+        config-retry-time: 2000
+
+        # 最大重试次数
+        max-retry: 3
+
+        # 启用自动刷新
+        auto-refresh: true
+
+        # 引导日志级别
+        bootstrap-log-enable: true
+
+        # 端点配置
+        endpoint: ${NACOS_ENDPOINT:}  # 集群端点
+
+        # 上下文路径（如果 Nacos 有上下文路径）
+        context-path: ${NACOS_CONTEXT_PATH:/nacos}
+
+        # 编码
+        encode: ${NACOS_ENCODE:UTF-8}
+
+        # 连接池配置
+        connection-timeout: 1000
+        socket-timeout: 3000
+
+        # 配置监听长轮询线程池
+        config-long-poll-thread-count: 1
+
+        # 通知线程池大小
+        notify-thread-pool-size: 10
+
+      # ========== 服务发现 ==========
+      discovery:
+        # 使用和 Config 相同的地址
+        server-addr: ${spring.cloud.nacos.config.server-addr}
+        namespace: ${spring.cloud.nacos.config.namespace}
+        group: ${spring.cloud.nacos.config.group}
+
+        # 服务注册配置
+        # 服务名称（默认使用 spring.application.name）
+        service: ${spring.application.name}
+
+        # 服务分组（用于区分不同环境）
+        cluster-name: ${NACOS_CLUSTER_NAME:DEFAULT}
+
+        # 元数据
+        metadata:
+          version: 1.0.0
+          env: ${spring.profiles.active}
+
+        # 注册的IP地址（可选，默认自动获取）
+        ip: ${NACOS_DISCOVERY_IP:}
+
+        # 注册的端口（可选，默认 server.port）
+        port: ${SERVER_PORT:8080}
+
+        # 是否注册为临时实例（默认 true，非持久化实例）
+        ephemeral: ${NACOS_DISCOVERY_EPHEMERAL:true}
+
+        # 心跳间隔（毫秒）
+        heart-beat-interval: ${NACOS_HEART_BEAT_INTERVAL:5000}
+
+        # 心跳超时时间（毫秒）
+        heart-beat-timeout: ${NACOS_HEART_BEAT_TIMEOUT:15000}
+
+        # IP 删除超时时间（毫秒）
+        ip-delete-timeout: ${NACOS_IP_DELETE_TIMEOUT:30000}
+
+        # 服务实例权重（1-100）
+        weight: ${NACOS_DISCOVERY_WEIGHT:1.0}
+
+        # 是否启用
+        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+
+        # 注册前检查服务名是否合法
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}
+
+        # 实例 ID（默认格式：ip:port）
+        instance-id: ${spring.cloud.nacos.discovery.ip}:${spring.cloud.nacos.discovery.port}
+
+        # 是否启用日志
+        log-name: ${NACOS_DISCOVERY_LOG_NAME:}
+
+        # 鉴权配置（同 Config）
+        username: ${spring.cloud.nacos.config.username}
+        password: ${spring.cloud.nacos.config.password}
+        access-key: ${spring.cloud.nacos.config.access-key}
+        secret-key: ${spring.cloud.nacos.config.secret-key}
+
+        # 端点
+        endpoint: ${spring.cloud.nacos.config.endpoint}
+
+        # 上下文路径
+        context-path: ${spring.cloud.nacos.config.context-path}
+
+        # 是否启用安全传输
+        secure: ${NACOS_DISCOVERY_SECURE:false}
+
+        # 访问令牌（如果使用 Token 鉴权）
+        access-token: ${NACOS_ACCESS_TOKEN:}
+
+# 服务端口
+server:
+  port: ${SERVER_PORT:8080}
+
+# 健康检查端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,nacos-discovery,nacos-config
+  endpoint:
+    health:
+      show-details: always
