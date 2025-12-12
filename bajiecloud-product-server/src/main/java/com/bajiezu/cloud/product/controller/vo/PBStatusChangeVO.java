@@ -1,5 +1,6 @@
 package com.bajiezu.cloud.product.controller.vo;
 
+import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -23,4 +24,9 @@ public class PBStatusChangeVO {
     @NotBlank(message = "status不能为空")
     private Integer status;
 
+    public void validateParam() {
+        Preconditions.checkArgument(id != null, "id不能为空");
+        Preconditions.checkArgument(status != null, "status 状态不能为空");
+        Preconditions.checkArgument(status == 0 || status == 1, "status 状态值不对");
+    }
 }

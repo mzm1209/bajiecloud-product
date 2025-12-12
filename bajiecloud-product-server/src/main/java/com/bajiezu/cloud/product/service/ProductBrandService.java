@@ -1,6 +1,6 @@
 package com.bajiezu.cloud.product.service;
 
-import cn.hutool.db.PageResult;
+import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.*;
 
 import java.util.List;

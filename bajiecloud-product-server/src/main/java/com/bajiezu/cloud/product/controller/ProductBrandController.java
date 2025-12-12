@@ -1,8 +1,18 @@
 package com.bajiezu.cloud.product.controller;
 
+import com.bajiezu.cloud.common.web.pojo.CommonResult;
+import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.product.controller.vo.*;
+import com.bajiezu.cloud.product.service.ProductBrandService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,5 +23,45 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ProductBrandController {
 
+    @Autowired
+    private ProductBrandService productBrandService;
 
+    @PostMapping("/add")
+    @Operation(summary = "新增")
+//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    public CommonResult<Boolean> add(@Valid @RequestBody PBAddReqVO reqVO) {
+        productBrandService.add(reqVO);
+        return CommonResult.success(true);
+    }
+
+    @PostMapping("/mod")
+    @Operation(summary = "编辑")
+//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    public CommonResult<Boolean> mod(@Valid @RequestBody PBModReqVO reqVO) {
+        productBrandService.mod(reqVO);
+        return CommonResult.success(true);
+    }
+
+    @PostMapping("/del")
+    @Operation(summary = "删除")
+//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    public CommonResult<Boolean> del(@Valid @RequestBody PBDelReqVO reqVO) {
+        productBrandService.del(reqVO);
+        return CommonResult.success(true);
+    }
+
+    @PostMapping("/statusChange")
+    @Operation(summary = "启用禁用")
+//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    public CommonResult<Boolean> statusChange(@Valid @RequestBody PBStatusChangeVO reqVO) {
+        productBrandService.statusChange(reqVO);
+        return CommonResult.success(true);
+    }
+
+    @PostMapping("/list")
+    @Operation(summary = "启用禁用")
+//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    public CommonResult<PageResult<PBRespVO>> list(@Valid @RequestBody PBListReqVO reqVO) {
+        return CommonResult.success(productBrandService.list(reqVO));
+    }
 }

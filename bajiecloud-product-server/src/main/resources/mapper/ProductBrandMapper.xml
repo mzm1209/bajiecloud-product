@@ -16,4 +16,20 @@
         <result column="is_deleted" property="isDeleted"/>
     </resultMap>
 
+
+    <select id="queryList" resultMap="BaseResultMap">
+        select * from product_brand where is_deleted = 0
+        <if test="name != null and name != ''">
+           and `name` like concat('%',#{name},'%')
+        </if>
+        order by create_time desc
+        limit #{offset},#{limit}
+    </select>
+
+    <select id="queryCount" resultType="java.lang.Long">
+        select count(*) from product_brand where is_deleted = 0
+        <if test="name != null and name != ''">
+            and `name` like concat('%',#{name},'%')
+        </if>
+    </select>
 </mapper>

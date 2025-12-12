@@ -19,4 +19,7 @@ public class PBRespVO {
 
     @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED, example = "xxx")
     private String remark;
+
+    @Schema(description = "启动禁用状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Integer status;
 }
