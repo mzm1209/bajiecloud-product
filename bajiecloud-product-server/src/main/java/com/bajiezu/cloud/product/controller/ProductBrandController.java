@@ -28,7 +28,7 @@ public class ProductBrandController {
 
     @PostMapping("/add")
     @Operation(summary = "新增")
-//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    @PreAuthorize("@ss.hasPermission('product:brand:add')")
     public CommonResult<Boolean> add(@Valid @RequestBody PBAddReqVO reqVO) {
         productBrandService.add(reqVO);
         return CommonResult.success(true);
@@ -36,7 +36,7 @@ public class ProductBrandController {
 
     @PostMapping("/mod")
     @Operation(summary = "编辑")
-//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    @PreAuthorize("@ss.hasPermission('product:brand:mod')")
     public CommonResult<Boolean> mod(@Valid @RequestBody PBModReqVO reqVO) {
         productBrandService.mod(reqVO);
         return CommonResult.success(true);
@@ -44,7 +44,7 @@ public class ProductBrandController {
 
     @PostMapping("/del")
     @Operation(summary = "删除")
-//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    @PreAuthorize("@ss.hasPermission('product:brand:del')")
     public CommonResult<Boolean> del(@Valid @RequestBody PBDelReqVO reqVO) {
         productBrandService.del(reqVO);
         return CommonResult.success(true);
@@ -52,7 +52,7 @@ public class ProductBrandController {
 
     @PostMapping("/statusChange")
     @Operation(summary = "启用禁用")
-//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    @PreAuthorize("@ss.hasPermission('product:brand:statusChange')")
     public CommonResult<Boolean> statusChange(@Valid @RequestBody PBStatusChangeVO reqVO) {
         productBrandService.statusChange(reqVO);
         return CommonResult.success(true);
@@ -60,7 +60,7 @@ public class ProductBrandController {
 
     @PostMapping("/list")
     @Operation(summary = "启用禁用")
-//    @PreAuthorize("@ss.hasPermission('system:partner:submit')")
+    @PreAuthorize("@ss.hasPermission('product:brand:list')")
     public CommonResult<PageResult<PBRespVO>> list(@Valid @RequestBody PBListReqVO reqVO) {
         return CommonResult.success(productBrandService.list(reqVO));
     }
