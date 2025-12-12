@@ -1,0 +1,31 @@
+package com.bajiezu.cloud.product.controller.vo;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Schema(description = "管理后台 - 品牌管理 - 新增VO")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PBAddReqVO {
+
+    @Schema(description = "品牌名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "xiaomi")
+    @NotBlank(message = "品牌名称不能为空")
+    @Size(max = 30, message = "品牌名称长度不能超过 30 个字符")
+    private String brandName;
+
+    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotBlank(message = "排序不能为空")
+    private Integer sort;
+
+    @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED, example = "xxx")
+    @NotBlank(message = "备注不能为空")
+    @Size(max = 100, message = "品牌名称长度不能超过 100 个字符")
+    private String remark;
+}

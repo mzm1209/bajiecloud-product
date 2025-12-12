@@ -1,0 +1,19 @@
+package com.bajiezu.cloud.product.service;
+
+import cn.hutool.db.PageResult;
+import com.bajiezu.cloud.product.controller.vo.*;
+
+import java.util.List;
+
+public interface ProductBrandService {
+
+    void add(PBAddReqVO reqVO);
+
+    void mod(PBModReqVO reqVO);
+
+    void del(PBDelReqVO reqVO);
+
+    PageResult<PBRespVO> list(PBListReqVO reqVO);
+
+    void statusChange(PBStatusChangeVO reqVO);
+}
