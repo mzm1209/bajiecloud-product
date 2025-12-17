@@ -2,7 +2,8 @@ package com.bajiezu.cloud.product.controller;
 
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
-import com.bajiezu.cloud.product.controller.vo.*;
+import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 import com.bajiezu.cloud.product.service.ProductBrandService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

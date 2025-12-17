@@ -1,9 +1,8 @@
 package com.bajiezu.cloud.product.service;
 
 import com.bajiezu.cloud.common.web.pojo.PageResult;
-import com.bajiezu.cloud.product.controller.vo.*;
-
-import java.util.List;
+import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 
 public interface ProductBrandService {
 

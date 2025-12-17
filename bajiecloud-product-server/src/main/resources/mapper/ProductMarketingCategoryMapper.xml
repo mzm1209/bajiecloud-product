@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bajiezu.cloud.product.dal.mapper.ProductMarketingCategoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.bajiezu.cloud.product.dal.entity.ProductMarketingCategory">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="sort" property="sort"/>
+        <result column="level" property="level"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="partner_id" property="partnerId"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <select id="queryList" resultMap="BaseResultMap">
+        SELECT * FROM product_marketing_category
+        WHERE is_deleted = 0
+        <if test="name != null and name != ''">
+            AND `name` LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="status != null">
+            AND `status` = #{status}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="queryCount" resultType="java.lang.Long">
+        select count(*) from product_marketing_category where is_deleted = 0
+        <if test="name != null and name != ''">
+            and `name` like concat('%',#{name},'%')
+        </if>
+    </select>
+</mapper>

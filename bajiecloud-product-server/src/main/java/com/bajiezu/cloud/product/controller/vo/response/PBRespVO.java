@@ -1,8 +1,6 @@
-package com.bajiezu.cloud.product.controller.vo;
+package com.bajiezu.cloud.product.controller.vo.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data

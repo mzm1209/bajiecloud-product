@@ -1,12 +1,14 @@
-package com.bajiezu.cloud.product.service;
+package com.bajiezu.cloud.product.service.impl;
 
 import com.baijiazu.cloud.product.enums.ProductBrandStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
-import com.bajiezu.cloud.framework.security.LoginUser;
+import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
-import com.bajiezu.cloud.product.controller.vo.*;
+import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 import com.bajiezu.cloud.product.dal.entity.ProductBrand;
 import com.bajiezu.cloud.product.dal.mapper.ProductBrandMapper;
+import com.bajiezu.cloud.product.service.ProductBrandService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,7 @@ import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.e
 
 @Slf4j
 @Service
-public class ProductBrandServiceImpl implements ProductBrandService{
+public class ProductBrandServiceImpl implements ProductBrandService {
 
 
     @Autowired

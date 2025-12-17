@@ -1,4 +1,4 @@
-package com.bajiezu.cloud.product.controller.vo;
+package com.bajiezu.cloud.product.controller.vo.request;
 
 import com.bajiezu.cloud.common.web.pojo.PageParam;
 import io.swagger.v3.oas.annotations.media.Schema;
