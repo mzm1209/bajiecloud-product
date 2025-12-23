@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("product_marketing_category")
-public class ProductMarketingCategory extends BaseDO implements Serializable {
+public class ProductMarketingCategory extends BaseDO {
 
     /** 营销类目ID */
     @TableId(value = "id", type = IdType.AUTO)

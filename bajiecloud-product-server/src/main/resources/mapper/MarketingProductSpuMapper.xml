@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bajiezu.cloud.product.dal.mapper.MarketingProductSpuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bajiezu.cloud.product.dal.entity.MarketingProductSpu">
+        <id column="id" property="id" />
+        <result column="standard_product_spu_id" property="standardProductSpuId" />
+        <result column="code" property="code" />
+        <result column="type" property="type" />
+        <result column="name" property="name" />
+        <result column="product_condition" property="productCondition" />
+        <result column="monitor_attribute" property="monitorAttribute" />
+        <result column="min_buyback_price" property="minBuybackPrice" />
+        <result column="max_buyback_price" property="maxBuybackPrice" />
+        <result column="main_pic_urls" property="mainPicUrls" />
+        <result column="carousel_pic_urls" property="carouselPicUrls" />
+        <result column="video_urls" property="videoUrls" />
+        <result column="detail_pic_urls" property="detailPicUrls" />
+        <result column="detail_tag_ids" property="detailTagIds" />
+        <result column="sku_tag_ids" property="skuTagIds" />
+        <result column="rent_way" property="rentWay" />
+        <result column="color" property="color" />
+        <result column="specification" property="specification" />
+        <result column="rental_period" property="rentalPeriod" />
+        <result column="renewal_period" property="renewalPeriod" />
+        <result column="flexible_return_period" property="flexibleReturnPeriod" />
+        <result column="value_added_ids" property="valueAddedIds" />
+        <result column="show_page" property="showPage" />
+        <result column="is_default_selected" property="isDefaultSelected" />
+        <result column="default_selected_value_added_id" property="defaultSelectedValueAddedId" />
+        <result column="compensation_rule_id" property="compensationRuleId" />
+        <result column="shipping_way" property="shippingWay" />
+        <result column="shiping_template_id" property="shippingTemplateId" />
+        <result column="shipping_area_id" property="shippingAreaId" />
+        <result column="receiving_address" property="receivingAddress" />
+        <result column="shelving_way" property="shelvingWay" />
+        <result column="shelving_time" property="shelvingTime" />
+        <result column="shelving_channel_id" property="shelvingChannelId" />
+        <result column="is_shelving" property="isShelving" />
+        <result column="is_draft" property="isDraft" />
+        <result column="status" property="status" />
+        <result column="approval_status" property="approvalStatus" />
+        <result column="approver_id" property="approverId" />
+        <result column="approval_remark" property="approvalRemark" />
+        <result column="partner_id" property="partnerId" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="isDeleted" />
+    </resultMap>
+
+</mapper>

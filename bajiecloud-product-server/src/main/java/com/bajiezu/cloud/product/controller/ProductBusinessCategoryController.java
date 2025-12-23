@@ -6,6 +6,7 @@ import com.bajiezu.cloud.product.dal.entity.ProductBusinessCategory;
 import com.bajiezu.cloud.product.service.ProductBusinessCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ProductBusinessCategoryController {
 
-    @Autowired
+    @Resource
     private ProductBusinessCategoryService productBusinessCategoryService;
-//
-//    @PostMapping("/add")
-//    @Operation(summary = "新增经营类目")
-//    @PreAuthorize("@ss.hasPermission('product:business-category:add')")
-//    public CommonResult<Boolean> add(@Valid @RequestBody PBCAddReqVO reqVO) {
-//        productBusinessCategoryService.add(reqVO);
-//        return CommonResult.success(true);
-//    }
 
     @PostMapping("/list")
     @Operation(summary = "经营类目列表")

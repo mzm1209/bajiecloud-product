@@ -9,8 +9,8 @@ import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 import com.bajiezu.cloud.product.dal.entity.ProductBrand;
 import com.bajiezu.cloud.product.dal.mapper.ProductBrandMapper;
 import com.bajiezu.cloud.product.service.ProductBrandService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -26,19 +26,19 @@ import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.e
 public class ProductBrandServiceImpl implements ProductBrandService {
 
 
-    @Autowired
+    @Resource
     private ProductBrandMapper productBrandMapper;
 
     @Override
     public void add(PBAddReqVO reqVO) {
         log.info("add dto: {}", reqVO);
         reqVO.validateParam();
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         ProductBrand brand = buildBrand(reqVO, loginUser);
         productBrandMapper.insert(brand);
     }
 
-    private ProductBrand buildBrand(PBAddReqVO reqVO, LoginUser user) {
+    private ProductBrand buildBrand(PBAddReqVO reqVO, LoginUser<?> user) {
         ProductBrand brand = new ProductBrand();
         brand.setName(reqVO.getBrandName());
         brand.setSort(reqVO.getSort());
@@ -57,7 +57,7 @@ public class ProductBrandServiceImpl implements ProductBrandService {
     public void mod(PBModReqVO reqVO) {
         log.info("mod dto: {}", reqVO);
         reqVO.validateParam();
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
 
         ProductBrand brand = productBrandMapper.selectById(reqVO.getId());
         if (brand == null) {
@@ -75,7 +75,7 @@ public class ProductBrandServiceImpl implements ProductBrandService {
     public void del(PBDelReqVO reqVO) {
         log.info("del dto: {}", reqVO);
         reqVO.validateParam();
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
 
         ProductBrand brand = productBrandMapper.selectById(reqVO.getId());
         if (brand == null) {
@@ -116,7 +116,7 @@ public class ProductBrandServiceImpl implements ProductBrandService {
     public void statusChange(PBStatusChangeVO reqVO) {
         log.info("statusChange dto: {}", reqVO);
         reqVO.validateParam();
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
 
         ProductBrand brand = productBrandMapper.selectById(reqVO.getId());
         if (brand == null) {

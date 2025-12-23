@@ -31,7 +31,6 @@ public class ProductTagServiceImpl implements ProductTagService {
     @Override
     public void add(ProductTagReqVO reqVO) {
         log.info("add product tag dto: {}", reqVO);
-        reqVO.validate();
         LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
         ProductTag tag = buildTag(reqVO, loginUser);
         productTagMapper.insert(tag);

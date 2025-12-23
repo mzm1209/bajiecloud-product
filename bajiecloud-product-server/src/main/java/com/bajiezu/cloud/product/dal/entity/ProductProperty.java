@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("product_property")
-public class ProductProperty extends BaseDO implements Serializable {
+public class ProductProperty extends BaseDO {
 
     /** 主键ID */
     @TableId(value = "id", type = IdType.AUTO)

@@ -4,18 +4,21 @@ import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.ProductMarketingCategoryVO;
 import com.bajiezu.cloud.product.controller.vo.request.PMCAddReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.PMCModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.PMCDelReqVO;
+import com.bajiezu.cloud.product.controller.vo.request.PMCModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.PMCStatusChangeVO;
 import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 商品营销类目管理控制器
@@ -27,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ProductMarketingCategoryController {
 
-    @Autowired
+    @Resource
     private ProductMarketingCategoryService productMarketingCategoryService;
 
     @PostMapping("/add")

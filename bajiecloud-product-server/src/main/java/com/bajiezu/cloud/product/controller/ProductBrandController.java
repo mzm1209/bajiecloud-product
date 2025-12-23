@@ -7,6 +7,7 @@ import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 import com.bajiezu.cloud.product.service.ProductBrandService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ProductBrandController {
 
-    @Autowired
+    @Resource
     private ProductBrandService productBrandService;
 
     @PostMapping("/add")

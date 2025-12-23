@@ -3,16 +3,19 @@ package com.bajiezu.cloud.product.controller;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.ProductTagReqVO;
-import com.bajiezu.cloud.product.service.ProductTagService;
 import com.bajiezu.cloud.product.dal.entity.ProductTag;
+import com.bajiezu.cloud.product.service.ProductTagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 商品标签管理控制器
@@ -24,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ProductTagController {
 
-    @Autowired
+    @Resource
     private ProductTagService productTagService;
 
     @PostMapping("/add")
@@ -61,7 +64,7 @@ public class ProductTagController {
 
     @PostMapping("/status-change")
     @Operation(summary = "启用/禁用商品标签")
-    @PreAuthorize("@ss.hasPefrmission('product:tag:status-change')")
+    @PreAuthorize("@ss.hasPermission('product:tag:status-change')")
     public CommonResult<Boolean> statusChange(@Valid @RequestBody ProductTagReqVO reqVO) {
         productTagService.statusChange(reqVO);
         return CommonResult.success(true);

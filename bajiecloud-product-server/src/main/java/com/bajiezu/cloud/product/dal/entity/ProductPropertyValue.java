@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("product_property_value")
-public class ProductPropertyValue extends BaseDO implements Serializable {
+public class ProductPropertyValue extends BaseDO {
 
     /** 编号 */
     @TableId(value = "id", type = IdType.AUTO)
@@ -26,10 +26,4 @@ public class ProductPropertyValue extends BaseDO implements Serializable {
     /** 属性对应的值 */
     @TableField("property_value")
     private String propertyValue;
-
-    /** 合作商ID */
-    @TableField("partner_id")
-    private Long partnerId;
-    // 注意：BaseDO中已经包含了createBy, updateBy, createTime, updateTime, isDeleted字段
-    // 因此不需要在子类中重复定义这些字段
 }

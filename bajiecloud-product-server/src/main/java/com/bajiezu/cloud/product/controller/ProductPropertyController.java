@@ -3,18 +3,19 @@ package com.bajiezu.cloud.product.controller;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.ProductPropertyReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.ProductPropertyValueReqVO;
 import com.bajiezu.cloud.product.dal.entity.ProductProperty;
 import com.bajiezu.cloud.product.service.ProductPropertyService;
-import com.bajiezu.cloud.product.service.ProductPropertyValueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 商品属性管理控制器
@@ -26,13 +27,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ProductPropertyController {
 
-    @Autowired
+    @Resource
     private ProductPropertyService productPropertyService;
-
-    @Autowired
-    private ProductPropertyValueService productPropertyValueService;
-
-    // ==================== 商品属性相关接口 ====================
 
     @PostMapping("/add")
     @Operation(summary = "新增商品属性")

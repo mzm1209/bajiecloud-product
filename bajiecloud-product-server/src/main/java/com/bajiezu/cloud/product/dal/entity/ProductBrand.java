@@ -14,7 +14,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("product_brand")
-public class ProductBrand extends BaseDO implements Serializable {
+public class ProductBrand extends BaseDO {
 
     /** 主键ID */
     @TableId(value = "id", type = IdType.AUTO)

@@ -1,12 +1,8 @@
 package com.bajiezu.cloud.product.controller.vo.request;
 
-import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 @Schema(description = "商品标签管理请求VO")
 @Data
@@ -39,9 +35,4 @@ public class ProductTagReqVO {
 
     @Schema(description = "每页条数", example = "10")
     private Integer pageSize = 10;
-
-    public void validate() {
-        Preconditions.checkArgument(StringUtils.isNotEmpty(name), "标签名称不能为空");
-    }
-
 }
