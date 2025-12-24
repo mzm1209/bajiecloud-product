@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.bajiezu.cloud.product.dal.mapper.**") // 指定Mapper接口的包路径
+@MapperScan("com.bajiezu.cloud.product.dal.mapper") // 指定Mapper接口的包路径
 public class ProductServerApplication {
 
 

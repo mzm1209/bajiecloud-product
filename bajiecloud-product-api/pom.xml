@@ -18,6 +18,13 @@
       <artifactId>bajiecloud-common</artifactId>
     </dependency>
 
+    <!-- 添加 Lombok 依赖 -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- 参数校验 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

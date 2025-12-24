@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 
+@Mapper
 public interface ProductPropertyValueMapper extends BaseMapper<ProductPropertyValue> {
 
     /**

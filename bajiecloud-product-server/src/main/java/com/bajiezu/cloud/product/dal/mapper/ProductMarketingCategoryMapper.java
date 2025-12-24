@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface ProductMarketingCategoryMapper extends BaseMapper<ProductMarketingCategory> {
     // 继承BaseMapper已包含基本的CRUD方法
     // 可根据需要添加自定义查询方法
