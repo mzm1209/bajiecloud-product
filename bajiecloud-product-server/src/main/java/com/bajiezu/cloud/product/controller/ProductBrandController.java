@@ -5,6 +5,8 @@ import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 import com.bajiezu.cloud.product.service.ProductBrandService;
+import com.bajiezu.cloud.system.api.partner.BusinessPartnerApi;
+import com.bajiezu.cloud.system.dto.PartnerSimpleInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Tag(name = "管理后台 - 品牌管理")
 @RestController
 @RequestMapping("/product/brand")
@@ -27,6 +31,16 @@ public class ProductBrandController {
 
     @Resource
     private ProductBrandService productBrandService;
+
+    @Resource
+    private BusinessPartnerApi adminUserService;
+
+    @PostMapping("/get")
+    public CommonResult<List<PartnerSimpleInfo>> test() {
+        CommonResult<List<PartnerSimpleInfo>> list = adminUserService.getPartnerList();
+        list.getData();
+        return list;
+    }
 
     @PostMapping("/add")
     @Operation(summary = "新增")
