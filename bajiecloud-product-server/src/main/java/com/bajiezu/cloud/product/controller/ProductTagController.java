@@ -32,7 +32,7 @@ public class ProductTagController {
 
     @PostMapping("/add")
     @Operation(summary = "新增商品标签")
-    @PreAuthorize("@ss.hasPermission('product:tag:add')")
+    //@PreAuthorize("@ss.hasPermission('product:tag:add')")
     public CommonResult<Boolean> add(@Valid @RequestBody ProductTagReqVO reqVO) {
         productTagService.add(reqVO);
         return CommonResult.success(true);
@@ -40,7 +40,7 @@ public class ProductTagController {
 
     @PostMapping("/mod")
     @Operation(summary = "编辑商品标签")
-    @PreAuthorize("@ss.hasPermission('product:tag:mod')")
+    //@PreAuthorize("@ss.hasPermission('product:tag:mod')")
     public CommonResult<Boolean> mod(@Valid @RequestBody ProductTagReqVO reqVO) {
         productTagService.mod(reqVO);
         return CommonResult.success(true);
@@ -48,7 +48,7 @@ public class ProductTagController {
 
     @PostMapping("/del")
     @Operation(summary = "删除商品标签")
-    @PreAuthorize("@ss.hasPermission('product:tag:del')")
+    //@PreAuthorize("@ss.hasPermission('product:tag:del')")
     public CommonResult<Boolean> del(@Valid @RequestBody ProductTagReqVO reqVO) {
         productTagService.del(reqVO);
         return CommonResult.success(true);
@@ -56,7 +56,7 @@ public class ProductTagController {
 
     @PostMapping("/list")
     @Operation(summary = "商品标签列表")
-    @PreAuthorize("@ss.hasPermission('product:tag:list')")
+    //@PreAuthorize("@ss.hasPermission('product:tag:list')")
     public CommonResult<PageResult<ProductTag>> list(@Valid @RequestBody ProductTagReqVO reqVO) {
         return CommonResult.success(productTagService.list(reqVO));
     }
@@ -64,7 +64,7 @@ public class ProductTagController {
 
     @PostMapping("/status-change")
     @Operation(summary = "启用/禁用商品标签")
-    @PreAuthorize("@ss.hasPermission('product:tag:status-change')")
+    //@PreAuthorize("@ss.hasPermission('product:tag:status-change')")
     public CommonResult<Boolean> statusChange(@Valid @RequestBody ProductTagReqVO reqVO) {
         productTagService.statusChange(reqVO);
         return CommonResult.success(true);

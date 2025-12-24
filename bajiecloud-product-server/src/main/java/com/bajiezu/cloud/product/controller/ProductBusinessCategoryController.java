@@ -29,7 +29,7 @@ public class ProductBusinessCategoryController {
 
     @PostMapping("/list")
     @Operation(summary = "经营类目列表")
-    @PreAuthorize("@ss.hasPermission('product:business-category:list')")
+    //@PreAuthorize("@ss.hasPermission('product:business-category:list')")
     public CommonResult<PageResult<ProductBusinessCategory>> list() {
         return CommonResult.success(productBusinessCategoryService.list());
     }

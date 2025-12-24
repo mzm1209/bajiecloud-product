@@ -32,7 +32,7 @@ public class ProductPropertyController {
 
     @PostMapping("/add")
     @Operation(summary = "新增商品属性")
-    @PreAuthorize("@ss.hasPermission('product:property:add')")
+    //@PreAuthorize("@ss.hasPermission('product:property:add')")
     public CommonResult<Boolean> addProperty(@Valid @RequestBody ProductPropertyReqVO reqVO) {
         productPropertyService.add(reqVO);
         return CommonResult.success(true);
@@ -40,7 +40,7 @@ public class ProductPropertyController {
 
     @PostMapping("/mod")
     @Operation(summary = "编辑商品属性")
-    @PreAuthorize("@ss.hasPermission('product:property:mod')")
+    //@PreAuthorize("@ss.hasPermission('product:property:mod')")
     public CommonResult<Boolean> modProperty(@Valid @RequestBody ProductPropertyReqVO reqVO) {
         productPropertyService.mod(reqVO);
         return CommonResult.success(true);
@@ -48,7 +48,7 @@ public class ProductPropertyController {
 
     @PostMapping("/del")
     @Operation(summary = "删除商品属性")
-    @PreAuthorize("@ss.hasPermission('product:property:del')")
+    //@PreAuthorize("@ss.hasPermission('product:property:del')")
     public CommonResult<Boolean> delProperty(@Valid @RequestBody ProductPropertyReqVO reqVO) {
         productPropertyService.del(reqVO);
         return CommonResult.success(true);
@@ -56,7 +56,7 @@ public class ProductPropertyController {
 
     @PostMapping("/list")
     @Operation(summary = "商品属性列表")
-    @PreAuthorize("@ss.hasPermission('product:property:list')")
+    //@PreAuthorize("@ss.hasPermission('product:property:list')")
     public CommonResult<PageResult<ProductProperty>> listProperty(@Valid @RequestBody ProductPropertyReqVO reqVO) {
         return CommonResult.success(productPropertyService.list(reqVO));
     }

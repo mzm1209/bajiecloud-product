@@ -35,7 +35,7 @@ public class ProductMarketingCategoryController {
 
     @PostMapping("/add")
     @Operation(summary = "新增营销类目")
-    @PreAuthorize("@ss.hasPermission('product:marketing-category:add')")
+    //@PreAuthorize("@ss.hasPermission('product:marketing-category:add')")
     public CommonResult<Boolean> add(@Valid @RequestBody PMCAddReqVO reqVO) {
         productMarketingCategoryService.add(reqVO);
         return CommonResult.success(true);
@@ -43,7 +43,7 @@ public class ProductMarketingCategoryController {
 
     @PostMapping("/mod")
     @Operation(summary = "编辑营销类目")
-    @PreAuthorize("@ss.hasPermission('product:marketing-category:mod')")
+    //@PreAuthorize("@ss.hasPermission('product:marketing-category:mod')")
     public CommonResult<Boolean> mod(@Valid @RequestBody PMCModReqVO reqVO) {
         productMarketingCategoryService.mod(reqVO);
         return CommonResult.success(true);
@@ -51,7 +51,7 @@ public class ProductMarketingCategoryController {
 
     @PostMapping("/del")
     @Operation(summary = "删除营销类目")
-    @PreAuthorize("@ss.hasPermission('product:marketing-category:del')")
+    //@PreAuthorize("@ss.hasPermission('product:marketing-category:del')")
     public CommonResult<Boolean> del(@Valid @RequestBody PMCDelReqVO reqVO) {
         productMarketingCategoryService.del(reqVO);
         return CommonResult.success(true);
@@ -59,14 +59,14 @@ public class ProductMarketingCategoryController {
 
     @PostMapping("/list")
     @Operation(summary = "营销类目列表")
-    @PreAuthorize("@ss.hasPermission('product:marketing-category:list')")
+    //@PreAuthorize("@ss.hasPermission('product:marketing-category:list')")
     public CommonResult<PageResult<ProductMarketingCategoryVO>> list(@Valid @RequestBody ProductMarketingCategoryVO reqVO) {
         return CommonResult.success(productMarketingCategoryService.list(reqVO));
     }
 
     @PostMapping("/status-change")
     @Operation(summary = "启用/禁用营销类目")
-    @PreAuthorize("@ss.hasPermission('product:marketing-category:status-change')")
+    //@PreAuthorize("@ss.hasPermission('product:marketing-category:status-change')")
     public CommonResult<Boolean> statusChange(@Valid @RequestBody PMCStatusChangeVO reqVO) {
         productMarketingCategoryService.statusChange(reqVO);
         return CommonResult.success(true);
