@@ -1,6 +1,6 @@
 package com.bajiezu.cloud.product.service.impl;
 
-import com.baijiazu.cloud.product.enums.ProductBrandStatusEnum;
+import com.bajiezu.cloud.common.constants.CommonStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
@@ -17,7 +17,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Date;
 import java.util.List;
 
-import static com.baijiazu.cloud.product.enums.ErrorCodeConstants.PRODUCT_BRAND_NOT_EXIST;
+import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PRODUCT_BRAND_NOT_EXIST;
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
 
 
@@ -43,7 +43,7 @@ public class ProductBrandServiceImpl implements ProductBrandService {
         brand.setName(reqVO.getBrandName());
         brand.setSort(reqVO.getSort());
         brand.setRemark(reqVO.getRemark());
-        brand.setStatus(ProductBrandStatusEnum.ENABLE.getStatus());
+        brand.setStatus(CommonStatusEnum.ENABLE.getStatus());
         brand.setPartnerId(user.getPartnerId());
         brand.setCreateBy(user.getId());
         brand.setUpdateBy(user.getId());

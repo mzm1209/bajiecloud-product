@@ -18,11 +18,10 @@ import org.springframework.util.CollectionUtils;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
-import static com.baijiazu.cloud.product.enums.ErrorCodeConstants.PRODUCT_MARKETING_CATEGORY_NOT_EXIST;
+import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PRODUCT_MARKETING_CATEGORY_NOT_EXIST;
 
 @Slf4j
 @Service

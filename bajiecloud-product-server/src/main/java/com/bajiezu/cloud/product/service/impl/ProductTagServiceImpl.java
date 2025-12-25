@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
-import static com.baijiazu.cloud.product.enums.ErrorCodeConstants.PRODUCT_TAG_NOT_EXIST;
+import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PRODUCT_TAG_NOT_EXIST;
 /**
  * 商品标签服务实现类
  */
