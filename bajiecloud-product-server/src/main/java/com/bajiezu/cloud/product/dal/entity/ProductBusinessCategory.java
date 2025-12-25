@@ -27,8 +27,16 @@ public class ProductBusinessCategory extends BaseDO {
     @TableField("parent_id")
     private Long parentId;
 
-    /** 合作商ID */
-    @TableField("partner_id")
-    private Long partnerId;
+    /**
+     * 经营类目层级 1-一级 依次类推
+     */
+    private Integer level;
+
+    /**
+     * 完整路径 1,2,3
+     */
+    private String path;
+
+    private Integer sort;
 
 }

@@ -27,13 +27,6 @@ public class PBAddReqVO {
     private Integer sort;
 
     @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED, example = "xxx")
-    @NotBlank(message = "备注不能为空")
     @Size(max = 100, message = "品牌名称长度不能超过 100 个字符")
     private String remark;
-
-    public void validateParam() {
-        Preconditions.checkArgument(StringUtils.isNotEmpty(brandName), "品牌名称不能为空");
-        Preconditions.checkArgument(sort != null, "排序不能为空");
-        Preconditions.checkArgument(StringUtils.isNotEmpty(remark), "备注不能为空");
-    }
 }

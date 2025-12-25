@@ -11,6 +11,7 @@ import com.bajiezu.cloud.product.dal.mapper.ProductBrandMapper;
 import com.bajiezu.cloud.product.service.ProductBrandService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -32,7 +33,6 @@ public class ProductBrandServiceImpl implements ProductBrandService {
     @Override
     public void add(PBAddReqVO reqVO) {
         log.info("add dto: {}", reqVO);
-        reqVO.validateParam();
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         ProductBrand brand = buildBrand(reqVO, loginUser);
         productBrandMapper.insert(brand);
@@ -49,14 +49,13 @@ public class ProductBrandServiceImpl implements ProductBrandService {
         brand.setUpdateBy(user.getId());
         brand.setCreateTime(new Date());
         brand.setUpdateTime(new Date());
-        brand.setIsDeleted(0);
+        brand.setIsDeleted(NumberUtils.INTEGER_ZERO);
         return brand;
     }
 
     @Override
     public void mod(PBModReqVO reqVO) {
         log.info("mod dto: {}", reqVO);
-        reqVO.validateParam();
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
 
         ProductBrand brand = productBrandMapper.selectById(reqVO.getId());
@@ -115,9 +114,7 @@ public class ProductBrandServiceImpl implements ProductBrandService {
     @Override
     public void statusChange(PBStatusChangeVO reqVO) {
         log.info("statusChange dto: {}", reqVO);
-        reqVO.validateParam();
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
-
         ProductBrand brand = productBrandMapper.selectById(reqVO.getId());
         if (brand == null) {
             throw exception(PRODUCT_BRAND_NOT_EXIST);

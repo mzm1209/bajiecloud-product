@@ -1,5 +1,7 @@
 package com.bajiezu.cloud.product.controller.vo.request;
 
+import com.bajiezu.cloud.common.constants.CommonStatusEnum;
+import com.bajiezu.cloud.common.web.validation.InEnum;
 import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -22,11 +24,6 @@ public class PBStatusChangeVO {
 
     @Schema(description = "status 状态 0: 停用 1: 启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotBlank(message = "status不能为空")
+    @InEnum(value = CommonStatusEnum.class, message = "修改状态必须是 {value}")
     private Integer status;
-
-    public void validateParam() {
-        Preconditions.checkArgument(id != null, "id不能为空");
-        Preconditions.checkArgument(status != null, "status 状态不能为空");
-        Preconditions.checkArgument(status == 0 || status == 1, "status 状态值不对");
-    }
 }
