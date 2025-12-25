@@ -32,16 +32,6 @@ public class ProductBrandController {
     @Resource
     private ProductBrandService productBrandService;
 
-    @Resource
-    private BusinessPartnerApi adminUserService;
-
-    @PostMapping("/get")
-    public CommonResult<List<PartnerSimpleInfo>> test() {
-        CommonResult<List<PartnerSimpleInfo>> list = adminUserService.getPartnerList();
-        list.getData();
-        return list;
-    }
-
     @PostMapping("/add")
     @Operation(summary = "新增")
     //@PreAuthorize("@ss.hasPermission('product:brand:add')")
