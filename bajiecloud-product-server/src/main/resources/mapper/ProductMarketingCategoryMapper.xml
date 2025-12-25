@@ -18,19 +18,6 @@
         <result column="is_deleted" property="isDeleted"/>
     </resultMap>
 
-    <select id="queryList" resultMap="BaseResultMap">
-        SELECT * FROM product_marketing_category
-        WHERE is_deleted = 0
-        <if test="name != null and name != ''">
-            AND `name` LIKE CONCAT('%', #{name}, '%')
-        </if>
-        <if test="status != null">
-            AND `status` = #{status}
-        </if>
-        ORDER BY create_time DESC
-        LIMIT #{offset}, #{limit}
-    </select>
-
     <select id="queryCount" resultType="java.lang.Long">
         select count(*) from product_marketing_category where is_deleted = 0
         <if test="name != null and name != ''">
@@ -40,5 +27,68 @@
 
     <select id="selectByStatus" resultMap="BaseResultMap">
         select * from product_marketing_category where status = #{status} and is_deleted = 0
+    </select>
+
+    <select id="queryByParentIdAndName" resultMap="BaseResultMap">
+        select * from product_marketing_category where parent_id = #{parentId} and name = #{name} and is_deleted = 0
+    </select>
+
+    <update id="logicDelById">
+        update product_marketing_category set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}  where id = #{id}
+    </update>
+
+    <update id="logicDelByPathLike">
+        update product_marketing_category set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}  where path like concat(#{path},'%')
+    </update>
+
+    <update id="updateStatusById">
+        update product_marketing_category set status = #{status}, update_by = #{updateBy}, update_time = #{updateTime}  where id = #{id}
+    </update>
+
+    <update id="updateStatusByPathLike">
+        update product_marketing_category set status = #{status}, update_by = #{updateBy}, update_time = #{updateTime}  where path like concat(#{path},'%')
+    </update>
+
+    <select id="queryByName" resultMap="BaseResultMap">
+        select * from product_marketing_category where name = #{name} and is_deleted = 0
+    </select>
+
+    <select id="selectByLevel" resultMap="BaseResultMap">
+        select * from product_marketing_category where level = #{level} and is_deleted = 0
+        <if test="ids != null and ids.size > 0">
+            and id in
+            <foreach item="item" collection="ids" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+        </if>
+        order by sort
+        <if test="offset != null">
+           limit #{offset},#{limit}
+        </if>
+    </select>
+
+    <select id="selectCountByLevel" resultType="java.lang.Long">
+        select count(*) from product_marketing_category where level = #{level} and is_deleted = 0
+        <if test="ids != null and ids.size > 0">
+            and id in
+            <foreach item="item" collection="ids" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="batchSelectByPathPrefix" resultMap="BaseResultMap">
+        <foreach collection="categoryIds" item="categoryId" separator=" OR " open="(" close=")">
+            path like CONCAT(#{categoryId}, ',%')
+        </foreach>
+        and is_deleted = 0
+    </select>
+
+    <update id="updatePathById">
+        update product_marketing_category set path = #{path} where id = #{id}
+    </update>
+
+    <select id="queryAll" resultMap="BaseResultMap">
+        select * from product_marketing_category where is_deleted = 0
     </select>
 </mapper>

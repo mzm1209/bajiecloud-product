@@ -2,18 +2,14 @@ package com.bajiezu.cloud.product.controller;
 
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
-import com.bajiezu.cloud.product.controller.vo.ProductMarketingCategoryVO;
-import com.bajiezu.cloud.product.controller.vo.request.PMCAddReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.PMCDelReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.PMCModReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.PMCStatusChangeVO;
+import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.controller.vo.response.ProductMcRespVO;
 import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
 import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +25,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/product/mc")
 @Validated
-@Slf4j
 public class ProductMarketingCategoryController {
 
     @Resource
@@ -59,45 +54,24 @@ public class ProductMarketingCategoryController {
         return CommonResult.success(true);
     }
 
-    @PostMapping("/list")
+    @PostMapping("/page")
     @Operation(summary = "营销类目列表")
     //@PreAuthorize("@ss.hasPermission('product:marketing-category:list')")
-    public CommonResult<PageResult<ProductMarketingCategoryVO>> list(@Valid @RequestBody ProductMarketingCategoryVO reqVO) {
-        return CommonResult.success(productMarketingCategoryService.list(reqVO));
+    public CommonResult<PageResult<ProductMcRespVO>> page(@Valid @RequestBody ProductMCListReq reqVO) {
+        return CommonResult.success(productMarketingCategoryService.page(reqVO));
     }
 
-    @PostMapping("/status-change")
+    @PostMapping("/changeStatus")
     @Operation(summary = "启用/禁用营销类目")
     //@PreAuthorize("@ss.hasPermission('product:marketing-category:status-change')")
-    public CommonResult<Boolean> statusChange(@Valid @RequestBody PMCStatusChangeVO reqVO) {
-        productMarketingCategoryService.statusChange(reqVO);
+    public CommonResult<Boolean> changeStatus(@Valid @RequestBody PMCStatusChangeVO reqVO) {
+        productMarketingCategoryService.changeStatus(reqVO);
         return CommonResult.success(true);
     }
 
-//    @GetMapping("/getById/{id}")
-//    @Operation(summary = "根据ID获取营销类目详情")
-//    @PreAuthorize("@ss.hasPermission('product:marketing-category:getById')")
-//    public CommonResult<PMCRespVO> getById(@PathVariable Long id) {
-//        return CommonResult.success(productMarketingCategoryService.getById(id));
-//    }
-
-//    @GetMapping("/children/{parentId}")
-//    @Operation(summary = "根据父ID获取子类目列表")
-//    @PreAuthorize("@ss.hasPermission('product:marketing-category:children')")
-//    public CommonResult<PageResult<PMCRespVO>> getChildrenByParentId(@PathVariable Long parentId) {
-//        return CommonResult.success(productMarketingCategoryService.getChildrenByParentId(parentId));
-//    }
-
-//    @GetMapping("/tree")
-//    @Operation(summary = "获取树形结构的营销类目")
-//    @PreAuthorize("@ss.hasPermission('product:marketing-category:tree')")
-//    public CommonResult<PageResult<PMCRespVO>> getTreeStructure() {
-//        return CommonResult.success(productMarketingCategoryService.getTreeStructure());
-//    }
-
-    @PostMapping("/simpleList")
+    @PostMapping("/tree")
     @Operation(summary = "营销类型简明信息列表")
-    public CommonResult<List<McSimpleInfoRespVO>> statusChange() {
-        return CommonResult.success(productMarketingCategoryService.simpleList());
+    public CommonResult<List<ProductMcRespVO>> tree() {
+        return CommonResult.success(productMarketingCategoryService.tree());
     }
 }

@@ -1,6 +1,5 @@
 package com.bajiezu.cloud.product.controller.vo.request;
 
-import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

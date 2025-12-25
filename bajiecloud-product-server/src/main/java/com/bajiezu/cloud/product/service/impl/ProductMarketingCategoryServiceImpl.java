@@ -1,31 +1,32 @@
 package com.bajiezu.cloud.product.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.bajiezu.cloud.common.constants.CommonStatusEnum;
+import com.bajiezu.cloud.common.web.cloud.utils.object.BeanUtils;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
-import com.bajiezu.cloud.product.controller.vo.ProductMarketingCategoryVO;
 import com.bajiezu.cloud.product.controller.vo.request.*;
-import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.ProductMcRespVO;
 import com.bajiezu.cloud.product.dal.entity.ProductMarketingCategory;
 import com.bajiezu.cloud.product.dal.mapper.ProductMarketingCategoryMapper;
+import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
 import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.jsonwebtoken.lang.Collections;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
-import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PRODUCT_MARKETING_CATEGORY_NOT_EXIST;
+import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.*;
 
 @Slf4j
 @Service
@@ -37,106 +38,188 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
     @Override
     public void add(PMCAddReqVO reqVO) {
         log.info("add dto: {}", reqVO);
-        reqVO.validateParam();
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+
+        if (Objects.isNull(reqVO.getParentId())) {
+            reqVO.setParentId(NumberUtils.LONG_ZERO);
+        } else {
+            validateParent(reqVO.getParentId());
+        }
+
+        // 判断分组名称是否已存在
+        List<ProductMarketingCategory> marketingCategories = productMarketingCategoryMapper.queryByParentIdAndName(
+                reqVO.getParentId(), reqVO.getName());
+        if (CollectionUtil.isNotEmpty(marketingCategories)) {
+            throw exception(PRODUCT_MARKETING_CATEGORY_NAME_EXIST);
+        }
+
         ProductMarketingCategory category = buildCategory(reqVO, loginUser);
         productMarketingCategoryMapper.insert(category);
-    }
 
-    private ProductMarketingCategory buildCategory(PMCAddReqVO reqVO, LoginUser<?> user) {
-        ProductMarketingCategory category = new ProductMarketingCategory();
-        category.setName(reqVO.getName());
-        category.setParentId(reqVO.getParentId());
-        category.setSort(reqVO.getSort());
-        category.setLevel(reqVO.getLevel());
-        category.setStatus(reqVO.getStatus());
-        category.setRemark(reqVO.getRemark());
-        category.setPartnerId(user.getPartnerId());
-        category.setCreateBy(user.getId());
-        category.setUpdateBy(user.getId());
-        category.setCreateTime(new Date());
-        category.setUpdateTime(new Date());
-        category.setIsDeleted(0);
-        return category;
+        // 如果不是根节点 那么需要更新改类目的path
+        if (!Objects.equals(category.getParentId(), NumberUtils.LONG_ZERO)) {
+            String path = reqVO.getPath() + "," + category.getId();
+            productMarketingCategoryMapper.updatePathById(category.getId(), path);
+        }
     }
 
     @Override
     public void mod(PMCModReqVO reqVO) {
         log.info("mod dto: {}", reqVO);
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
 
+        // 判断父分组是否存在
+        validateParent(reqVO.getParentId());
+
+        // 判断编辑的分组是否存在
         ProductMarketingCategory category = productMarketingCategoryMapper.selectById(reqVO.getId());
         if (category == null) {
             throw exception(PRODUCT_MARKETING_CATEGORY_NOT_EXIST);
+        }
+
+        // 判断编辑之后的分组名称是否已存在
+        List<ProductMarketingCategory> marketingCategories = productMarketingCategoryMapper.queryByParentIdAndName(
+                reqVO.getParentId(), reqVO.getName());
+        if (CollectionUtil.isNotEmpty(marketingCategories)) {
+            if (marketingCategories.size() >= 2 || marketingCategories.get(0).getId().longValue() != reqVO.getId()) {
+                throw exception(PRODUCT_MARKETING_CATEGORY_NAME_EXIST);
+            }
         }
         category.setName(reqVO.getName());
         category.setParentId(reqVO.getParentId());
         category.setSort(reqVO.getSort());
+        category.setPath(reqVO.getPath());
         category.setRemark(reqVO.getRemark());
         category.setUpdateBy(loginUser.getId());
         category.setUpdateTime(new Date());
         productMarketingCategoryMapper.updateById(category);
+
+        if (!Objects.equals(category.getParentId(), NumberUtils.LONG_ZERO)) {
+            String path = reqVO.getPath() + "," + category.getId();
+            productMarketingCategoryMapper.updatePathById(category.getId(), path);
+        }
     }
 
     @Override
     public void del(PMCDelReqVO reqVO) {
-        log.info("del dto: {}", reqVO);
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        log.info("del dto: {},operatorId:{}", reqVO, loginUser.getId());
 
-        ProductMarketingCategory category = productMarketingCategoryMapper.selectById(reqVO.getId());
-        if (category == null) {
+        ProductMarketingCategory productMarketingCategory = productMarketingCategoryMapper.selectById(reqVO.getId());
+        if (productMarketingCategory == null) {
             throw exception(PRODUCT_MARKETING_CATEGORY_NOT_EXIST);
         }
-        category.setUpdateBy(loginUser.getId());
-        category.setUpdateTime(new Date());
-        category.setIsDeleted(1);
-        productMarketingCategoryMapper.updateById(category);
+
+        Date date = new Date();
+        // 删除指定的营销类目
+        productMarketingCategoryMapper.logicDelById(reqVO.getId(), loginUser.getId(), date);
+
+        // 逻辑删除子类目
+        String path = productMarketingCategory.getPath();
+        if (StringUtils.isEmpty(path)) {
+            path = String.valueOf(reqVO.getId());
+        } else {
+            path = productMarketingCategory.getPath() + "," + reqVO.getId();
+        }
+        productMarketingCategoryMapper.logicDelByPathLike(path, loginUser.getId(), date);
     }
 
     @Override
-    public void statusChange(PMCStatusChangeVO reqVO) {
-        log.info("statusChange dto: {}", reqVO);
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+    public void changeStatus(PMCStatusChangeVO reqVO) {
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        log.info("statusChange reqVO: {},operatorId:{}", reqVO, loginUser.getId());
 
-        ProductMarketingCategory category = productMarketingCategoryMapper.selectById(reqVO.getId());
-        if (category == null) {
+        // 校验指定的营销类目存不存在
+        ProductMarketingCategory productMarketingCategory = productMarketingCategoryMapper.selectById(reqVO.getId());
+        if (productMarketingCategory == null) {
             throw exception(PRODUCT_MARKETING_CATEGORY_NOT_EXIST);
         }
-        category.setStatus(reqVO.getStatus());
-        category.setUpdateBy(loginUser.getId());
-        category.setUpdateTime(new Date());
-        productMarketingCategoryMapper.updateById(category);
+
+        Date now = new Date();
+        // 更新指定的营销类目的状态
+        productMarketingCategoryMapper.updateStatusById(reqVO.getId(), reqVO.getStatus(), loginUser.getId(), now);
+
+        // 更新指定类目下的所有子类目状态
+        String path = productMarketingCategory.getPath();
+        if (StringUtils.isEmpty(path)) {
+            path = String.valueOf(reqVO.getId());
+        } else {
+            path = productMarketingCategory.getPath() + "," + reqVO.getId();
+        }
+        productMarketingCategoryMapper.updateStatusByPathLike(path, reqVO.getStatus(), loginUser.getId(), now);
     }
 
     @Override
-    public PageResult<ProductMarketingCategoryVO> list(ProductMarketingCategoryVO reqVO) {
+    public PageResult<ProductMcRespVO> page(ProductMCListReq reqVO) {
         log.info("list dto: {}", reqVO);
 
-        QueryWrapper<ProductMarketingCategory> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("is_deleted", 0);
-        if (reqVO.getName() != null && !reqVO.getName().isEmpty()) {
-            queryWrapper.like("name", reqVO.getName());
-        }
-        queryWrapper.orderByAsc("sort");
 
-        List<ProductMarketingCategory> categories = productMarketingCategoryMapper.selectList(queryWrapper);
-        if (CollectionUtils.isEmpty(categories)) {
-            return new PageResult<>();
+        // 根据营销类目名称查询营销类目
+        Set<Long> firstLevelCategoryIds = Sets.newHashSet();
+        if (StringUtils.isNotEmpty(reqVO.getName())) {
+            List<ProductMarketingCategory> marketingCategories = productMarketingCategoryMapper.queryByName(reqVO.getName());
+            if (CollectionUtil.isEmpty(marketingCategories)) {
+                return PageResult.empty();
+            }
+            for (ProductMarketingCategory marketingCategory : marketingCategories) {
+                if (StringUtils.isEmpty(marketingCategory.getPath())) {
+                    firstLevelCategoryIds.add(Long.parseLong(marketingCategory.getPath().split(",")[0]));
+                }
+            }
         }
 
-        // 构建树形结构
-        List<ProductMarketingCategoryVO> treeList = buildTree(categories, 0L);
-        return new PageResult<>(treeList,(long)categories.size());
+        // 查询一级类目
+        int offset = (reqVO.getPageNo() - 1) * reqVO.getPageSize();
+        int level = org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
+        List<ProductMarketingCategory> levelCategories = productMarketingCategoryMapper.selectByLevel(
+                firstLevelCategoryIds, level, offset, reqVO.getPageSize());
+        if (CollectionUtil.isEmpty(levelCategories)) {
+            return PageResult.empty();
+        }
+        List<ProductMcRespVO> firstLevelCategoryRespVOList = levelCategories.stream().map(category -> {
+            ProductMcRespVO respVO = new ProductMcRespVO();
+            BeanUtils.copyProperties(category, respVO);
+            return respVO;
+        }).toList();
+        long count = productMarketingCategoryMapper.selectCountByLevel(firstLevelCategoryIds, level);
+
+        // 获取一级类目的id
+        List<Long> categoryIds = levelCategories.stream().map(ProductMarketingCategory::getId).toList();
+        // 批量查询所有子孙类目 （使用路径前缀匹配）
+        List<ProductMarketingCategory> childrenCategories = productMarketingCategoryMapper.batchSelectByPathPrefix(categoryIds);
+        List<ProductMcRespVO> childrenCategoryRespVOList = childrenCategories.stream().map(category -> {
+            ProductMcRespVO respVO = new ProductMcRespVO();
+            BeanUtils.copyProperties(category, respVO);
+            return respVO;
+        }).toList();
+
+        // 根据一级类目构造成树形结构
+        List<ProductMcRespVO> treeList = buildTree(firstLevelCategoryRespVOList, childrenCategoryRespVOList);
+        return new PageResult<>(treeList, count);
     }
 
     @Override
-    public List<McSimpleInfoRespVO> simpleList() {
-        List<ProductMarketingCategory> marketingCategories = productMarketingCategoryMapper.selectByStatus(CommonStatusEnum.ENABLE.getStatus());
-        if (CollectionUtils.isEmpty(marketingCategories)) {
-            return Collections.emptyList();
+    public List<ProductMcRespVO> tree() {
+        List<ProductMarketingCategory> allCategories = productMarketingCategoryMapper.queryAll();
+        if (CollectionUtil.isEmpty(allCategories)) {
+            return java.util.Collections.emptyList();
         }
-        return buildSimpleList(marketingCategories);
+
+        List<ProductMcRespVO> firstLevelCategoryRespVOList = Lists.newArrayList();
+        List<ProductMcRespVO> childrenCategoryRespVOList = Lists.newArrayList();
+        for (ProductMarketingCategory category : allCategories) {
+            ProductMcRespVO respVO = new ProductMcRespVO();
+            BeanUtils.copyProperties(category, respVO);
+            if (NumberUtils.INTEGER_ONE.equals(category.getLevel())) {
+                firstLevelCategoryRespVOList.add(respVO);
+            } else {
+                childrenCategoryRespVOList.add(respVO);
+            }
+        }
+
+        return buildTree(firstLevelCategoryRespVOList, childrenCategoryRespVOList);
     }
+
 
     @Override
     public List<McSimpleInfoRespVO> getByIds(List<Long> ids) {
@@ -166,26 +249,76 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         return simpleList;
     }
 
+    private void validateParent(Long parentId) {
+        if (parentId == null || parentId == 0) {
+            return;
+        }
+        // 判断父级分组是否存在
+        ProductMarketingCategory parentCategory = productMarketingCategoryMapper.selectById(parentId);
+        if (Objects.isNull(parentCategory)) {
+            throw exception(PRODUCT_MARKETING_CATEGORY_NOT_EXIST);
+        }
+        if (CommonStatusEnum.DISABLE.getStatus().equals(parentCategory.getStatus())) {
+            throw exception(PRODUCT_MARKETING_CATEGORY_DISABLED);
+        }
+    }
+
+    private ProductMarketingCategory buildCategory(PMCAddReqVO reqVO, LoginUser<?> user) {
+        ProductMarketingCategory category = new ProductMarketingCategory();
+        category.setName(reqVO.getName());
+        category.setParentId(reqVO.getParentId());
+        category.setSort(reqVO.getSort());
+        category.setLevel(reqVO.getLevel());
+        category.setStatus(CommonStatusEnum.ENABLE.getStatus());
+        category.setPath(reqVO.getPath());
+        category.setRemark(reqVO.getRemark());
+        category.setPartnerId(user.getPartnerId());
+        category.setCreateBy(user.getId());
+        category.setUpdateBy(user.getId());
+        category.setCreateTime(new Date());
+        category.setUpdateTime(new Date());
+        category.setIsDeleted(0);
+        return category;
+    }
+
+    private List<ProductMcRespVO> buildTree(List<ProductMcRespVO> rootCategories, List<ProductMcRespVO> allCategories) {
+        // 创建一个Map，以父ID为key，子节点列表为value
+        Map<Long, List<ProductMcRespVO>> childrenMap = Maps.newHashMap();
+
+        // 遍历所有分类，构建父ID到子节点列表的映射
+        for (ProductMcRespVO category : allCategories) {
+            Long parentId = category.getParentId();
+            childrenMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(category);
+        }
+
+        // 递归构建树形结构
+        return buildTreeRecursive(rootCategories, childrenMap);
+    }
+
     /**
      * 递归构建树形结构
-     * @param categories 所有分类列表
-     * @param parentId 父级ID
-     * @return 树形结构列表
+     *
+     * @param categories 当前层级的节点
+     * @param childrenMap 子节点映射表
+     * @return 构建后的树形结构
      */
-    private List<ProductMarketingCategoryVO> buildTree(List<ProductMarketingCategory> categories, Long parentId) {
-        return categories.stream()
-                .filter(category ->
-                        (parentId == 0 && (category.getParentId() == null || category.getParentId() == 0)) ||
-                                (parentId != 0 && category.getParentId() != null && category.getParentId().equals(parentId))
-                )
-                .map(category -> {
-                    ProductMarketingCategoryVO vo = new ProductMarketingCategoryVO();
-                    BeanUtil.copyProperties(category, vo);
-                    // 递归查找子节点
-                    vo.setChildren(buildTree(categories, category.getId()));
-                    return vo;
-                })
-                .sorted(Comparator.comparing(ProductMarketingCategoryVO::getSort, Comparator.nullsLast(Integer::compareTo)))
-                .collect(Collectors.toList());
+    private List<ProductMcRespVO> buildTreeRecursive(List<ProductMcRespVO> categories,
+                                                            Map<Long, List<ProductMcRespVO>> childrenMap) {
+        List<ProductMcRespVO> result = new ArrayList<>();
+        for (ProductMcRespVO category : categories) {
+            // 复制当前节点
+            ProductMcRespVO node = new ProductMcRespVO();
+            BeanUtils.copyProperties(category, node);
+            // 获取当前节点的子节点
+            List<ProductMcRespVO> children = childrenMap.get(category.getId());
+            if (CollectionUtil.isNotEmpty(children)) {
+                // 递归构建子节点的树形结构
+                List<ProductMcRespVO> childTree = buildTreeRecursive(children, childrenMap);
+                // 这里需要设置子节点的属性，具体取决于你的实体类设计
+                node.setChildren(childTree);
+            }
+            result.add(node);
+        }
+        return result;
     }
 }

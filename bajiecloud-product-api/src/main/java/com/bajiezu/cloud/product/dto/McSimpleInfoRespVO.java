@@ -18,4 +18,7 @@ public class McSimpleInfoRespVO {
 
     @Schema(description = "上级类目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long parentId;
+
+    @Schema(description = "类目路径 上级目录id通过逗号分隔组成", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private String path;
 }

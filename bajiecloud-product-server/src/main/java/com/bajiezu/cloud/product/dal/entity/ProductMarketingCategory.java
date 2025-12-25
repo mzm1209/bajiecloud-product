@@ -43,7 +43,7 @@ public class ProductMarketingCategory extends BaseDO {
     @TableField("remark")
     private String remark;
 
-    /** 合作商ID */
-    @TableField("partner_id")
-    private Long partnerId;
+    /** 营销类目完整路径 */
+    @TableField("path")
+    private String path;
 }
