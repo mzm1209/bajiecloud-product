@@ -37,4 +37,8 @@
             and `name` like concat('%',#{name},'%')
         </if>
     </select>
+
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        select * from product_marketing_category where status = #{status} and is_deleted = 0
+    </select>
 </mapper>

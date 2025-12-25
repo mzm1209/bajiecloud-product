@@ -2,7 +2,7 @@ package com.bajiezu.cloud.product.service;
 
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.ProductMarketingCategoryVO;
-import com.bajiezu.cloud.product.dal.entity.ProductMarketingCategory;
+import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 
 import java.util.List;
@@ -32,5 +32,10 @@ public interface ProductMarketingCategoryService {
 
     PageResult<ProductMarketingCategoryVO> list(ProductMarketingCategoryVO reqVO);
 
+    /**
+     * 营销类目简明信息
+     */
+    List<McSimpleInfoRespVO> simpleList();
 
+    List<McSimpleInfoRespVO> getByIds(List<Long> ids);
 }

@@ -7,25 +7,27 @@ import com.bajiezu.cloud.product.controller.vo.request.PMCAddReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.PMCDelReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.PMCModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.PMCStatusChangeVO;
+import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
 import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * 商品营销类目管理控制器
  */
 @Tag(name = "管理后台 - 营销类目管理")
 @RestController
-@RequestMapping("/product/marketing-category")
+@RequestMapping("/product/mc")
 @Validated
 @Slf4j
 public class ProductMarketingCategoryController {
@@ -92,4 +94,10 @@ public class ProductMarketingCategoryController {
 //    public CommonResult<PageResult<PMCRespVO>> getTreeStructure() {
 //        return CommonResult.success(productMarketingCategoryService.getTreeStructure());
 //    }
+
+    @PostMapping("/simpleList")
+    @Operation(summary = "营销类型简明信息列表")
+    public CommonResult<List<McSimpleInfoRespVO>> statusChange() {
+        return CommonResult.success(productMarketingCategoryService.simpleList());
+    }
 }

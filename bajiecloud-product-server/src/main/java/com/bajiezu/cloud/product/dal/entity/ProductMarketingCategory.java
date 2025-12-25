@@ -46,7 +46,4 @@ public class ProductMarketingCategory extends BaseDO {
     /** 合作商ID */
     @TableField("partner_id")
     private Long partnerId;
-
-    // 注意：BaseDO中已经包含了createBy, updateBy, createTime, updateTime, isDeleted字段
-    // 因此不需要在子类中重复定义这些字段
 }

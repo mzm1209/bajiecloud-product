@@ -3,6 +3,7 @@ package com.bajiezu.cloud.product.controller.vo.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+@Schema(description = "品牌信息")
 @Data
 public class PBRespVO {
 

@@ -1,17 +1,21 @@
 package com.bajiezu.cloud.product.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.bajiezu.cloud.common.constants.CommonStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.ProductMarketingCategoryVO;
 import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
 import com.bajiezu.cloud.product.dal.entity.ProductMarketingCategory;
 import com.bajiezu.cloud.product.dal.mapper.ProductMarketingCategoryMapper;
 import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
+import io.jsonwebtoken.lang.Collections;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -27,19 +31,19 @@ import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PRODUCT_MARKETI
 @Service
 public class ProductMarketingCategoryServiceImpl implements ProductMarketingCategoryService {
 
-    @Autowired
+    @Resource
     private ProductMarketingCategoryMapper productMarketingCategoryMapper;
 
     @Override
     public void add(PMCAddReqVO reqVO) {
         log.info("add dto: {}", reqVO);
         reqVO.validateParam();
-        LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         ProductMarketingCategory category = buildCategory(reqVO, loginUser);
         productMarketingCategoryMapper.insert(category);
     }
 
-    private ProductMarketingCategory buildCategory(PMCAddReqVO reqVO, LoginUser user) {
+    private ProductMarketingCategory buildCategory(PMCAddReqVO reqVO, LoginUser<?> user) {
         ProductMarketingCategory category = new ProductMarketingCategory();
         category.setName(reqVO.getName());
         category.setParentId(reqVO.getParentId());
@@ -123,6 +127,43 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         // 构建树形结构
         List<ProductMarketingCategoryVO> treeList = buildTree(categories, 0L);
         return new PageResult<>(treeList,(long)categories.size());
+    }
+
+    @Override
+    public List<McSimpleInfoRespVO> simpleList() {
+        List<ProductMarketingCategory> marketingCategories = productMarketingCategoryMapper.selectByStatus(CommonStatusEnum.ENABLE.getStatus());
+        if (CollectionUtils.isEmpty(marketingCategories)) {
+            return Collections.emptyList();
+        }
+        return buildSimpleList(marketingCategories);
+    }
+
+    @Override
+    public List<McSimpleInfoRespVO> getByIds(List<Long> ids) {
+        log.info("mc getByIds ids: {}", ids);
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        List<ProductMarketingCategory> marketingCategories = productMarketingCategoryMapper.selectByIds(ids);
+        return buildSimpleList(marketingCategories);
+    }
+
+    private List<McSimpleInfoRespVO> buildSimpleList(List<ProductMarketingCategory> marketingCategories) {
+        if (CollectionUtils.isEmpty(marketingCategories)) {
+            return Collections.emptyList();
+        }
+        List<McSimpleInfoRespVO> simpleList = Lists.newArrayList();
+        for (ProductMarketingCategory marketingCategory : marketingCategories) {
+            McSimpleInfoRespVO vo = new McSimpleInfoRespVO();
+            simpleList.add(vo);
+
+            vo.setId(marketingCategory.getId());
+            vo.setName(marketingCategory.getName());
+            vo.setLevel(marketingCategory.getLevel());
+            vo.setParentId(marketingCategory.getParentId());
+        }
+
+        return simpleList;
     }
 
     /**

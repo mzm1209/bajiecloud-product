@@ -10,10 +10,12 @@ import java.util.List;
 
 @Mapper
 public interface ProductMarketingCategoryMapper extends BaseMapper<ProductMarketingCategory> {
-    // 继承BaseMapper已包含基本的CRUD方法
-    // 可根据需要添加自定义查询方法
-    List<ProductMarketingCategory> queryList(@Param("name") String name, @Param("status") Integer status,@Param("offset") Integer offset, @Param("limit") Integer limit);
+
+    List<ProductMarketingCategory> queryList(@Param("name") String name, @Param("status") Integer status,
+                                             @Param("offset") Integer offset, @Param("limit") Integer limit);
 
     Long queryCount(@Param("name") String name);
+
+    List<ProductMarketingCategory> selectByStatus(@Param("status") Integer status);
 
 }
