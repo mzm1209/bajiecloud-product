@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -22,9 +23,9 @@ public interface ProductPropertyMapper extends BaseMapper<ProductProperty> {
      */
     Long queryCount(@Param("name") String name);
 
-    /**
-     * 查询属性列表（包含属性值）
-     */
-    List<ProductProperty> selectListWithValues(Long partnerId);
+    ProductProperty selectByName(@Param("name") String name);
 
+    void logicDelById(@Param("id") Long id, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
+
+    List<ProductProperty> queryAll();
 }

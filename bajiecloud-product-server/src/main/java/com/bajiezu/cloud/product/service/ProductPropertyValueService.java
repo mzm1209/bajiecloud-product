@@ -1,7 +1,5 @@
 package com.bajiezu.cloud.product.service;
 
-import com.bajiezu.cloud.common.web.pojo.PageResult;
-import com.bajiezu.cloud.product.controller.vo.request.ProductPropertyReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ProductPropertyValueReqVO;
 import com.bajiezu.cloud.product.dal.entity.ProductPropertyValue;
 

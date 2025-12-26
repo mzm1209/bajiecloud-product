@@ -17,33 +17,32 @@
     </resultMap>
 
     <select id="queryList" resultMap="BaseResultMap">
-        SELECT
-        pp.*,
-        sys_user.user_name as create_by_name
-        FROM product_property as pp
-        LEFT JOIN sys_user on pp.create_by = sys_user.id
-        WHERE pp.is_deleted = 0
+        select * from product_property
+        where is_deleted = 0
         <if test="name != null and name != ''">
-            AND pp.name LIKE CONCAT('%', #{name}, '%')
+            and name like concat('%', #{name}, '%')
         </if>
-        ORDER BY pp.sort ASC, pp.create_time DESC
-        LIMIT #{offset}, #{limit}
+        order by sort
+        limit #{offset}, #{limit}
     </select>
 
     <select id="queryCount" resultType="java.lang.Long">
-        SELECT COUNT(*) FROM product_property
-        WHERE is_deleted = 0
+        select count(*) from product_property
+        where is_deleted = 0
         <if test="name != null and name != ''">
-            AND name LIKE CONCAT('%', #{name}, '%')
+            and name like concat('%', #{name}, '%')
         </if>
     </select>
 
-    <select id="selectListWithValues" resultType="com.bajiezu.cloud.product.dal.entity.ProductProperty">
-        SELECT * FROM product_property
-                 left join product_property_value on product_property.id = product_property_value.property_id
-        WHERE product_property.is_deleted = 0
-        <if test="name != null and name != ''">
-            AND name LIKE CONCAT('%', #{partnerId}, '%')
-        </if>
+    <select id="selectByName" resultMap="BaseResultMap">
+        select * from product_property where name = #{name} and is_deleted = 0
+    </select>
+
+    <update id="logicDelById">
+        update product_property set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}  where id = #{id}
+    </update>
+
+    <select id="queryAll" resultMap="BaseResultMap">
+        select id, name from product_property where is_deleted = 0 order by sort
     </select>
 </mapper>

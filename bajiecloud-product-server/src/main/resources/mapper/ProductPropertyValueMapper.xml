@@ -20,4 +20,49 @@
           AND property_id = #{propertyId}
         ORDER BY create_time DESC
     </select>
+
+    <select id="selectValuesByPropertyId" resultMap="BaseResultMap">
+        select property_value from product_property_value
+        where is_deleted = 0
+          and property_id = #{propertyId}
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO product_property_value (property_id, property_value, partner_id, create_by,
+                                            update_by, create_time, update_time, is_deleted) VALUES
+        <foreach collection="propertyValues" item="item" separator=",">
+            (#{item.propertyId}, #{item.propertyValue}, #{item.partnerId}, #{item.createBy}, #{item.updateBy},
+             #{item.createTime}, #{item.updateTime}, #{item.isDeleted})
+        </foreach>
+    </insert>
+
+    <update id="logicDelByPropertyIdAndValues">
+        update product_property_value
+        set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}
+        where property_id = #{propertyId}
+          and property_value in
+        <foreach collection="propertyValues" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="logicDelByPropertyId">
+        update product_property_value
+        set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}
+        where property_id = #{propertyId}
+    </update>
+
+    <select id="selectListByPropertyIds" resultMap="BaseResultMap">
+        select * from product_property_value
+        where is_deleted = 0
+          and property_id in
+        <foreach item="item" collection="propertyIds" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryAll" resultMap="BaseResultMap">
+        select id, property_id, property_value from product_property_value
+        where is_deleted = 0
+    </select>
 </mapper>
