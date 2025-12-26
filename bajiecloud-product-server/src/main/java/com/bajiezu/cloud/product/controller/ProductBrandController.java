@@ -26,7 +26,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/product/brand")
 @Validated
-@Slf4j
 public class ProductBrandController {
 
     @Resource

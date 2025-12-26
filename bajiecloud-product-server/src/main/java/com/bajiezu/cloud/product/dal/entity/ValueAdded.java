@@ -45,12 +45,12 @@ public class ValueAdded extends BaseDO {
     /**
      * 续租售价
      */
-    private Integer renewalPrice;
+    private Long renewalPrice;
     
     /**
      * 划线价
      */
-    private Integer strikethroughPrice;
+    private Long strikethroughPrice;
     
     /**
      * 服务概要

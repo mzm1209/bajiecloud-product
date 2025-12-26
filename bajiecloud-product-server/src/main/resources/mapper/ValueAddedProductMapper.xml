@@ -15,5 +15,15 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
-
+    <insert id="batchInsert">
+        insert into value_added_product (value_added_id, marketing_product_sku_id, partner_id, create_by, update_by,
+                                         create_time, update_time, is_deleted)
+        values
+        <foreach collection="valueAddedProducts" item="item" separator=",">
+            (
+             #{item.valueAddedId}, #{item.marketingProductSkuId}, #{item.partnerId}, #{item.createBy}, #{item.updateBy},
+             #{item.createTime}, #{item.updateTime}, #{item.isDeleted}
+            )
+        </foreach>
+    </insert>
 </mapper>
