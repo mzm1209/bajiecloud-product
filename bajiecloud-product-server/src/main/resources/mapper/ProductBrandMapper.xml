@@ -32,4 +32,8 @@
             and `name` like concat('%',#{name},'%')
         </if>
     </select>
+
+    <select id="querySimpleList" resultMap="BaseResultMap">
+        select id, name from product_brand where is_deleted = 0 and status = 1
+    </select>
 </mapper>

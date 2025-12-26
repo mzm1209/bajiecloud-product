@@ -29,7 +29,7 @@ public class ProductTag extends BaseDO {
 
     /** 展示页面 1:SKU页 2:商品详情页 */
     @TableField("show_page")
-    private Integer showPage;
+    private String showPage;
 
     /** 状态 0:已停用 1:使用中 */
     @TableField("status")
@@ -43,10 +43,7 @@ public class ProductTag extends BaseDO {
     @TableField("is_highlight")
     private Integer isHighlight;
 
-    /** 合作商ID */
-    @TableField("partner_id")
-    private Long partnerId;
-
-    // 注意：BaseDO中已经包含了createBy, updateBy, createTime, updateTime, isDeleted字段
-    // 因此不需要在子类中重复定义这些字段
+    /** 备注 */
+    @TableField("remark")
+    private String remark;
 }

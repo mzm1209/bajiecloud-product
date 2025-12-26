@@ -21,4 +21,6 @@ public interface ProductTagMapper extends BaseMapper<ProductTag> {
      * 查询标签总数（支持条件查询）
      */
     Long queryCount(@Param("name") String name);
+
+    List<ProductTag> querySimpleList(@Param("showPage") Integer showPage);
 }

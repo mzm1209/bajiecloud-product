@@ -70,4 +70,10 @@ public class ProductBrandController {
     public CommonResult<PageResult<PBRespVO>> list(@Valid @RequestBody PBListReqVO reqVO) {
         return CommonResult.success(productBrandService.list(reqVO));
     }
+
+    @PostMapping("/simpleList")
+    @Operation(summary = "品牌简明信息列表")
+    public CommonResult<List<PBRespVO>> simpleList() {
+        return CommonResult.success(productBrandService.simpleList());
+    }
 }

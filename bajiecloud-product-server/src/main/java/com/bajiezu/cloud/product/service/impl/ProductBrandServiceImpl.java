@@ -124,4 +124,15 @@ public class ProductBrandServiceImpl implements ProductBrandService {
         brand.setUpdateTime(new Date());
         productBrandMapper.updateById(brand);
     }
+
+    @Override
+    public List<PBRespVO> simpleList() {
+        List<ProductBrand> brandList = productBrandMapper.querySimpleList();
+        return brandList.stream().map(item -> {
+            PBRespVO vo = new PBRespVO();
+            vo.setId(item.getId());
+            vo.setBrandName(item.getName());
+            return vo;
+        }).toList();
+    }
 }

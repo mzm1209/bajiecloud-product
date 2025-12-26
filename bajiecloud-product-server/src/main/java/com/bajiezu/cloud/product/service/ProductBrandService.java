@@ -4,6 +4,8 @@ import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 
+import java.util.List;
+
 public interface ProductBrandService {
 
     void add(PBAddReqVO reqVO);
@@ -15,4 +17,6 @@ public interface ProductBrandService {
     PageResult<PBRespVO> list(PBListReqVO reqVO);
 
     void statusChange(PBStatusChangeVO reqVO);
+
+    List<PBRespVO> simpleList();
 }
