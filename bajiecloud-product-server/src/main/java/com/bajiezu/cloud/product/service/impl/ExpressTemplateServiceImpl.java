@@ -8,6 +8,7 @@ import com.bajiezu.cloud.product.controller.vo.request.StatusChangeReqVo;
 import com.bajiezu.cloud.product.controller.vo.response.ExpressTemplateRespVO;
 import com.bajiezu.cloud.product.dal.entity.ExpressTemplateShippingFrom;
 import com.bajiezu.cloud.product.dal.mapper.ExpressTemplateMapper;
+import com.bajiezu.cloud.product.dal.mapper.ExpressTemplateShippingFromMapper;
 import com.bajiezu.cloud.product.dal.mapper.ExpressTemplateShippingToMapper;
 import com.bajiezu.cloud.product.service.ExpressTemplateService;
 import jakarta.annotation.Resource;
@@ -23,7 +24,7 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
     @Resource
     private ExpressTemplateShippingToMapper shippingToMapper;
     @Resource
-    private ExpressTemplateShippingFrom shippingFromMapper;
+    private ExpressTemplateShippingFromMapper shippingFromMapper;
 
     @Override
     public PageResult<ExpressTemplateRespVO> page(ExpressTemplateListReqVO reqVO) {

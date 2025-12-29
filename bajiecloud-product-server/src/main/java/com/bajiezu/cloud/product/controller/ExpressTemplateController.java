@@ -5,7 +5,6 @@ import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.ExpressTemplateRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.StandardProductRespVO;
 import com.bajiezu.cloud.product.service.ExpressTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
