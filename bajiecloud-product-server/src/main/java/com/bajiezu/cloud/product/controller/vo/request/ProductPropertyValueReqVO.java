@@ -1,11 +1,9 @@
 package com.bajiezu.cloud.product.controller.vo.request;
 
-import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 
 @Schema(description = "商品属性值管理请求VO")
 @Data
