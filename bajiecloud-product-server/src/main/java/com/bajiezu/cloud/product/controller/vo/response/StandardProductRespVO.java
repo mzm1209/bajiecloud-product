@@ -35,11 +35,17 @@ public class StandardProductRespVO {
     @Schema(description = "经营类目名称", example = "1")
     private String businessCategoryName;
 
-    @Schema(description = "商品属性项列表")
-    private List<ProductPropertyReqVO> productPropertyReqVOS;
-
     @Schema(description = "商品状态", example = "1")
     private Integer status;
+
+    @Schema(description = "商品成色", example = "1")
+    private List<Integer> productConditions;
+
+    @Schema(description = "监控属性", example = "1")
+    private List<Integer> monitorAttributes;
+
+    @Schema(description = "是否草稿 0:否 1:是", example = "1")
+    private Integer isDraft;
 
     @Schema(description = "创建人名称", example = "1")
     private String creatorName;

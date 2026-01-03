@@ -18,4 +18,12 @@ public interface ErrorCodeConstants {
 
     // ========== 商品标签 模块 1-003-004-000 ==========
     ErrorCode PRODUCT_TAG_NOT_EXIST = new ErrorCode(1_003_004_004, "商品标签不存在");
+
+    // ========== 快递模版 1-003-005-000 ==========
+    ErrorCode EXPRESS_TEMPLATE_NOT_EXIST = new ErrorCode(1_003_005_001, "快递模版不存在");
+    ErrorCode EXPRESS_TEMPLATE_DELETED = new ErrorCode(1_003_005_002, "快递模版已删除");
+
+    // ========== 标准商品 1-003-005-000 ==========
+    ErrorCode STANDARD_PRODUCT_NOT_EXIST = new ErrorCode(1_003_006_001, "标准商品不存在");
+    ErrorCode STANDARD_PRODUCT_DELETED = new ErrorCode(1_003_006_002, "标准商品已删除");
 }

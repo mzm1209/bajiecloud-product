@@ -20,4 +20,7 @@ public class ProductPropertyValueReqVO{
     @NotBlank(message = "属性值不能为空")
     private String propertyValue;
 
+    @Schema(description = "排序", example = "1")
+    private Integer sort;
+
 }

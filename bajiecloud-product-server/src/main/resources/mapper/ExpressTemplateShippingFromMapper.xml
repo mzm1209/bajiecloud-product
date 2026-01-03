@@ -14,4 +14,45 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <insert id="insertBatch">
+        insert into express_template_shipping_from (express_template_id, area_code, partner_id, create_by, update_by,
+                                                    create_time, update_time, is_deleted) values
+        <foreach collection="shippingFroms" item="item" separator=",">
+            (
+             #{item.expressTemplateId}, #{item.areaCode}, #{item.partnerId}, #{item.createBy}, #{item.updateBy},
+             #{item.createTime}, #{item.updateTime}, #{item.isDeleted}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectAreaCodesByTemplateId" resultType="java.lang.String">
+        select area_code from express_template_shipping_from where express_template_id = #{templateId} and is_deleted = 0
+    </select>
+
+    <update id="logicDelByTemplateIdAndAreaCodes">
+        update
+            express_template_shipping_from
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where
+            express_template_id = #{templateId}
+          and
+            area_code in
+        <foreach item="item" collection="areaCodes" separator="," close=")" open="(" index="">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="logicDelByTemplateId">
+        update
+            express_template_shipping_from
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where
+            express_template_id = #{templateId}
+    </update>
 </mapper>

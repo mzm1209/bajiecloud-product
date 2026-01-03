@@ -25,7 +25,7 @@ public class ExpressTemplateRespVO {
     private String remark;
 
     @Schema(description = "发货地区")
-    private Set<String> shippingFroms;
+    private List<AreaCodeAndNameVO> shippingFroms;
 
     @Schema(description = "快递服务 1:普通快递 2:面签 3:当面激活 4:当面激活（可取消）", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer expressServiceType;
@@ -43,7 +43,7 @@ public class ExpressTemplateRespVO {
     private List<AreaCodeAndNameVO> shippingTos;
 
     @Schema(description = "合作商id")
-    private String partnerId;
+    private Long partnerId;
 
     @Schema(description = "合作商名称")
     private String partnerName;

@@ -10,6 +10,8 @@
         <result column="name" property="name" />
         <result column="business_category_id" property="businessCategoryId" />
         <result column="marketing_category_id" property="marketingCategoryId" />
+        <result column="product_condition" property="productCondition" />
+        <result column="monitor_attribute" property="monitorAttribute" />
         <result column="is_draft" property="isDraft" />
         <result column="status" property="status" />
         <result column="partner_id" property="partnerId" />
@@ -20,5 +22,45 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <sql id="listSql">
+        where is_deleted = 0
+        <if test="name != null">
+            and name like concat('%',#{name},'%')
+        </if>
+        <if test="marketingCategoryId != null">
+            and marketing_category_id = #{marketingCategoryId}
+        </if>
+        <if test="brandId != null">
+            and product_brand_id = #{brandId}
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="isDraft != null">
+            and is_draft = #{isDraft}
+        </if>
+        <if test="productCondition != null">
+            and find_in_set(product_condition, #{productCondition})
+        </if>
+        <if test="createTimeBegin != null">
+            and create_time >= #{createTimeBegin}
+        </if>
+        <if test="createTimeEnd != null">
+            and create_time &lt;= #{createTimeEnd}
+        </if>
+    </sql>
 
+    <select id="selectListByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.StandardProductQuery"
+            resultMap="BaseResultMap">
+        select * from standard_product_spu <include refid="listSql"/>
+        order by create_time desc
+        <if test="offset != null">
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+
+    <select id="selectCountByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.StandardProductQuery"
+            resultType="java.lang.Long">
+        select count(1) from standard_product_spu <include refid="listSql"/>
+    </select>
 </mapper>

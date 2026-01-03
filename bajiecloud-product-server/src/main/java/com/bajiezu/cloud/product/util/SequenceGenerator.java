@@ -14,11 +14,35 @@ public class SequenceGenerator {
     private static final String VALUE_ADD_SEQUENCE_KEY = "value_added:sequence:";
     public static final String VALUE_ADD_PARTNER_CODE_FORMAT = "%04d";
 
+    /**
+     *  快递模版
+     */
+    private static final String EXPRESS_TEMPLATE_SEQUENCE_KEY = "express_template:sequence:";
+    public static final String EXPRESS_TEMPLATE_PARTNER_CODE_FORMAT = "%06d";
+
+    /**
+     * 标准商品
+     */
+    private static final String STANDARD_PRODUCT_SEQUENCE_KEY = "standard_product:sequence:";
+    public static final String STANDARD_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+
     @Resource
     private RedissonClient redissonClient;
 
     public String getValueAddedSequence() {
-        RAtomicLong atomicLong = redissonClient.getAtomicLong(VALUE_ADD_SEQUENCE_KEY);
+        return generateSequence(VALUE_ADD_SEQUENCE_KEY, VALUE_ADD_PARTNER_CODE_FORMAT);
+    }
+
+    public String getExpressTemplateSequence() {
+        return generateSequence(EXPRESS_TEMPLATE_SEQUENCE_KEY, EXPRESS_TEMPLATE_PARTNER_CODE_FORMAT);
+    }
+
+    public String getStandardProductSequence() {
+        return generateSequence(STANDARD_PRODUCT_SEQUENCE_KEY, STANDARD_PRODUCT_PARTNER_CODE_FORMAT);
+    }
+
+    private String generateSequence(String sequenceKey, String codeFormat) {
+        RAtomicLong atomicLong = redissonClient.getAtomicLong(sequenceKey);
 
         // 如果是第一次使用，设置初始值为 0
         if (!atomicLong.isExists()) {
@@ -29,6 +53,6 @@ public class SequenceGenerator {
         long nextValue = atomicLong.incrementAndGet();
 
         // 格式化为指定的格式，不足前面补0
-        return String.format(VALUE_ADD_PARTNER_CODE_FORMAT, nextValue);
+        return String.format(codeFormat, nextValue);
     }
 }

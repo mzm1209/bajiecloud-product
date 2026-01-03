@@ -49,4 +49,9 @@ public class ExpressTemplate extends BaseDO {
      * 快递模版描述
      */
     private String remark;
+
+    /**
+     * 状态 1:启用 0:禁用
+     */
+    private Integer status;
 }

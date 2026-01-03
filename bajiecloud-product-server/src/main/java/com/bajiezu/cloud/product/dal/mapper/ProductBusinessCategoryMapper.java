@@ -17,4 +17,6 @@ public interface ProductBusinessCategoryMapper extends BaseMapper<ProductBusines
     List<ProductBusinessCategory> batchSelectByPathPrefix(@Param("categoryIds") List<Long> categoryIds);
 
     List<ProductBusinessCategory> queryAll();
+
+    List<ProductBusinessCategory> selectSelfAndParentsById(@Param("id") Long id);
 }

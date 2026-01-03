@@ -4,6 +4,8 @@ import com.bajiezu.cloud.product.dal.entity.ProductBrand;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -14,4 +16,8 @@ public interface ProductBrandMapper extends BaseMapper<ProductBrand> {
     Long queryCount(@Param("name") String name);
 
     List<ProductBrand> querySimpleList();
+
+    String selectNameById(@Param("id") Long id);
+
+    List<ProductBrand> selectListByIds(@Param("ids") Collection<Long> ids);
 }

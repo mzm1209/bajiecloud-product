@@ -51,7 +51,17 @@ public class StandardProductSpu extends BaseDO {
     private Integer isDraft;
 
     /**
-     * 状态 0:启用 1:禁用
+     * 状态 1:启用 0:禁用： 2:编辑中
      */
     private Integer status;
+
+    /**
+     * 商品成色 0:全新 1:非全新
+     */
+    private String productCondition;
+
+    /**
+     * 监控属性 0:监管 1:非监管
+     */
+    private String monitorAttribute;
 }

@@ -6,6 +6,8 @@ import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.PBRespVO;
 import com.bajiezu.cloud.product.service.ProductBrandService;
 import com.bajiezu.cloud.system.api.partner.BusinessPartnerApi;
+import com.bajiezu.cloud.system.api.user.AdminUserApi;
+import com.bajiezu.cloud.system.dto.AdminUserRespDTO;
 import com.bajiezu.cloud.system.dto.PartnerSimpleInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +32,15 @@ public class ProductBrandController {
 
     @Resource
     private ProductBrandService productBrandService;
+    @Resource
+    private AdminUserApi adminUserApi;
+
+    @PostMapping("/test")
+    public CommonResult<Boolean> test() {
+        CommonResult<AdminUserRespDTO> user = adminUserApi.getUser(268L);
+        return CommonResult.success(true);
+    }
+
 
     @PostMapping("/add")
     @Operation(summary = "新增")

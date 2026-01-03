@@ -15,6 +15,9 @@ public class ProductPropertyReqVO {
     @Schema(description = "属性项名称", example = "颜色")
     private String propertyName;
 
+    @Schema(description = "排序", example = "1")
+    private Integer sort;
+
     @Schema(description = "属性值列表")
     private List<ProductPropertyValueReqVO> propertyValues;
 }

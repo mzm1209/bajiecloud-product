@@ -91,4 +91,16 @@
     <select id="queryAll" resultMap="BaseResultMap">
         select * from product_marketing_category where is_deleted = 0
     </select>
+
+    <select id="selectSelfAndParentsById" resultMap="BaseResultMap">
+        SELECT *
+        FROM product_marketing_category
+        WHERE FIND_IN_SET(id, (
+            SELECT path
+            FROM product_marketing_category
+            WHERE id = #{id}
+        )) > 0
+          AND is_deleted = 0
+        ORDER BY level;
+    </select>
 </mapper>

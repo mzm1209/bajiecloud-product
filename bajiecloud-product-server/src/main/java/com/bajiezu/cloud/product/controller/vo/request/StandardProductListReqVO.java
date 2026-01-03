@@ -1,7 +1,11 @@
 package com.bajiezu.cloud.product.controller.vo.request;
 
 import com.bajiezu.cloud.common.web.pojo.PageParam;
+import com.bajiezu.cloud.product.dal.dto.StandardProductQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -22,12 +26,33 @@ public class StandardProductListReqVO extends PageParam {
     @Schema(description = "品牌ID")
     private Long brandId;
 
-    @Schema(description = "商品属性列表")
-    private List<ProductPropertyReqVO> properties;
+    @Schema(description = "状态 0:禁用 1:启用")
+    private Integer status;
+
+    @Schema(description = "是否草稿 0:否 1:是")
+    private Integer isDraft;
+
+    @Schema(description = "商品成色")
+    private Integer productCondition;
 
     @Schema(description = "创建时间开始")
     private Date createTimeBegin;
 
     @Schema(description = "创建时间结束")
     private Date createTimeEnd;
+
+    public StandardProductQuery convert2StandardProductQuery() {
+        StandardProductQuery standardProductQuery = new StandardProductQuery();
+        standardProductQuery.setName(name);
+        standardProductQuery.setMarketingCategoryId(marketingCategoryId);
+        standardProductQuery.setBrandId(brandId);
+        standardProductQuery.setStatus(status);
+        standardProductQuery.setIsDraft(isDraft);
+        standardProductQuery.setProductCondition(productCondition);
+        standardProductQuery.setCreateTimeBegin(createTimeBegin);
+        standardProductQuery.setCreateTimeEnd(createTimeEnd);
+        standardProductQuery.setOffset((getPageNo() - 1) * getPageSize());
+        standardProductQuery.setPageSize(getPageSize());
+        return standardProductQuery;
+    }
 }

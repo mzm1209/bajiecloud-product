@@ -15,4 +15,52 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <insert id="insertBatch">
+        insert into express_template_shipping_to (express_template_id, area_code, shipping_cost, partner_id, create_by,
+                                                  update_by, create_time, update_time, is_deleted) values
+        <foreach collection="shippingTos" item="item" separator=",">
+            (
+             #{item.expressTemplateId}, #{item.areaCode}, #{item.shippingCost}, #{item.partnerId}, #{item.createBy},
+             #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectByTemplateId" resultMap="BaseResultMap">
+        select * from express_template_shipping_to where express_template_id = #{templateId} and is_deleted = 0
+    </select>
+
+    <update id="logicDelByTemplateIdAndAreaCodes">
+        update express_template_shipping_to set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}
+        where express_template_id = #{templateId} and area_code in
+        <foreach item="item" index="index" collection="areaCodes" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateBatch">
+        <foreach collection="shippingTos" item="item" separator=";">
+            update
+                express_template_shipping_to
+            set
+                shipping_cost = #{item.shippingCost},
+                update_by = #{item.updateBy},
+                update_time = #{item.updateTime}
+            where
+                id = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="logicDelByTemplateId">
+        update express_template_shipping_to set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}
+        where express_template_id = #{templateId}
+    </update>
+
+    <select id="selectListByTemplateIds" resultMap="BaseResultMap">
+        select * from express_template_shipping_to where express_template_id in
+        <foreach item="item" index="index" collection="templateIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_deleted = 0
+    </select>
 </mapper>

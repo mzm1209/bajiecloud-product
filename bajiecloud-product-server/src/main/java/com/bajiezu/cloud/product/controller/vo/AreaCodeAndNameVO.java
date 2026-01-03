@@ -14,5 +14,5 @@ public class AreaCodeAndNameVO {
     private String areaName;
 
     @Schema(description = "地区对应的邮费")
-    private Long shippingCount;
+    private Long shippingCost;
 }

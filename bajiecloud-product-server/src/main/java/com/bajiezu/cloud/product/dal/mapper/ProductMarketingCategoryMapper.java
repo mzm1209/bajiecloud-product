@@ -41,4 +41,6 @@ public interface ProductMarketingCategoryMapper extends BaseMapper<ProductMarket
     void updatePathById(@Param("id") Long id, @Param("path") String path);
 
     List<ProductMarketingCategory> queryAll();
+
+    List<ProductMarketingCategory> selectSelfAndParentsById(@Param("id") Long id);
 }

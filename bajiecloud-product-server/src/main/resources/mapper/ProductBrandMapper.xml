@@ -36,4 +36,15 @@
     <select id="querySimpleList" resultMap="BaseResultMap">
         select id, name from product_brand where is_deleted = 0 and status = 1
     </select>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        select name from product_brand where id = #{id}
+    </select>
+
+    <select id="selectListByIds" resultMap="BaseResultMap">
+        select * from product_brand where id in
+        <foreach item="item" collection="list" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
