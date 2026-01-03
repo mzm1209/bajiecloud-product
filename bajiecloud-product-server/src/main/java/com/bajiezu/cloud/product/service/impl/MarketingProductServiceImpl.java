@@ -5,6 +5,7 @@ import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticResp
 import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
 import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO;
+import com.bajiezu.cloud.product.dal.dto.ShelvesStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.mapper.*;
 import com.bajiezu.cloud.product.enums.ProductTypeEnum;
 import com.bajiezu.cloud.product.service.MarketingProductService;
@@ -69,16 +70,56 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     public StatusStatisticRespVO statusStatistic(MarketingProductListReqVO reqVO) {
         log.info("查询商品状态统计信息,reqVO:{}", reqVO);
 
+        // 获取商品总数
         Integer totalCount = spuMapper.queryCount(reqVO);
 
+        // 获取草稿商品数
         reqVO.setIsDraft(1);
         Integer draftCount = spuMapper.queryCount(reqVO);
 
+        // 获取审核商品数
         reqVO.setIsDraft(null);
         List<ApproveStatusStatisticCountDTO> approveStatusStatisticCountDTOS = spuMapper.approveStatusStatistic(reqVO);
 
+        // 获取上下架商品数
+        List<ShelvesStatisticCountDTO> shelvesStatisticCountDTOS = spuMapper.shelvesStatistic(reqVO);
 
-
-        return null;
+        StatusStatisticRespVO statusStatisticRespVO = new StatusStatisticRespVO();
+        statusStatisticRespVO.setTotalCount(totalCount);
+        statusStatisticRespVO.setDraftCount(draftCount);
+        for (ApproveStatusStatisticCountDTO approveStatusStatisticCountDTO : approveStatusStatisticCountDTOS) {
+            if (approveStatusStatisticCountDTO.getApproveStatus() == null) {
+                continue;
+            }
+            switch (approveStatusStatisticCountDTO.getApproveStatus()) {
+                case 0:
+                    statusStatisticRespVO.setWaitApproveCount(approveStatusStatisticCountDTO.getCount());
+                    break;
+                case 1:
+                    statusStatisticRespVO.setApprovePassCount(approveStatusStatisticCountDTO.getCount());
+                    break;
+                case 2:
+                    statusStatisticRespVO.setApproveRejectCount(approveStatusStatisticCountDTO.getCount());
+            }
+        }
+        for (ShelvesStatisticCountDTO shelvesStatisticCountDTO : shelvesStatisticCountDTOS) {
+            if (shelvesStatisticCountDTO.getShelvesStatus() == null) {
+                continue;
+            }
+            switch (shelvesStatisticCountDTO.getShelvesStatus()) {
+                case 0:
+                    statusStatisticRespVO.setOffShelvesCount(shelvesStatisticCountDTO.getCount());
+                    break;
+                case 1:
+                    statusStatisticRespVO.setOnShelvesCount(shelvesStatisticCountDTO.getCount());
+                    break;
+                case 2:
+                    statusStatisticRespVO.setOffShelvesCount(shelvesStatisticCountDTO.getCount());
+                    break;
+                default:
+                    break;
+            }
+        }
+        return statusStatisticRespVO;
     }
 }

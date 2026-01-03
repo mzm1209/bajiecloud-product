@@ -3,6 +3,7 @@ package com.bajiezu.cloud.product.dal.mapper;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
 import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO;
+import com.bajiezu.cloud.product.dal.dto.ShelvesStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpu;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,4 +22,6 @@ public interface MarketingProductSpuMapper extends BaseMapper<MarketingProductSp
     Integer queryCount(@Param("reqVO") MarketingProductListReqVO reqVO);
 
     List<ApproveStatusStatisticCountDTO> approveStatusStatistic(@Param("reqVO") MarketingProductListReqVO reqVO);
+
+    List<ShelvesStatisticCountDTO> shelvesStatistic(@Param("reqVO") MarketingProductListReqVO reqVO);
 }

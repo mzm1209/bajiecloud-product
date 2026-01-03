@@ -3,6 +3,7 @@ package com.bajiezu.cloud.product.controller.vo.request;
 import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ public class PBAddReqVO {
     private String brandName;
 
     @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotBlank(message = "排序不能为空")
+    @NotNull(message = "排序不能为空")
     private Integer sort;
 
     @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED, example = "xxx")
