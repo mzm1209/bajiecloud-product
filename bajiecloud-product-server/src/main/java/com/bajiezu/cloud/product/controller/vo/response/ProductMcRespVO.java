@@ -13,6 +13,9 @@ public class ProductMcRespVO {
     @Schema(description = "营销类目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long id;
 
+    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private String name;
+
     @Schema(description = "商品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Integer productCount;
 
