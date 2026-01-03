@@ -26,11 +26,13 @@ import com.bajiezu.cloud.product.service.StandardProductService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import com.bajiezu.cloud.system.api.user.AdminUserApi;
 import com.bajiezu.cloud.system.dto.AdminUserRespDTO;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import de.danielbechler.util.Strings;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
@@ -84,8 +86,78 @@ public class StandardProductServiceImpl implements StandardProductService {
         }
         Map<Long, String> userId2NameMap = buildUserId2NameMap(userIds);
         List<ProductBrand> brands = productBrandMapper.selectListByIds(brandIds);
+        Map<Long, ProductBrand> brandId2BrandMap = brands.stream().collect(Collectors.toMap(ProductBrand::getId, brand -> brand));
 
-        return null;
+        List<ProductMarketingCategory> marketingCategories = marketingCategoryMapper.selectListByIds(marketingCategoryIds);
+        Set<Long> allMarketingCategoryIds = Sets.newHashSet();
+        for (ProductMarketingCategory marketingCategory : marketingCategories) {
+            allMarketingCategoryIds.add(marketingCategory.getId());
+            if (StringUtils.isNotBlank(marketingCategory.getPath())) {
+                long[] ids = StrUtil.splitToLong(marketingCategory.getPath(), ',');
+                allMarketingCategoryIds.addAll(Arrays.stream(ids).boxed().toList());
+            }
+        }
+        marketingCategories = marketingCategoryMapper.selectListByIds(allMarketingCategoryIds);
+        Map<Long, ProductMarketingCategory> marketingCategoryId2MarketingCategoryMap = marketingCategories.stream().collect(Collectors.toMap(ProductMarketingCategory::getId, marketingCategory -> marketingCategory));
+
+        List<ProductBusinessCategory> businessCategories = businessCategoryMapper.selectListByIds(businessCategoryIds);
+        Set<Long> allBusinessCategoryIds = Sets.newHashSet();
+        for (ProductBusinessCategory businessCategory : businessCategories) {
+            allBusinessCategoryIds.add(businessCategory.getId());
+            if (StringUtils.isNotBlank(businessCategory.getPath())) {
+                long[] ids = StrUtil.splitToLong(businessCategory.getPath(), ',');
+                allBusinessCategoryIds.addAll(Arrays.stream(ids).boxed().toList());
+            }
+        }
+        businessCategories = businessCategoryMapper.selectListByIds(allBusinessCategoryIds);
+        Map<Long, ProductBusinessCategory> businessCategoryId2BusinessCategoryMap = businessCategories.stream().collect(Collectors.toMap(ProductBusinessCategory::getId, businessCategory -> businessCategory));
+
+        List<StandardProductRespVO> standardProductRespVOS = Lists.newArrayList();
+        for (StandardProductSpu spu : productSpus) {
+            StandardProductRespVO standardProductRespVO = new StandardProductRespVO();
+            standardProductRespVOS.add(standardProductRespVO);
+            standardProductRespVO.setId(spu.getId());
+            standardProductRespVO.setCode(spu.getCode());
+            standardProductRespVO.setName(spu.getName());
+            standardProductRespVO.setBrandId(spu.getProductBrandId());
+            standardProductRespVO.setBrandName(brandId2BrandMap.get(spu.getProductBrandId()).getName());
+            standardProductRespVO.setMarketingCategoryId(spu.getMarketingCategoryId());
+            long marketingCategoryId = spu.getMarketingCategoryId();
+            standardProductRespVO.setMarketingCategoryId(marketingCategoryId);
+            ProductMarketingCategory marketingCategory = marketingCategoryId2MarketingCategoryMap.get(marketingCategoryId);
+            List<String> marketingCategoryNames = Lists.newArrayList();
+            if (StringUtils.isBlank(marketingCategory.getPath())) {
+                marketingCategoryNames.add(marketingCategory.getName());
+            } else {
+                marketingCategoryNames.addAll(StrUtil.split(marketingCategory.getPath(), ',').stream().map(
+                        id -> marketingCategoryId2MarketingCategoryMap.get(Long.parseLong(id)).getName()).toList());
+            }
+            standardProductRespVO.setMarketingCategoryName(String.join(">", marketingCategoryNames));
+
+            long businessCategoryId = spu.getBusinessCategoryId();
+            standardProductRespVO.setBusinessCategoryId(marketingCategoryId);
+            ProductBusinessCategory businessCategory = businessCategoryId2BusinessCategoryMap.get(businessCategoryId);
+            List<String> businessCategoryNames = Lists.newArrayList();
+            if (StringUtils.isBlank(businessCategory.getPath())) {
+                businessCategoryNames.add(businessCategory.getName());
+            } else {
+                businessCategoryNames.addAll(StrUtil.split(businessCategory.getPath(), ',').stream().map(
+                        id -> businessCategoryId2BusinessCategoryMap.get(Long.parseLong(id)).getName()).toList());
+            }
+            standardProductRespVO.setBusinessCategoryName(String.join(">", businessCategoryNames));
+            standardProductRespVO.setStatus(spu.getStatus());
+            standardProductRespVO.setProductConditions(Arrays.stream(StrUtil.splitToInt(spu.getProductCondition(), ','))
+                    .boxed().collect(Collectors.toList()));
+            standardProductRespVO.setMonitorAttributes(Arrays.stream(StrUtil.splitToInt(spu.getMonitorAttribute(), ','))
+                    .boxed().collect(Collectors.toList()));
+            standardProductRespVO.setIsDraft(spu.getIsDraft());
+            standardProductRespVO.setCreatorName(userId2NameMap.get(spu.getCreateBy()));
+            standardProductRespVO.setCreateTime(spu.getCreateTime());
+            standardProductRespVO.setUpdaterName(userId2NameMap.get(spu.getUpdateBy()));
+            standardProductRespVO.setUpdateTime(spu.getUpdateTime());
+        }
+
+        return new PageResult<>(standardProductRespVOS, count);
     }
 
     @Override

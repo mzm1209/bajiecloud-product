@@ -5,6 +5,7 @@ import com.bajiezu.cloud.product.dal.entity.ProductBusinessCategory;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -19,4 +20,6 @@ public interface ProductBusinessCategoryMapper extends BaseMapper<ProductBusines
     List<ProductBusinessCategory> queryAll();
 
     List<ProductBusinessCategory> selectSelfAndParentsById(@Param("id") Long id);
+
+    List<ProductBusinessCategory> selectListByIds(@Param("id") Collection<Long> ids);
 }

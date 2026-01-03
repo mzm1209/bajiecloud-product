@@ -25,9 +25,6 @@
         <if test="name != null and name != ''">
             and name like concat('%', #{name}, '%')
         </if>
-        <if test="status != null">
-            and status = #{status}
-        </if>
         order by sort asc, create_time desc
         limit #{offset}, #{limit}
     </select>
@@ -37,9 +34,6 @@
         WHERE is_deleted = 0
         <if test="name != null and name != ''">
             AND name LIKE CONCAT('%', #{name}, '%')
-        </if>
-        <if test="status != null">
-            and status = #{status}
         </if>
     </select>
 

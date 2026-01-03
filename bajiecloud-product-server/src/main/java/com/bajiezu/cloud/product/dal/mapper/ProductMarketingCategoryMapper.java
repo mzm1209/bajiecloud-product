@@ -43,4 +43,6 @@ public interface ProductMarketingCategoryMapper extends BaseMapper<ProductMarket
     List<ProductMarketingCategory> queryAll();
 
     List<ProductMarketingCategory> selectSelfAndParentsById(@Param("id") Long id);
+
+    List<ProductMarketingCategory> selectListByIds(@Param("id") Collection<Long> ids);
 }

@@ -65,4 +65,10 @@ public class StandardProductController {
         standardProductService.changeStatus(reqVO);
         return CommonResult.success(true);
     }
+
+    @PostMapping("/simpleList")
+    @Operation(summary = "标准商品简明信息-提供给创建营销商品使用")
+    public CommonResult<PageResult<StandardProductRespVO>> simpleList(@Valid @RequestBody StandardProductListReqVO reqVO) {
+        return CommonResult.success(standardProductService.page(reqVO));
+    }
 }

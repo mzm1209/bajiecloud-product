@@ -1,6 +1,5 @@
 package com.bajiezu.cloud.product.controller.vo.response;
 
-import com.bajiezu.cloud.product.controller.vo.request.ProductPropertyReqVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

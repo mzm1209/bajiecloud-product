@@ -51,4 +51,7 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <select id="productTypeStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO">
+        select type, count(1) as count from marketing_product_spu where is_deleted = 0 and is_shelving = 1
+    </select>
 </mapper>
