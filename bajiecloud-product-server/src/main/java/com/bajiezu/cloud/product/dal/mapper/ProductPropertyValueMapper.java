@@ -22,7 +22,7 @@ public interface ProductPropertyValueMapper extends BaseMapper<ProductPropertyVa
 
     Set<String> selectValuesByPropertyId(@Param("propertyId") Long propertyId);
 
-    void logicDelByPropertyIdAndValues(@Param("propertyId") Long propertyId, @Param("values") Set<String> values,
+    void logicDelByPropertyIdAndValues(@Param("propertyId") Long propertyId, @Param("propertyValues") Set<String> values,
                                        @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 
     void logicDelByPropertyId(@Param("propertyId") Long propertyId, @Param("updateBy") Long updateBy,
