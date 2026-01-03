@@ -38,6 +38,4 @@ public class ProductProperty extends BaseDO {
     // 非数据库字段
     @TableField(exist = false)
     private String creatorName;
-
-    private List<ProductPropertyValue> productPropertyValues;
 }

@@ -1,13 +1,16 @@
 package com.bajiezu.cloud.product.controller;
 
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
+import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
 import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -70,7 +73,7 @@ public class MarketingProductController {
 
     @PostMapping("/statusStatistic")
     @Operation(summary = "商品各种状态统计值")
-    public CommonResult<Boolean> statusStatistic() {
-        return CommonResult.success(true);
+    public CommonResult<StatusStatisticRespVO> statusStatistic(@RequestBody MarketingProductListReqVO reqVO) {
+        return CommonResult.success(marketingProductService.statusStatistic(reqVO));
     }
 }

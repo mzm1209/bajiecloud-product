@@ -51,7 +51,30 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <sql id="listSql">
+        where is_deleted = 0 and type = #{reqVO.productType}
+        <if test="reqVO.name != null">
+            and name like concat('%', #{reqVO.name}, '%')
+        </if>
+        <if test="reqVO.marketingCategoryId != null">
+            and marketing_category_id = #{reqVO.marketingCategoryId}
+        </if>
+        <if test="reqVO.productCondition != null">
+            and product_condition = #{reqVO.productCondition}
+        </if>
+        <if test="reqVO.createTimeBegin != null">
+            and create_time >= #{reqVO.createTimeBegin}
+        </if>
+        <if test="reqVO.createTimeEnd != null">
+            and create_time &lt;= #{reqVO.createTimeEnd}
+        </if>
+    </sql>
+
     <select id="productTypeStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO">
         select type, count(1) as count from marketing_product_spu where is_deleted = 0 and is_shelving = 1
+    </select>
+
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(1) from marketing_product_spu <include refid="listSql"/>
     </select>
 </mapper>
