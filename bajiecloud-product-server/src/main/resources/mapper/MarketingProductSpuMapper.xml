@@ -37,7 +37,7 @@
         <result column="shelving_way" property="shelvingWay" />
         <result column="shelving_time" property="shelvingTime" />
         <result column="shelving_channel_id" property="shelvingChannelId" />
-        <result column="is_shelving" property="isShelving" />
+        <result column="shelves_status" property="shelvesStatus" />
         <result column="is_draft" property="isDraft" />
         <result column="status" property="status" />
         <result column="approval_status" property="approvalStatus" />
@@ -68,6 +68,15 @@
         <if test="reqVO.createTimeEnd != null">
             and create_time &lt;= #{reqVO.createTimeEnd}
         </if>
+        <if test="reqVO.isShelving != null">
+            and is_shelving = #{reqVO.isShelving}
+        </if>
+        <if test="reqVO.isDraft != null">
+            and is_draft = #{reqVO.isDraft}
+        </if>
+        <if test="reqVO.approvalStatus != null">
+            and approval_status = #{reqVO.approvalStatus}
+        </if>
     </sql>
 
     <select id="productTypeStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO">
@@ -76,5 +85,9 @@
 
     <select id="queryCount" resultType="java.lang.Integer">
         select count(1) from marketing_product_spu <include refid="listSql"/>
+    </select>
+
+    <select id="approveStatusStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO">
+        select approval_status as approveStatus, count(1) as count from marketing_product_spu where <include refid="listSql"/>
     </select>
 </mapper>

@@ -21,7 +21,7 @@
         ORDER BY create_time DESC
     </select>
 
-    <select id="selectValuesByPropertyId" resultMap="BaseResultMap">
+    <select id="selectValuesByPropertyId" resultType="java.lang.String">
         select property_value from product_property_value
         where is_deleted = 0
           and property_id = #{propertyId}

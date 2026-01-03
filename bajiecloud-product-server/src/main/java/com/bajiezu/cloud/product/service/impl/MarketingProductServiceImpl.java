@@ -3,6 +3,7 @@ package com.bajiezu.cloud.product.service.impl;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
 import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
+import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.mapper.*;
 import com.bajiezu.cloud.product.enums.ProductTypeEnum;
@@ -68,7 +69,16 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     public StatusStatisticRespVO statusStatistic(MarketingProductListReqVO reqVO) {
         log.info("查询商品状态统计信息,reqVO:{}", reqVO);
 
-        long totalCount = spuMapper.queryCount(reqVO);
+        Integer totalCount = spuMapper.queryCount(reqVO);
+
+        reqVO.setIsDraft(1);
+        Integer draftCount = spuMapper.queryCount(reqVO);
+
+        reqVO.setIsDraft(null);
+        List<ApproveStatusStatisticCountDTO> approveStatusStatisticCountDTOS = spuMapper.approveStatusStatistic(reqVO);
+
+
+
         return null;
     }
 }

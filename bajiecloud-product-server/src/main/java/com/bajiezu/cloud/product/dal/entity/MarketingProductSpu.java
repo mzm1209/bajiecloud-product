@@ -181,9 +181,9 @@ public class MarketingProductSpu extends BaseDO {
     private String shelvingChannelId;
 
     /**
-     * 是否已上架 0:否 1:是
+     * 是否已上架 0:待上架 1:已上架 2:已下架
      */
-    private Integer isShelving;
+    private Integer shelvesStatus;
 
     /**
      * 是否为草稿 0:否 1:是
