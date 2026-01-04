@@ -87,10 +87,21 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
         }
 
         // 获取模板对应的发货地区
+        Set<String> areaCodes = Sets.newHashSet();
+        List<ExpressTemplateShippingFrom> shippingFroms = shippingFromMapper.selectListByTemplateIds(templateIds);
+        Map<Long, Set<String>> templateId2ShippingFromAreaCodes = Maps.newHashMap();
+        if (CollectionUtil.isNotEmpty(shippingFroms)) {
+            templateId2ShippingFromAreaCodes = shippingFroms.stream().collect(Collectors.groupingBy(ExpressTemplateShippingFrom::getExpressTemplateId,
+                    Collectors.mapping(ExpressTemplateShippingFrom::getAreaCode, Collectors.toSet())));
+            areaCodes.addAll(shippingFroms.stream().map(ExpressTemplateShippingFrom::getAreaCode).collect(Collectors.toSet()));
+        }
+
+        // 获取模板对应的收货地区
         List<ExpressTemplateShippingTo> shippingTos = shippingToMapper.selectListByTemplateIds(templateIds);
-        Map<Long, Set<String>> templateId2AreaCodes = shippingTos.stream().collect(Collectors.groupingBy(ExpressTemplateShippingTo::getExpressTemplateId,
+        Map<Long, Set<String>> templateId2ShippingToAreaCodes = shippingTos.stream().collect(Collectors.groupingBy(ExpressTemplateShippingTo::getExpressTemplateId,
                 Collectors.mapping(ExpressTemplateShippingTo::getAreaCode, Collectors.toSet())));
-        Set<String> areaCodes = templateId2AreaCodes.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        Map<String, ExpressTemplateShippingTo> shippingToAreaCode2ShippingToMap = shippingTos.stream().collect(Collectors.toMap(ExpressTemplateShippingTo::getAreaCode, Function.identity()));
+        areaCodes.addAll(templateId2ShippingToAreaCodes.values().stream().flatMap(Collection::stream).collect(Collectors.toSet()));
 
         CommonResult<List<AdminUserRespDTO>> users = adminUserApi.getUserList(userIds);
         Map<Long, String> userId2NameMap = Maps.newHashMap();
@@ -120,18 +131,32 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
             expressTemplateRespVO.setCode(expressTemplate.getCode());
             expressTemplateRespVO.setName(expressTemplate.getTemplateName());
             expressTemplateRespVO.setRemark(expressTemplate.getRemark());
-            if (templateId2AreaCodes.containsKey(expressTemplate.getId())) {
-                Set<String> shippingFromAreaCodes = templateId2AreaCodes.get(expressTemplate.getId());
-                Set<String> shippingFromAreaNames = shippingFromAreaCodes.stream().map(areaCode2NameMap::get).collect(Collectors.toSet());
 
-                List<AreaCodeAndNameVO> shippingFroms = Lists.newArrayList();
+            // 发货地区
+            if (templateId2ShippingFromAreaCodes.containsKey(expressTemplate.getId())) {
+                Set<String> shippingFromAreaCodes = templateId2ShippingFromAreaCodes.get(expressTemplate.getId());
+                List<AreaCodeAndNameVO> shippingFromAreas = Lists.newArrayList();
                 for (String shippingFromAreaCode : shippingFromAreaCodes) {
                     AreaCodeAndNameVO shippingFrom = new AreaCodeAndNameVO();
-                    shippingFroms.add(shippingFrom);
                     shippingFrom.setAreaCode(shippingFromAreaCode);
                     shippingFrom.setAreaName(areaCode2NameMap.get(shippingFromAreaCode));
+                    shippingFromAreas.add(shippingFrom);
                 }
-                expressTemplateRespVO.setShippingFroms(shippingFroms);
+                expressTemplateRespVO.setShippingFroms(shippingFromAreas);
+            }
+
+            // 收货地区
+            if (templateId2ShippingToAreaCodes.containsKey(expressTemplate.getId())) {
+                Set<String> shippingToAreaCodes = templateId2ShippingToAreaCodes.get(expressTemplate.getId());
+                List<AreaCodeAndNameVO> shippingToAreas = Lists.newArrayList();
+                for (String shippingFromAreaCode : shippingToAreaCodes) {
+                    AreaCodeAndNameVO shippingTo = new AreaCodeAndNameVO();
+                    shippingToAreas.add(shippingTo);
+                    shippingTo.setAreaCode(shippingFromAreaCode);
+                    shippingTo.setAreaName(areaCode2NameMap.get(shippingFromAreaCode));
+                    shippingTo.setShippingCost(shippingToAreaCode2ShippingToMap.get(shippingFromAreaCode).getShippingCost());
+                }
+                expressTemplateRespVO.setShippingTos(shippingToAreas);
             }
             expressTemplateRespVO.setExpressServiceType(expressTemplate.getExpressServiceType());
             expressTemplateRespVO.setPostageType(expressTemplate.getPostageType());
@@ -368,6 +393,7 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
         expressTemplate.setPostageType(reqVO.getPostageType());
         expressTemplate.setDefaultShippingCost(reqVO.getDefaultShippingCost());
         expressTemplate.setRemark(reqVO.getRemark());
+        expressTemplate.setStatus(reqVO.getStatus());
         expressTemplate.setPartnerId(loginUser.getPartnerId());
         expressTemplate.setCreateTime(now);
         expressTemplate.setUpdateTime(now);

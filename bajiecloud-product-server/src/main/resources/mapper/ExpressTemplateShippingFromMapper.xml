@@ -55,4 +55,12 @@
         where
             express_template_id = #{templateId}
     </update>
+
+    <select id="selectListByTemplateIds" resultMap="BaseResultMap">
+        select * from express_template_shipping_from where express_template_id in
+        <foreach item="item" collection="templateIds" separator="," close=")" open="(" index="">
+            #{item}
+        </foreach>
+        and is_deleted = 0
+    </select>
 </mapper>

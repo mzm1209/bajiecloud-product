@@ -21,7 +21,7 @@ public interface ExpressTemplateShippingToMapper extends BaseMapper<ExpressTempl
 
     void updateBatch(@Param("shippingTos") List<ExpressTemplateShippingTo> shippingTos);
 
-    void logicDelByTemplateId(@Param("templateId") Long templateId, @Param("updateBy") Long updateBy, @Param("now") Date now);
+    void logicDelByTemplateId(@Param("templateId") Long templateId, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 
     List<ExpressTemplateShippingTo> selectListByTemplateIds(@Param("templateIds") Set<Long> templateIds);
 }
