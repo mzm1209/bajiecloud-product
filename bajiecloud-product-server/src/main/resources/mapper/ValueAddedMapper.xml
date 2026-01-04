@@ -44,10 +44,10 @@
 
     <select id="selectListByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.ValueAddedQuery" resultMap="BaseResultMap">
         select * from value_added <include refid="listSql"/>
+        order by create_time desc
         <if test="offset != null and pageSize != null">
             limit #{offset},#{pageSize}
         </if>
-        order by create_time desc
     </select>
 
     <select id="selectCountByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.ValueAddedQuery" resultType="java.lang.Long">
