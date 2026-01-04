@@ -259,39 +259,23 @@ public class StandardProductServiceImpl implements StandardProductService {
     }
 
     @Override
-    public void del(Long id) {
+    public void del(List<Long> ids) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
-        log.info("del standard product id:{},operatorId:{}", id, loginUser.getId());
-        StandardProductSpu spu = spuMapper.selectById(id);
-        if (spu == null) {
-            throw exception(STANDARD_PRODUCT_NOT_EXIST);
-        }
-        if (NumberUtils.INTEGER_ONE.equals(spu.getIsDeleted())) {
+        log.info("del standard product ids:{},operatorId:{}", ids, loginUser.getId());
+        if (CollUtil.isEmpty(ids)) {
             return;
         }
-        spu.setIsDeleted(NumberUtils.INTEGER_ONE);
-        spu.setUpdateTime(new Date());
-        spu.setUpdateBy(loginUser.getId());
-        spuMapper.updateById(spu);
+        spuMapper.logicDelByIds(ids, loginUser.getId(), new Date());
     }
 
     @Override
     public void changeStatus(StatusChangeReqVo reqVO) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         log.info("changeStatus standard product reqVO:{},operatorId:{}", reqVO, loginUser.getId());
-        StandardProductSpu spu = spuMapper.selectById(reqVO.getId());
-        if (spu == null) {
-            throw exception(STANDARD_PRODUCT_NOT_EXIST);
-        }
-        if (NumberUtils.INTEGER_ONE.equals(spu.getIsDeleted())) {
-            throw exception(STANDARD_PRODUCT_DELETED);
-        }
+        if (CollUtil.isEmpty(reqVO.getIds())) {
 
-        spu.setStatus(reqVO.getStatus());
-        spu.setIsDeleted(NumberUtils.INTEGER_ONE);
-        spu.setUpdateTime(new Date());
-        spu.setUpdateBy(loginUser.getId());
-        spuMapper.updateById(spu);
+        }
+        spuMapper.updateStatusByIds(reqVO.getIds(), reqVO.getStatus(), loginUser.getId(), new Date());
     }
 
     private StandardProductSpu buildSpu(StandardProductAddReqVO reqVO, LoginUser<?> loginUser, Date now) {

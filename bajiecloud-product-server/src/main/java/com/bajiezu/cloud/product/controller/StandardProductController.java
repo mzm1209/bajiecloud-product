@@ -2,6 +2,7 @@ package com.bajiezu.cloud.product.controller;
 
 
 import com.bajiezu.cloud.common.dto.LongIdReqVO;
+import com.bajiezu.cloud.common.dto.LongIdsReqVO;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.*;
@@ -54,8 +55,8 @@ public class StandardProductController {
 
     @PostMapping("/del")
     @Operation(summary = "删除标准商品")
-    public CommonResult<Boolean> del(@Valid @RequestBody LongIdReqVO reqVO) {
-        standardProductService.del(reqVO.getId());
+    public CommonResult<Boolean> del(@Valid @RequestBody LongIdsReqVO reqVO) {
+        standardProductService.del(reqVO.getIds());
         return CommonResult.success(true);
     }
 

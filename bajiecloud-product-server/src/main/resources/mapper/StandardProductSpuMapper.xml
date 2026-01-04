@@ -63,4 +63,20 @@
             resultType="java.lang.Long">
         select count(1) from standard_product_spu <include refid="listSql"/>
     </select>
+
+    <update id="logicDelByIds">
+        update standard_product_spu set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}
+        where id in
+        <foreach item="id" collection="ids" separator="," close=")" open="(" index="">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateStatusByIds">
+        update standard_product_spu set status = #{status}, update_by = #{updateBy}, update_time = #{updateTime}
+        where id in
+        <foreach item="id" collection="ids" separator="," close=")" open="(" index="">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

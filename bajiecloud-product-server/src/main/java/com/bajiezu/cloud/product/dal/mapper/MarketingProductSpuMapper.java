@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,4 +25,7 @@ public interface MarketingProductSpuMapper extends BaseMapper<MarketingProductSp
     List<ApproveStatusStatisticCountDTO> approveStatusStatistic(@Param("reqVO") MarketingProductListReqVO reqVO);
 
     List<ShelvesStatisticCountDTO> shelvesStatistic(@Param("reqVO") MarketingProductListReqVO reqVO);
+
+    void updateShelvesStatusByIds(@Param("ids") List<Long> ids, @Param("shelvesStatus") Integer shelvesStatus,
+                                  @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 }

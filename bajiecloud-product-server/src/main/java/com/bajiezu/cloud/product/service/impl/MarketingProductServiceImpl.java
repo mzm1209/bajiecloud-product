@@ -1,6 +1,9 @@
 package com.bajiezu.cloud.product.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.framework.security.po.LoginUser;
+import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductAddReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductApproveReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
@@ -12,6 +15,7 @@ import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
 import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ShelvesStatisticCountDTO;
+import com.bajiezu.cloud.product.dal.entity.MarketingProductSpu;
 import com.bajiezu.cloud.product.dal.mapper.*;
 import com.bajiezu.cloud.product.enums.ApproveStatusEnum;
 import com.bajiezu.cloud.product.enums.ProductTypeEnum;
@@ -20,9 +24,16 @@ import com.bajiezu.cloud.product.service.MarketingProductService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
+import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
+import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.*;
 
 @Service
 @Slf4j
@@ -48,7 +59,6 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
     @Override
     public ProductTypeStatisticRespVO productTypeStatistic() {
-
         List<ProductTypeStatisticCountDTO> productTypeStatisticCountDTOS = spuMapper.productTypeStatistic();
         ProductTypeStatisticRespVO productTypeStatisticRespVO = new ProductTypeStatisticRespVO();
         for (ProductTypeStatisticCountDTO productTypeStatisticCountDTO : productTypeStatisticCountDTOS) {
@@ -94,19 +104,59 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         return null;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void del(List<Long> ids) {
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        log.info("del ids: {},operatorId:{}", ids, loginUser.getId());
+        if (CollUtil.isNotEmpty(ids)) {
+            return;
+        }
+        // 批量逻辑删除
+        //spuMapper.logicDeleteByIds(ids, loginUser.getId(), new Date());
 
     }
 
     @Override
     public void onOffShelves(OnOffShelvesReqVO reqVO) {
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        log.info("onOffShelves reqVO: {},operatorId:{}", reqVO, loginUser.getId());
+        if (CollUtil.isNotEmpty(reqVO.getIds())) {
+            return;
+        }
 
+        // 批量更新商品的上下架状态
+        spuMapper.updateShelvesStatusByIds(reqVO.getIds(), reqVO.getShelvesStatus(), loginUser.getId(), new Date());
     }
 
     @Override
     public void approve(MarketingProductApproveReqVO reqVO) {
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        log.info("status change product approve dto: {},operatorId:{}", reqVO, loginUser.getId());
+        MarketingProductSpu marketingProductSpu = spuMapper.selectById(reqVO.getId());
+        if (marketingProductSpu == null) {
+            throw exception(MARKETING_PRODUCT_NOT_EXIST);
+        }
+        if (NumberUtils.INTEGER_ONE.equals(marketingProductSpu.getIsDeleted())) {
+            throw exception(MARKETING_PRODUCT_DELETED);
+        }
+        if (NumberUtils.INTEGER_ONE.equals(marketingProductSpu.getIsDraft())) {
+            throw exception(MARKETING_PRODUCT_IS_DRAFT);
+        }
+        if (Objects.equals(marketingProductSpu.getApprovalStatus(), reqVO.getApproveStatus())) {
+            log.info("商品状态未改变,productId:{}", marketingProductSpu.getId());
+            return;
+        }
+        if (!Objects.equals(marketingProductSpu.getApprovalStatus(), ApproveStatusEnum.WAIT_APPROVE.getValue())) {
+            throw exception(MARKETING_PRODUCT_STATUS_NOT_WAIT_APPROVE);
+        }
 
+        marketingProductSpu.setApproverId(loginUser.getId());
+        marketingProductSpu.setApprovalStatus(reqVO.getApproveStatus());
+        marketingProductSpu.setApprovalRemark(reqVO.getApprovalRemark());
+        marketingProductSpu.setUpdateTime(new Date());
+        marketingProductSpu.setUpdateBy(loginUser.getId());
+        spuMapper.updateById(marketingProductSpu);
     }
 
     @Override

@@ -7,6 +7,8 @@ import com.bajiezu.cloud.product.controller.vo.request.StandardProductModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.StatusChangeReqVo;
 import com.bajiezu.cloud.product.controller.vo.response.StandardProductRespVO;
 
+import java.util.List;
+
 public interface StandardProductService {
 
     /**
@@ -33,7 +35,7 @@ public interface StandardProductService {
     /**
      * 删除标准商品
      */
-    void del(Long id);
+    void del(List<Long> id);
 
     /**
      * 改变标准商品状态 启用/禁用
