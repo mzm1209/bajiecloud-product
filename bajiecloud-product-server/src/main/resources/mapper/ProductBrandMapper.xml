@@ -34,7 +34,10 @@
     </select>
 
     <select id="querySimpleList" resultMap="BaseResultMap">
-        select id, name from product_brand where is_deleted = 0 and status = 1
+        select id, name, status, sort, remark from product_brand where is_deleted = 0
+        <if test="status != null">
+            and status = #{status}
+        </if>
     </select>
 
     <select id="selectNameById" resultType="java.lang.String">
@@ -43,7 +46,7 @@
 
     <select id="selectListByIds" resultMap="BaseResultMap">
         select * from product_brand where id in
-        <foreach item="item" collection="list" separator="," open="(" close=")" index="index">
+        <foreach item="item" collection="ids" separator="," open="(" close=")" index="index">
             #{item}
         </foreach>
     </select>

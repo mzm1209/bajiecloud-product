@@ -21,5 +21,5 @@ public interface ProductBusinessCategoryMapper extends BaseMapper<ProductBusines
 
     List<ProductBusinessCategory> selectSelfAndParentsById(@Param("id") Long id);
 
-    List<ProductBusinessCategory> selectListByIds(@Param("id") Collection<Long> ids);
+    List<ProductBusinessCategory> selectListByIds(@Param("ids") Collection<Long> ids);
 }

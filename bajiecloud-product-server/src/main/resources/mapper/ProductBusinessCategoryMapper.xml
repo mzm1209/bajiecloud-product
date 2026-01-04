@@ -55,7 +55,7 @@
 
     <select id="selectListByIds" resultMap="BaseResultMap">
         select * from product_business_category where id in
-        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>

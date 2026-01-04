@@ -13,4 +13,6 @@ public class PBListReqVO extends PageParam {
     @Schema(description = "品牌名称", example = "xiaomi")
     private String brandName;
 
+    @Schema(description = "状态", example = "1")
+    private Integer status;
 }

@@ -83,7 +83,7 @@ public class ProductBrandController {
 
     @PostMapping("/simpleList")
     @Operation(summary = "品牌简明信息列表")
-    public CommonResult<List<PBRespVO>> simpleList() {
-        return CommonResult.success(productBrandService.simpleList());
+    public CommonResult<List<PBRespVO>> simpleList(@RequestBody PBListReqVO reqVO) {
+        return CommonResult.success(productBrandService.simpleList(reqVO));
     }
 }

@@ -15,7 +15,7 @@ public interface ProductBrandMapper extends BaseMapper<ProductBrand> {
 
     Long queryCount(@Param("name") String name);
 
-    List<ProductBrand> querySimpleList();
+    List<ProductBrand> querySimpleList(@Param("status") Integer status);
 
     String selectNameById(@Param("id") Long id);
 

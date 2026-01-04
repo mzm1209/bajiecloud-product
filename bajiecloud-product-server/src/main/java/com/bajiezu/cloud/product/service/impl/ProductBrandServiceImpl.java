@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Date;
 import java.util.List;
@@ -126,12 +127,15 @@ public class ProductBrandServiceImpl implements ProductBrandService {
     }
 
     @Override
-    public List<PBRespVO> simpleList() {
-        List<ProductBrand> brandList = productBrandMapper.querySimpleList();
+    public List<PBRespVO> simpleList(PBListReqVO reqVO) {
+        List<ProductBrand> brandList = productBrandMapper.querySimpleList(reqVO.getStatus());
         return brandList.stream().map(item -> {
             PBRespVO vo = new PBRespVO();
             vo.setId(item.getId());
             vo.setBrandName(item.getName());
+            vo.setSort(item.getSort());
+            vo.setRemark(item.getRemark());
+            vo.setStatus(item.getStatus());
             return vo;
         }).toList();
     }
