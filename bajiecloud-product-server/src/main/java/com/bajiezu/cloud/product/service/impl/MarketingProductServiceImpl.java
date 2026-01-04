@@ -1,6 +1,12 @@
 package com.bajiezu.cloud.product.service.impl;
 
+import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.product.controller.vo.request.MarketingProductAddReqVO;
+import com.bajiezu.cloud.product.controller.vo.request.MarketingProductApproveReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
+import com.bajiezu.cloud.product.controller.vo.request.OnOffShelvesReqVO;
+import com.bajiezu.cloud.product.controller.vo.response.MarketingProductDetailRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.MarketingProductRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
 import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
@@ -36,6 +42,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     private MarketingProductSkuPropertyValueMapper skuPropertyValueMapper;
 
     @Override
+    public PageResult<MarketingProductRespVO> page(MarketingProductListReqVO reqVO) {
+        return null;
+    }
+
+    @Override
     public ProductTypeStatisticRespVO productTypeStatistic() {
 
         List<ProductTypeStatisticCountDTO> productTypeStatisticCountDTOS = spuMapper.productTypeStatistic();
@@ -66,6 +77,36 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             }
         }
         return productTypeStatisticRespVO;
+    }
+
+    @Override
+    public void add(MarketingProductAddReqVO reqVO) {
+
+    }
+
+    @Override
+    public void mod(MarketingProductAddReqVO reqVO) {
+
+    }
+
+    @Override
+    public MarketingProductDetailRespVO detail(Long id) {
+        return null;
+    }
+
+    @Override
+    public void del(List<Long> ids) {
+
+    }
+
+    @Override
+    public void onOffShelves(OnOffShelvesReqVO reqVO) {
+
+    }
+
+    @Override
+    public void approve(MarketingProductApproveReqVO reqVO) {
+
     }
 
     @Override

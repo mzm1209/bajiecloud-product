@@ -24,4 +24,6 @@ public interface ValueAddedProductMapper extends BaseMapper<ValueAddedProduct> {
                                                          @Param("updateTime") Date updateTime);
 
     void logicDelByValueAddedId(@Param("valueAddedId") Long valueAddedId, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
+
+    List<ValueAddedProduct> selectListByValueAddedIds(@Param("valueAddedIds") List<Long> valueAddedIds);
 }

@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
 import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.VALUE_ADDED_DELETED;
@@ -81,6 +82,12 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             }
         }
 
+        List<ValueAddedProduct> valueAddedProducts = valueAddedProductMapper.selectListByValueAddedIds(valueAddedIds);
+        Map<Long, List<ValueAddedProduct>> valueAddedProductsMap = Maps.newHashMap();
+        if (CollUtil.isNotEmpty(valueAddedProducts)) {
+            valueAddedProductsMap = valueAddedProducts.stream().collect(Collectors.groupingBy(ValueAddedProduct::getValueAddedId));
+        }
+
         List<ValueAddedRespVO> valueAddedRespVOS = Lists.newArrayList();
         for (ValueAdded valueAdded : valueAddedList) {
             ValueAddedRespVO valueAddedRespVO = new ValueAddedRespVO();
@@ -93,8 +100,11 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             valueAddedRespVO.setSalePrice(valueAdded.getSalePrice());
             valueAddedRespVO.setRenewalPrice(valueAdded.getRenewalPrice());
             valueAddedRespVO.setStrikethroughPrice(valueAdded.getStrikethroughPrice());
-            // todo 查询SKU数量
-            valueAddedRespVO.setSkuCount(0);
+            if (valueAddedProductsMap.containsKey(valueAdded.getId())) {
+                valueAddedRespVO.setSkuCount(valueAddedProductsMap.get(valueAdded.getId()).size());
+            } else {
+                valueAddedRespVO.setSkuCount(0);
+            }
             valueAddedRespVO.setStatus(valueAdded.getStatus());
             valueAddedRespVO.setCreateTime(valueAdded.getCreateTime());
             valueAddedRespVO.setCreatorName(userId2NameMap.get(valueAdded.getCreateBy()));

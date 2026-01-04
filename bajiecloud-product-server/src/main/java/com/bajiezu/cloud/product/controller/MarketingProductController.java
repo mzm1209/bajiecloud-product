@@ -1,13 +1,19 @@
 package com.bajiezu.cloud.product.controller;
 
+import com.bajiezu.cloud.common.dto.LongIdReqVO;
+import com.bajiezu.cloud.common.dto.LongIdsReqVO;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
-import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
+import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.controller.vo.response.MarketingProductDetailRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.MarketingProductRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +31,8 @@ public class MarketingProductController {
 
     @PostMapping("/page")
     @Operation(summary = "列表")
-    public CommonResult<Boolean> page() {
-        return CommonResult.success(true);
+    public CommonResult<PageResult<MarketingProductRespVO>> page(@Valid @RequestBody MarketingProductListReqVO reqVO) {
+        return CommonResult.success(marketingProductService.page(reqVO));
     }
 
     @PostMapping("/productTypeStatistic")
@@ -37,37 +43,42 @@ public class MarketingProductController {
 
     @PostMapping("/add")
     @Operation(summary = "新增")
-    public CommonResult<Boolean> add() {
+    public CommonResult<Boolean> add(@Valid @RequestBody MarketingProductAddReqVO reqVO) {
+        marketingProductService.add(reqVO);
         return CommonResult.success(true);
     }
 
     @PostMapping("/mod")
     @Operation(summary = "编辑")
-    public CommonResult<Boolean> mod() {
+    public CommonResult<Boolean> mod(@Valid @RequestBody MarketingProductModReqVO reqVO) {
+        marketingProductService.mod(reqVO);
         return CommonResult.success(true);
     }
 
     @PostMapping("/detail")
     @Operation(summary = "详情")
-    public CommonResult<Boolean> detail() {
-        return CommonResult.success(true);
+    public CommonResult<MarketingProductDetailRespVO> detail(@Valid @RequestBody LongIdReqVO reqVO) {
+        return CommonResult.success(marketingProductService.detail(reqVO.getId()));
     }
 
     @PostMapping("/del")
     @Operation(summary = "删除")
-    public CommonResult<Boolean> del() {
+    public CommonResult<Boolean> del(@Valid @RequestBody LongIdsReqVO reqVO) {
+        marketingProductService.del(reqVO.getIds());
         return CommonResult.success(true);
     }
 
     @PostMapping("/onOffShelves")
     @Operation(summary = "上下架")
-    public CommonResult<Boolean> onOffShelves() {
+    public CommonResult<Boolean> onOffShelves(@Valid @RequestBody OnOffShelvesReqVO reqVO) {
+        marketingProductService.onOffShelves(reqVO);
         return CommonResult.success(true);
     }
 
     @PostMapping("/approve")
     @Operation(summary = "审核")
-    public CommonResult<Boolean> approve() {
+    public CommonResult<Boolean> approve(@Valid @RequestBody MarketingProductApproveReqVO reqVO) {
+        marketingProductService.approve(reqVO);
         return CommonResult.success(true);
     }
 

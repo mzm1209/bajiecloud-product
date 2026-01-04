@@ -3,9 +3,11 @@ package com.bajiezu.cloud.product.controller.vo.request;
 import com.bajiezu.cloud.common.web.pojo.PageParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "营销商品列表查询参数")
 @Data
 public class MarketingProductListReqVO extends PageParam {

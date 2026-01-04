@@ -1,27 +1,40 @@
-package com.bajiezu.cloud.product.controller.vo.request;
+package com.bajiezu.cloud.product.controller.vo.response;
 
+import com.bajiezu.cloud.product.controller.vo.AreaCodeAndNameVO;
 import com.bajiezu.cloud.product.controller.vo.MarketingProductPropertyVO;
 import com.bajiezu.cloud.product.controller.vo.MarketingProductSkuVO;
+import com.bajiezu.cloud.product.controller.vo.IdAndNameVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
 
-@Schema(description = "营销商品添加请求VO")
+@Schema(description = "营销商品详情")
 @Data
-public class MarketingProductAddReqVO {
+public class MarketingProductDetailRespVO {
 
-    @Schema(description = "操作类型 1-保存（草稿），2-提交")
-    private Integer operateType;
+    @Schema(description = "商品ID")
+    private Long id;
+
+    @Schema(description = "商品编码")
+    private String code;
 
     @Schema(description = "商品类型 1-租赁商品，2-售卖商品，3-回收商品，4-实物商品，5-虚拟商品")
     private Integer type;
 
     @Schema(description = "标准商品ID")
     private Long standardProductSpuId;
+    @Schema(description = "标准商品名称")
+    private String standardProductSpuName;
+    @Schema(description = "经营类目")
+    private String businessCategoryName;
+    @Schema(description = "营销类目")
+    private String marketingCategoryName;
+    @Schema(description = "品牌")
+    private String brandName;
 
-    @Schema(description = "商品名称")
+    @Schema(description = "营销商品名称")
     private String name;
 
     @Schema(description = "商品成色 0:全新 1:非全新")
@@ -43,10 +56,10 @@ public class MarketingProductAddReqVO {
     private List<String> detailPicUrls;
 
     @Schema(description = "商详标签")
-    private List<Long> detailTagIds;
+    private List<IdAndNameVO> detailTags;
 
     @Schema(description = "SKU页标签")
-    private List<Long> skuTagIds;
+    private List<IdAndNameVO> skuTags;
 
 
     /**************************  租赁商品规格信息 *************************/
@@ -74,7 +87,7 @@ public class MarketingProductAddReqVO {
 
     /**************************  增值服务 ********************************/
     @Schema(description = "增值服务")
-    private List<Long> valueAddedIds;
+    private List<IdAndNameVO> valueAddedList;
     @Schema(description = "展示页面 0:SKU页 1:确认订单页")
     private List<Integer> showPages;
     @Schema(description = "是否默认勾选 0:否 1:是")
@@ -91,8 +104,10 @@ public class MarketingProductAddReqVO {
     private Integer shippingWay;
     @Schema(description = "快递模版ID")
     private Long shippingTemplateId;
+    @Schema(description = "快递模版名称")
+    private String shippingTemplateName;
     @Schema(description = "发货地区")
-    private List<String> shippingAreaCodes;
+    private List<AreaCodeAndNameVO> shippingAreaCodes;
 
 
     /**************************  商品上架信息 ********************************/
@@ -101,8 +116,17 @@ public class MarketingProductAddReqVO {
     @Schema(description = "上架时间")
     private Date shelvingTime;
     @Schema(description = "上架渠道")
-    private List<Long> shelvingChannelIds;
+    private List<IdAndNameVO> shelvingChannels;
 
     @Schema(description = "spu下的sku信息")
     private List<MarketingProductSkuVO> skus;
+
+    @Schema(description = "审批状态 0:待审批 1:审批通过 2:审批拒绝")
+    private Integer approveStatus;
+
+    @Schema(description = "上下架状态 0:待上架 1:已上架 2:已下架")
+    private Integer shelvesStatus;
+
+    @Schema(description = "是否草稿 0:否 1:是")
+    private Integer isDraft;
 }
