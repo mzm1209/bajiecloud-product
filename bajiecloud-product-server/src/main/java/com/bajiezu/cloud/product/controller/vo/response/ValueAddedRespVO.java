@@ -22,6 +22,9 @@ public class ValueAddedRespVO {
     @Schema(description = "服务概要")
     private String serviceOverview;
 
+    @Schema(description = "服务内容")
+    private String serviceContent;
+
     @Schema(description = "增值服务销售价格")
     private Long salePrice;
 
@@ -36,6 +39,8 @@ public class ValueAddedRespVO {
 
     @Schema(description = "状态")
     private Integer status;
+
+    private List<String> picUrls;
 
     @Schema(description = "创建时间")
     private Date createTime;

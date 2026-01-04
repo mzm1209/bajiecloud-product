@@ -23,7 +23,11 @@ public interface ErrorCodeConstants {
     ErrorCode EXPRESS_TEMPLATE_NOT_EXIST = new ErrorCode(1_003_005_001, "快递模版不存在");
     ErrorCode EXPRESS_TEMPLATE_DELETED = new ErrorCode(1_003_005_002, "快递模版已删除");
 
-    // ========== 标准商品 1-003-005-000 ==========
+    // ========== 标准商品 1-003-006-000 ==========
     ErrorCode STANDARD_PRODUCT_NOT_EXIST = new ErrorCode(1_003_006_001, "标准商品不存在");
     ErrorCode STANDARD_PRODUCT_DELETED = new ErrorCode(1_003_006_002, "标准商品已删除");
+
+    // ========== 增值服务 1-003-007-000 ==========
+    ErrorCode VALUE_ADDED_NOT_EXIST = new ErrorCode(1_003_007_001, "增值服务不存在");
+    ErrorCode VALUE_ADDED_DELETED = new ErrorCode(1_003_007_002, "增值服务已删除");
 }

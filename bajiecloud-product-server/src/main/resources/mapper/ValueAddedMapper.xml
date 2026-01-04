@@ -22,7 +22,35 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <sql id="listSql">
+        where is_deleted = 0
+        <if test="name != null">
+            and name like concat('%',#{name},'%')
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="createTimeBegin != null">
+            and create_time >= #{createTimeBegin}
+        </if>
+        <if test="createTimeEnd != null">
+            and create_time &lt;= #{createTimeEnd}
+        </if>
+    </sql>
+
     <select id="queryIdAndNameByStatus" resultMap="BaseResultMap">
         select id, name from value_added where is_deleted = 0 and status = #{status}
+    </select>
+
+    <select id="selectListByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.ValueAddedQuery" resultMap="BaseResultMap">
+        select * from value_added <include refid="listSql"/>
+        <if test="offset != null and pageSize != null">
+            limit #{offset},#{pageSize}
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="selectCountByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.ValueAddedQuery" resultType="java.lang.Long">
+        select count(1) from value_added <include refid="listSql"/>
     </select>
 </mapper>

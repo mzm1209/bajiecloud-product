@@ -37,7 +37,7 @@ public class ValueAddedAddReqVO {
     private String serviceContent;
 
     @Schema(description = "详情图URL,多个英文逗号分隔")
-    private String picUrl;
+    private List<String> picUrls;
 
     @Schema(description = "关联的SKU ID集合")
     private List<Long> marketingProductSkuIds;

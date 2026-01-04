@@ -26,4 +26,24 @@
             )
         </foreach>
     </insert>
+
+    <select id="queryMarketingProductSkuIdsByValueAddedId" resultType="java.lang.Long">
+        select marketing_product_sku_id from value_added_product where value_added_id = #{valueAddedId} and is_deleted = 0
+    </select>
+
+    <update id="logicDelByValueAddedIdAndMarketingProductSkuIds">
+        update value_added_product
+        set is_deleted = 1, update_time = #{updateTime}, update_by = #{updateBy}
+        where value_added_id = #{valueAddedId}
+        and marketing_product_sku_id in
+        <foreach collection="marketingProductSkuIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="logicDelByValueAddedId">
+        update value_added_product
+        set is_deleted = 1, update_time = #{updateTime}, update_by = #{updateBy}
+        where value_added_id = #{valueAddedId}
+    </update>
 </mapper>

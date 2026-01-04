@@ -1,5 +1,6 @@
 package com.bajiezu.cloud.product.dal.mapper;
 
+import com.bajiezu.cloud.product.dal.dto.ValueAddedQuery;
 import com.bajiezu.cloud.product.dal.entity.ValueAdded;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -14,4 +15,8 @@ import java.util.List;
 public interface ValueAddedMapper extends BaseMapper<ValueAdded> {
 
     List<ValueAdded> queryIdAndNameByStatus(@Param("status") Integer status);
+
+    List<ValueAdded> selectListByQuery(ValueAddedQuery query);
+
+    Long selectCountByQuery(ValueAddedQuery query);
 }
