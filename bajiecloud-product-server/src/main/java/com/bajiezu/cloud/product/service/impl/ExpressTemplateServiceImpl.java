@@ -100,7 +100,7 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
         List<ExpressTemplateShippingTo> shippingTos = shippingToMapper.selectListByTemplateIds(templateIds);
         Map<Long, Set<String>> templateId2ShippingToAreaCodes = shippingTos.stream().collect(Collectors.groupingBy(ExpressTemplateShippingTo::getExpressTemplateId,
                 Collectors.mapping(ExpressTemplateShippingTo::getAreaCode, Collectors.toSet())));
-        Map<String, ExpressTemplateShippingTo> shippingToAreaCode2ShippingToMap = shippingTos.stream().collect(Collectors.toMap(ExpressTemplateShippingTo::getAreaCode, Function.identity()));
+        Map<Long, List<ExpressTemplateShippingTo>> templateId2ShippingToMap = shippingTos.stream().collect(Collectors.groupingBy(ExpressTemplateShippingTo::getExpressTemplateId));
         areaCodes.addAll(templateId2ShippingToAreaCodes.values().stream().flatMap(Collection::stream).collect(Collectors.toSet()));
 
         CommonResult<List<AdminUserRespDTO>> users = adminUserApi.getUserList(userIds);
@@ -154,7 +154,11 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
                     shippingToAreas.add(shippingTo);
                     shippingTo.setAreaCode(shippingFromAreaCode);
                     shippingTo.setAreaName(areaCode2NameMap.get(shippingFromAreaCode));
-                    shippingTo.setShippingCost(shippingToAreaCode2ShippingToMap.get(shippingFromAreaCode).getShippingCost());
+                    List<ExpressTemplateShippingTo> expressTemplateShippingTos = templateId2ShippingToMap.get(expressTemplate.getId());
+                    if (CollectionUtil.isNotEmpty(expressTemplateShippingTos)) {
+                        Map<String, ExpressTemplateShippingTo> shippingToAreaCode2ShippingToMap = expressTemplateShippingTos.stream().collect(Collectors.toMap(ExpressTemplateShippingTo::getAreaCode, Function.identity()));
+                        shippingTo.setShippingCost(shippingToAreaCode2ShippingToMap.get(shippingFromAreaCode).getShippingCost());
+                    }
                 }
                 expressTemplateRespVO.setShippingTos(shippingToAreas);
             }

@@ -1,6 +1,8 @@
 package com.bajiezu.cloud.product.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import com.bajiezu.cloud.common.constants.CommonStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
@@ -9,6 +11,7 @@ import com.bajiezu.cloud.product.controller.vo.request.ValueAddedListReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedStatusChangeReqVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSimpleInfoRespVO;
 import com.bajiezu.cloud.product.dal.entity.ValueAdded;
 import com.bajiezu.cloud.product.dal.entity.ValueAddedProduct;
 import com.bajiezu.cloud.product.dal.mapper.ValueAddedMapper;
@@ -74,6 +77,21 @@ public class ValueAddedServiceImpl implements ValueAddedService {
     @Override
     public void changeStatus(ValueAddedStatusChangeReqVO reqVO) {
 
+    }
+
+    @Override
+    public List<ValueAddedSimpleInfoRespVO> simpleList() {
+        List<ValueAdded> valueAddedList = valueAddedMapper.queryIdAndNameByStatus(CommonStatusEnum.ENABLE.getStatus());
+        if (CollUtil.isEmpty(valueAddedList)) {
+            return Lists.newArrayList();
+        }
+
+        return valueAddedList.stream().map(valueAdded -> {
+            ValueAddedSimpleInfoRespVO valueAddedSimpleInfoRespVO = new ValueAddedSimpleInfoRespVO();
+            valueAddedSimpleInfoRespVO.setId(valueAdded.getId());
+            valueAddedSimpleInfoRespVO.setName(valueAdded.getName());
+            return valueAddedSimpleInfoRespVO;
+        }).toList();
     }
 
     private ValueAdded buildValueAdded(ValueAddedAddReqVO reqVO, LoginUser<?> loginUser, Date now) {

@@ -6,6 +6,9 @@ import com.bajiezu.cloud.product.controller.vo.request.ValueAddedListReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedStatusChangeReqVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSimpleInfoRespVO;
+
+import java.util.List;
 
 public interface ValueAddedService {
 
@@ -38,4 +41,9 @@ public interface ValueAddedService {
      * 启用/禁用
      */
     void changeStatus(ValueAddedStatusChangeReqVO reqVO);
+
+    /**
+     * 增值服务简明信息 用于创建营销商品
+     */
+    List<ValueAddedSimpleInfoRespVO> simpleList();
 }

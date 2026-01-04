@@ -7,7 +7,9 @@ import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ShelvesStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.mapper.*;
+import com.bajiezu.cloud.product.enums.ApproveStatusEnum;
 import com.bajiezu.cloud.product.enums.ProductTypeEnum;
+import com.bajiezu.cloud.product.enums.ShelvesStatusEnum;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import jakarta.annotation.Resource;
@@ -91,14 +93,15 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             if (approveStatusStatisticCountDTO.getApproveStatus() == null) {
                 continue;
             }
-            switch (approveStatusStatisticCountDTO.getApproveStatus()) {
-                case 0:
+            ApproveStatusEnum approveStatusEnum = ApproveStatusEnum.get(approveStatusStatisticCountDTO.getApproveStatus());
+            switch (approveStatusEnum) {
+                case WAIT_APPROVE:
                     statusStatisticRespVO.setWaitApproveCount(approveStatusStatisticCountDTO.getCount());
                     break;
-                case 1:
+                case APPROVE_PASS:
                     statusStatisticRespVO.setApprovePassCount(approveStatusStatisticCountDTO.getCount());
                     break;
-                case 2:
+                case APPROVE_REJECT:
                     statusStatisticRespVO.setApproveRejectCount(approveStatusStatisticCountDTO.getCount());
             }
         }
@@ -106,14 +109,15 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             if (shelvesStatisticCountDTO.getShelvesStatus() == null) {
                 continue;
             }
-            switch (shelvesStatisticCountDTO.getShelvesStatus()) {
-                case 0:
-                    statusStatisticRespVO.setOffShelvesCount(shelvesStatisticCountDTO.getCount());
+            ShelvesStatusEnum shelvesStatusEnum = ShelvesStatusEnum.get(shelvesStatisticCountDTO.getShelvesStatus());
+            switch (shelvesStatusEnum) {
+                case WAIT_SHELVES:
+                    statusStatisticRespVO.setWaitShelvesCount(shelvesStatisticCountDTO.getCount());
                     break;
-                case 1:
+                case ON_SHELVES:
                     statusStatisticRespVO.setOnShelvesCount(shelvesStatisticCountDTO.getCount());
                     break;
-                case 2:
+                case OFF_SHELVES:
                     statusStatisticRespVO.setOffShelvesCount(shelvesStatisticCountDTO.getCount());
                     break;
                 default:

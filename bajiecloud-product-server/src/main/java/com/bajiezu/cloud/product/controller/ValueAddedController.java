@@ -8,6 +8,7 @@ import com.bajiezu.cloud.product.controller.vo.request.ValueAddedListReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedStatusChangeReqVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSimpleInfoRespVO;
 import com.bajiezu.cloud.product.service.ValueAddedService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Tag(name = "管理后台 - 增值服务管理")
 @RestController
@@ -66,5 +69,11 @@ public class ValueAddedController {
     public CommonResult<Boolean> changeStatus(@RequestBody ValueAddedStatusChangeReqVO reqVO) {
         valueAddedService.changeStatus(reqVO);
         return CommonResult.success(true);
+    }
+
+    @PostMapping("/simpleList")
+    @Operation(summary = "增值服务简明信息列表")
+    public CommonResult<List<ValueAddedSimpleInfoRespVO>> simpleList() {
+        return CommonResult.success(valueAddedService.simpleList());
     }
 }

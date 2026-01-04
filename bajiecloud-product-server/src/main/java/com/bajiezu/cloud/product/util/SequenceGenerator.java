@@ -26,6 +26,36 @@ public class SequenceGenerator {
     private static final String STANDARD_PRODUCT_SEQUENCE_KEY = "standard_product:sequence:";
     public static final String STANDARD_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
 
+    /**
+     * 租赁商品
+     */
+    private static final String RENTAL_PRODUCT_SEQUENCE_KEY = "rental_product:sequence:";
+    public static final String RENTAL_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+
+    /**
+     * 售卖商品
+     */
+    private static final String SALE_PRODUCT_SEQUENCE_KEY = "sale_product:sequence:";
+    public static final String SALE_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+
+    /**
+     * 回收商品
+     */
+    private static final String RECYCLE_PRODUCT_SEQUENCE_KEY = "recycle_product:sequence:";
+    public static final String RECYCLE_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+
+    /**
+     * 实物商品
+     */
+    private static final String PHYSICAL_PRODUCT_SEQUENCE_KEY = "physical_product:sequence:";
+    public static final String PHYSICAL_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+
+     /**
+     * 虚拟商品
+     */
+     private static final String VIRTUAL_PRODUCT_SEQUENCE_KEY = "virtual_product:sequence:";
+     public static final String VIRTUAL_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+
     @Resource
     private RedissonClient redissonClient;
 
@@ -39,6 +69,26 @@ public class SequenceGenerator {
 
     public String getStandardProductSequence() {
         return generateSequence(STANDARD_PRODUCT_SEQUENCE_KEY, STANDARD_PRODUCT_PARTNER_CODE_FORMAT);
+    }
+
+    public String getRentalProductSequence() {
+        return generateSequence(RENTAL_PRODUCT_SEQUENCE_KEY, RENTAL_PRODUCT_PARTNER_CODE_FORMAT);
+    }
+
+    public String getSaleProductSequence() {
+        return generateSequence(SALE_PRODUCT_SEQUENCE_KEY, SALE_PRODUCT_PARTNER_CODE_FORMAT);
+    }
+
+    public String getRecycleProductSequence() {
+        return generateSequence(RECYCLE_PRODUCT_SEQUENCE_KEY, RECYCLE_PRODUCT_PARTNER_CODE_FORMAT);
+    }
+
+    public String getPhysicalProductSequence() {
+        return generateSequence(PHYSICAL_PRODUCT_SEQUENCE_KEY, PHYSICAL_PRODUCT_PARTNER_CODE_FORMAT);
+    }
+
+    public String getVirtualProductSequence() {
+        return generateSequence(VIRTUAL_PRODUCT_SEQUENCE_KEY, VIRTUAL_PRODUCT_PARTNER_CODE_FORMAT);
     }
 
     private String generateSequence(String sequenceKey, String codeFormat) {

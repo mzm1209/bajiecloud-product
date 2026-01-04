@@ -22,5 +22,7 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
-
+    <select id="queryIdAndNameByStatus" resultMap="BaseResultMap">
+        select id, name from value_added where is_deleted = 0 and status = #{status}
+    </select>
 </mapper>

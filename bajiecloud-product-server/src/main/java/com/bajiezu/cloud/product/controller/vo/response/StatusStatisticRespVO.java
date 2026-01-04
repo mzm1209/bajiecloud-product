@@ -10,6 +10,9 @@ public class StatusStatisticRespVO {
     @Schema(description = "商品总数")
     private Integer totalCount = 0;
 
+    @Schema(description = "待上架商品数")
+    private Integer waitShelvesCount = 0;
+
     @Schema(description = "上架商品数")
     private Integer onShelvesCount = 0;
 
