@@ -125,9 +125,11 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         ValueAdded valueAdded = buildValueAdded(reqVO, loginUser, now);
         valueAddedMapper.insert(valueAdded);
 
-        List<ValueAddedProduct> valueAddedProducts = buildValueAddedProducts(reqVO.getMarketingProductSkuIds(),
-                valueAdded.getId(), loginUser, now);
-        valueAddedProductMapper.batchInsert(valueAddedProducts);
+        if (CollUtil.isNotEmpty(reqVO.getMarketingProductSkuIds())) {
+            List<ValueAddedProduct> valueAddedProducts = buildValueAddedProducts(reqVO.getMarketingProductSkuIds(),
+                    valueAdded.getId(), loginUser, now);
+            valueAddedProductMapper.batchInsert(valueAddedProducts);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
