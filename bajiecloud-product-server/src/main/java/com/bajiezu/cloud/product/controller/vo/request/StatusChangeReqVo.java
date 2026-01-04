@@ -10,11 +10,14 @@ import java.util.List;
 @Data
 public class StatusChangeReqVo {
 
-    @Schema(description = "id不能为空", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "id不能为空")
+    @Schema(description = "记录id集合", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "ids不能为空")
     private List<Long> ids;
 
     @Schema(description = "状态不能为空 0:禁用 1:启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "状态不能为空")
     private Integer status;
+
+    @Schema(description = "记录id", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Long id;
 }
