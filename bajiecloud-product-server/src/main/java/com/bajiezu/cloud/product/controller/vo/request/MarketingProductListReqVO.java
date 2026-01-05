@@ -1,6 +1,7 @@
 package com.bajiezu.cloud.product.controller.vo.request;
 
 import com.bajiezu.cloud.common.web.pojo.PageParam;
+import com.bajiezu.cloud.product.dal.dto.MarketingProductQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,9 @@ public class MarketingProductListReqVO extends PageParam {
     @Schema(description = "商品成色 0:全新 1:非全新")
     private Integer productCondition;
 
+    @Schema(description = "商品品牌id")
+    private Long brandId;
+
     @Schema(description = "商品创建时间开始")
     private Date createTimeBegin;
 
@@ -38,4 +42,19 @@ public class MarketingProductListReqVO extends PageParam {
 
     @Schema(description = "是否草稿 0:否 1:是")
     private Integer isDraft;
+
+    public MarketingProductQuery toQuery() {
+        MarketingProductQuery query = new MarketingProductQuery();
+        query.setProductType(this.getProductType());
+        query.setName(this.getName());
+        query.setProductCondition(this.getProductCondition());
+        query.setCreateTimeBegin(this.getCreateTimeBegin());
+        query.setCreateTimeEnd(this.getCreateTimeEnd());
+        query.setShelvesStatus(this.getShelvesStatus());
+        query.setApprovalStatus(this.getApprovalStatus());
+        query.setIsDraft(this.getIsDraft());
+        query.setOffset((this.getPageNo() - 1 ) * this.getPageSize());
+        query.setPageSize(this.getPageSize());
+        return query;
+    }
 }

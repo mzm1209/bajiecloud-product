@@ -24,4 +24,6 @@ public interface StandardProductSpuMapper extends BaseMapper<StandardProductSpu>
 
     void updateStatusByIds(@Param("ids") List<Long> ids, @Param("status") Integer status,
                            @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
+
+    List<Long> selectIdsByBrandIdAndMarketingCategoryId(@Param("brandId") Long brandId, @Param("marketingCategoryId") Long marketingCategoryId);
 }

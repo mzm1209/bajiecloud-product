@@ -2,6 +2,7 @@ package com.bajiezu.cloud.product.dal.mapper;
 
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
 import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
+import com.bajiezu.cloud.product.dal.dto.MarketingProductQuery;
 import com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ShelvesStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpu;
@@ -20,14 +21,18 @@ public interface MarketingProductSpuMapper extends BaseMapper<MarketingProductSp
 
     List<ProductTypeStatisticCountDTO> productTypeStatistic();
 
-    Integer queryCount(@Param("reqVO") MarketingProductListReqVO reqVO);
+    Integer queryCount(@Param("query") MarketingProductQuery query);
 
-    List<ApproveStatusStatisticCountDTO> approveStatusStatistic(@Param("reqVO") MarketingProductListReqVO reqVO);
+    List<ApproveStatusStatisticCountDTO> approveStatusStatistic(@Param("query") MarketingProductQuery query);
 
-    List<ShelvesStatisticCountDTO> shelvesStatistic(@Param("reqVO") MarketingProductListReqVO reqVO);
+    List<ShelvesStatisticCountDTO> shelvesStatistic(@Param("query") MarketingProductQuery query);
 
     void updateShelvesStatusByIds(@Param("ids") List<Long> ids, @Param("shelvesStatus") Integer shelvesStatus,
                                   @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 
     void logicDeleteByIds(@Param("ids") List<Long> ids, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
+
+    List<MarketingProductSpu> selectListByQuery(@Param("query") MarketingProductQuery query);
+
+    Long selectCountByQuery(@Param("query") MarketingProductQuery query);
 }

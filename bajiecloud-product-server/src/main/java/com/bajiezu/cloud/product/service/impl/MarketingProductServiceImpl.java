@@ -6,6 +6,7 @@ import com.bajiezu.cloud.common.constants.OperateTypeEnum;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
+import com.bajiezu.cloud.marketing.api.channel.MarketingChannelApi;
 import com.bajiezu.cloud.product.controller.MarketingProductPropertyValueVO;
 import com.bajiezu.cloud.product.controller.vo.MarketingProductPropertyVO;
 import com.bajiezu.cloud.product.controller.vo.MarketingProductSkuVO;
@@ -19,6 +20,7 @@ import com.bajiezu.cloud.product.controller.vo.response.MarketingProductRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
 import com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO;
+import com.bajiezu.cloud.product.dal.dto.MarketingProductQuery;
 import com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.dto.ShelvesStatisticCountDTO;
 import com.bajiezu.cloud.product.dal.entity.*;
@@ -28,18 +30,18 @@ import com.bajiezu.cloud.product.enums.ProductTypeEnum;
 import com.bajiezu.cloud.product.enums.ShelvesStatusEnum;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
+import com.bajiezu.cloud.system.api.user.AdminUserApi;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
@@ -64,8 +66,47 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     @Resource
     private StandardProductSpuMapper standardProductSpuMapper;
 
+    @Resource
+    private MarketingChannelApi marketingChannelApi;
+    @Resource
+    private AdminUserApi adminUserApi;
+
     @Override
     public PageResult<MarketingProductRespVO> page(MarketingProductListReqVO reqVO) {
+        log.info("list marketingProduct reqVO: {}", reqVO);
+
+        MarketingProductQuery query = reqVO.toQuery();
+        // 根据品牌、营销类目搜索
+        if (reqVO.getBrandId() != null || reqVO.getMarketingCategoryId() != null) {
+            List<Long> standardProductSpuIds = standardProductSpuMapper.selectIdsByBrandIdAndMarketingCategoryId(
+                    reqVO.getBrandId(), reqVO.getMarketingCategoryId());
+            query.setStandardProductSpuIds(standardProductSpuIds);
+        }
+
+        List<MarketingProductSpu> marketingProductSpus = marketingProductSpuMapper.selectListByQuery(query);
+        if (CollUtil.isEmpty(marketingProductSpus)) {
+            return PageResult.empty();
+        }
+        long count = marketingProductSpuMapper.selectCountByQuery(query);
+
+        List<Long> standardProductSpuIds = Lists.newArrayList();
+        Set<Long> userIds = Sets.newHashSet();
+        Set<Long> channelIds = Sets.newHashSet();
+        for (MarketingProductSpu marketingProductSpu : marketingProductSpus) {
+            standardProductSpuIds.add(marketingProductSpu.getStandardProductSpuId());
+            userIds.add(marketingProductSpu.getCreateBy());
+            userIds.add(marketingProductSpu.getUpdateBy());
+            if (StringUtils.isNotBlank(marketingProductSpu.getShelvingChannelId())) {
+                Arrays.stream(marketingProductSpu.getShelvingChannelId().split(","))
+                        .filter(StringUtils::isNotBlank)
+                        .map(String::trim)
+                        .map(Long::valueOf)
+                        .forEach(channelIds::add);
+            }
+        }
+
+
+
         return null;
     }
 
@@ -222,19 +263,26 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     public StatusStatisticRespVO statusStatistic(MarketingProductListReqVO reqVO) {
         log.info("查询商品状态统计信息,reqVO:{}", reqVO);
 
+        MarketingProductQuery query = reqVO.toQuery();
+        // 根据品牌、营销类目搜索
+        if (reqVO.getBrandId() != null || reqVO.getMarketingCategoryId() != null) {
+            List<Long> standardProductSpuIds = standardProductSpuMapper.selectIdsByBrandIdAndMarketingCategoryId(
+                    reqVO.getBrandId(), reqVO.getMarketingCategoryId());
+            query.setStandardProductSpuIds(standardProductSpuIds);
+        }
         // 获取商品总数
-        Integer totalCount = marketingProductSpuMapper.queryCount(reqVO);
+        Integer totalCount = marketingProductSpuMapper.queryCount(query);
 
         // 获取草稿商品数
-        reqVO.setIsDraft(1);
-        Integer draftCount = marketingProductSpuMapper.queryCount(reqVO);
+        query.setIsDraft(1);
+        Integer draftCount = marketingProductSpuMapper.queryCount(query);
 
         // 获取审核商品数
-        reqVO.setIsDraft(null);
-        List<ApproveStatusStatisticCountDTO> approveStatusStatisticCountDTOS = marketingProductSpuMapper.approveStatusStatistic(reqVO);
+        query.setIsDraft(null);
+        List<ApproveStatusStatisticCountDTO> approveStatusStatisticCountDTOS = marketingProductSpuMapper.approveStatusStatistic(query);
 
         // 获取上下架商品数
-        List<ShelvesStatisticCountDTO> shelvesStatisticCountDTOS = marketingProductSpuMapper.shelvesStatistic(reqVO);
+        List<ShelvesStatisticCountDTO> shelvesStatisticCountDTOS = marketingProductSpuMapper.shelvesStatistic(query);
 
         StatusStatisticRespVO statusStatisticRespVO = new StatusStatisticRespVO();
         statusStatisticRespVO.setTotalCount(totalCount);

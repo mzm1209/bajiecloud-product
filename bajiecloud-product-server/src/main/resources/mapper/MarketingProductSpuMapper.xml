@@ -51,35 +51,38 @@
     </resultMap>
 
     <sql id="listSql">
-        where is_deleted = 0 and type = #{reqVO.productType}
-        <if test="reqVO.name != null">
-            and name like concat('%', #{reqVO.name}, '%')
+        where is_deleted = 0 and type = #{query.productType}
+        <if test="query.name != null">
+            and name like concat('%', #{query.name}, '%')
         </if>
-        <if test="reqVO.marketingCategoryId != null">
-            and marketing_category_id = #{reqVO.marketingCategoryId}
+        <if test="query.standardProductSpuIds != null and query.standardProductSpuIds.size > 0">
+            and standard_product_spu_id in
+            <foreach item="id" collection="query.standardProductSpuIds" separator="," open="(" close=")" index="">
+                #{id}
+            </foreach>
         </if>
-        <if test="reqVO.productCondition != null">
-            and product_condition = #{reqVO.productCondition}
+        <if test="query.productCondition != null">
+            and product_condition = #{query.productCondition}
         </if>
-        <if test="reqVO.createTimeBegin != null">
-            and create_time >= #{reqVO.createTimeBegin}
+        <if test="query.createTimeBegin != null">
+            and create_time >= #{rquery.createTimeBegin}
         </if>
-        <if test="reqVO.createTimeEnd != null">
-            and create_time &lt;= #{reqVO.createTimeEnd}
+        <if test="query.createTimeEnd != null">
+            and create_time &lt;= #{query.createTimeEnd}
         </if>
-        <if test="reqVO.isShelving != null">
-            and is_shelving = #{reqVO.isShelving}
+        <if test="query.shelvesStatus != null">
+            and shelves_status = #{query.shelvesStatus}
         </if>
-        <if test="reqVO.isDraft != null">
-            and is_draft = #{reqVO.isDraft}
+        <if test="query.isDraft != null">
+            and is_draft = #{query.isDraft}
         </if>
-        <if test="reqVO.approvalStatus != null">
-            and approval_status = #{reqVO.approvalStatus}
+        <if test="query.approvalStatus != null">
+            and approval_status = #{query.approvalStatus}
         </if>
     </sql>
 
     <select id="productTypeStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO">
-        select type, count(1) as count from marketing_product_spu where is_deleted = 0 and is_shelving = 1
+        select type, count(1) as count from marketing_product_spu where is_deleted = 0 and shelves_status = 1
     </select>
 
     <select id="queryCount" resultType="java.lang.Integer">
@@ -120,4 +123,16 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="selectListByQuery" resultMap="BaseResultMap">
+        select * from marketing_product_spu <include refid="listSql"/>
+        order by create_time desc
+        <if test="query.offset != null">
+            limit #{query.offset}, #{query.pageSize}
+        </if>
+    </select>
+
+    <select id="selectCountByQuery" resultType="java.lang.Long">
+        select count(1) from marketing_product_spu <include refid="listSql"/>
+    </select>
 </mapper>
