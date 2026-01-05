@@ -36,4 +36,5 @@ public interface ErrorCodeConstants {
     ErrorCode MARKETING_PRODUCT_DELETED = new ErrorCode(1_003_008_002, "营销商品已删除");
     ErrorCode MARKETING_PRODUCT_IS_DRAFT = new ErrorCode(1_003_008_003, "当前商品为草稿状态,暂不能进行审核操作");
     ErrorCode MARKETING_PRODUCT_STATUS_NOT_WAIT_APPROVE = new ErrorCode(1_003_008_004, "商品审批状态不为待审批");
+    ErrorCode MARKETING_PRODUCT_TYPE_NOT_SUPPORT = new ErrorCode(1_003_008_005, "营销商品类型不正确");
 }

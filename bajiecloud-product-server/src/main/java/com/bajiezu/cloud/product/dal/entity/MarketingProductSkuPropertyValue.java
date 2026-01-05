@@ -31,4 +31,9 @@ public class MarketingProductSkuPropertyValue extends BaseDO {
      */
     private Long marketingSpuPropertyValueId;
 
+    /**
+     * 营销商品spu表主键ID
+     */
+    private Long marketingSpuId;
+
 }

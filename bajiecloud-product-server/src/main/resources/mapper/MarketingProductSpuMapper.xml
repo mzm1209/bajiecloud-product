@@ -32,14 +32,13 @@
         <result column="compensation_rule_id" property="compensationRuleId" />
         <result column="shipping_way" property="shippingWay" />
         <result column="shiping_template_id" property="shippingTemplateId" />
-        <result column="shipping_area_id" property="shippingAreaId" />
+        <result column="shipping_area_codes" property="shippingAreaCodes" />
         <result column="receiving_address" property="receivingAddress" />
         <result column="shelving_way" property="shelvingWay" />
         <result column="shelving_time" property="shelvingTime" />
         <result column="shelving_channel_id" property="shelvingChannelId" />
         <result column="shelves_status" property="shelvesStatus" />
         <result column="is_draft" property="isDraft" />
-        <result column="status" property="status" />
         <result column="approval_status" property="approvalStatus" />
         <result column="approver_id" property="approverId" />
         <result column="approval_remark" property="approvalRemark" />
@@ -107,5 +106,18 @@
             #{id}
         </foreach>
         and is_deleted = 0 and is_draft = 0 and approval_status = 1
+    </update>
+
+    <update id="logicDeleteByIds">
+        update
+            marketing_product_spu
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
     </update>
 </mapper>

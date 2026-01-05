@@ -28,4 +28,6 @@ public interface MarketingProductSpuMapper extends BaseMapper<MarketingProductSp
 
     void updateShelvesStatusByIds(@Param("ids") List<Long> ids, @Param("shelvesStatus") Integer shelvesStatus,
                                   @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
+
+    void logicDeleteByIds(@Param("ids") List<Long> ids, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 }

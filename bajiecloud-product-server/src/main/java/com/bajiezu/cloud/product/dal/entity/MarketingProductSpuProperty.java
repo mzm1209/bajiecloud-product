@@ -23,7 +23,7 @@ public class MarketingProductSpuProperty extends BaseDO {
     /**
      * 营销商品spu表主键ID
      */
-    private Long spuId;
+    private Long marketingSpuId;
 
     /**
      * 商品属性表ID

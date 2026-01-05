@@ -105,4 +105,7 @@ public class MarketingProductSku extends BaseDO {
      * 是否允许下单 0:不允许 1:允许
      */
     private Integer isAllowOrder;
+
+    @TableField(exist = false)
+    private String skuCode;
 }

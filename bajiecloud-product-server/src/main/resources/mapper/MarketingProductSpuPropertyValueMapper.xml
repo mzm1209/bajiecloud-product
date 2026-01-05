@@ -5,6 +5,7 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.bajiezu.cloud.product.dal.entity.MarketingProductSpuPropertyValue">
         <id column="id" property="id" />
+        <result column="marketing_spu_id" property="marketingSpuId" />
         <result column="spu_property_id" property="spuPropertyId" />
         <result column="product_property_value_id" property="productPropertyValueId" />
         <result column="property_value" property="propertyValue" />
@@ -17,4 +18,28 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <update id="logicDelByMarketingSpuIds">
+        update
+            marketing_product_spu_property_value
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where
+            marketing_spu_id in
+        <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </update>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into marketing_product_spu_property_value (marketing_spu_id, spu_property_id, product_property_value_id,
+                                                          property_value, sort, partner_id, create_by, update_by, create_time,
+                                                          update_time, is_deleted)
+        values
+        <foreach item="item" collection="list" separator=",">
+            (#{item.marketingSpuId}, #{item.spuPropertyId}, #{item.productPropertyValueId}, #{item.propertyValue}, #{item.sort}, #{item.partnerId}, #{item.createBy},
+             #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted})
+        </foreach>
+    </insert>
 </mapper>

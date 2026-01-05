@@ -56,6 +56,12 @@ public class SequenceGenerator {
      private static final String VIRTUAL_PRODUCT_SEQUENCE_KEY = "virtual_product:sequence:";
      public static final String VIRTUAL_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
 
+     /**
+     * SKU编码
+     */
+     private static final String SKU_SEQUENCE_KEY = "sku:sequence:";
+     public static final String SKU_PARTNER_CODE_FORMAT = "%08d";
+
     @Resource
     private RedissonClient redissonClient;
 
@@ -89,6 +95,10 @@ public class SequenceGenerator {
 
     public String getVirtualProductSequence() {
         return generateSequence(VIRTUAL_PRODUCT_SEQUENCE_KEY, VIRTUAL_PRODUCT_PARTNER_CODE_FORMAT);
+    }
+
+    public String getSkuSequence() {
+        return generateSequence(SKU_SEQUENCE_KEY, SKU_PARTNER_CODE_FORMAT);
     }
 
     private String generateSequence(String sequenceKey, String codeFormat) {

@@ -12,4 +12,7 @@ public class MarketingProductPropertyValueVO {
 
     @Schema(description = "商品属性值")
     private String value;
+
+    @Schema(description = "排序")
+    private Integer sort = 0;
 }

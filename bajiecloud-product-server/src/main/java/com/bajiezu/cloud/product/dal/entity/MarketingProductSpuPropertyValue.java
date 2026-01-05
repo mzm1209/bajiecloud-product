@@ -39,4 +39,12 @@ public class MarketingProductSpuPropertyValue extends BaseDO {
      * 顺序
      */
     private Integer sort;
+
+    private Long marketingSpuId;
+
+    @TableField(exist = false)
+    private Long productPropertyId;
+
+    @TableField(exist = false)
+    private String unqKey;
 }

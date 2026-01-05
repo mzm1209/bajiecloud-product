@@ -30,4 +30,33 @@
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
+    <update id="logicDelByMarketingSpuIds">
+        update
+            marketing_product_sku
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where
+            marketing_spu_id in
+        <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </update>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into marketing_product_sku (marketing_spu_id, official_price, total_price_factor, total_rent_factor, total_price,
+                                           total_rent, buyout_amount, daily_rent, stock, premium, suggested_retail_price,
+                                           strikethrough_price, cashUsage_ratio, pointsUsage_ratio, points_count, cash_price,
+                                           is_allow_order, partner_id, create_by, update_by, create_time, update_time, is_deleted)
+        values
+        <foreach item="item" collection="list" separator="," index="">
+            (
+             #{item.marketingSpuId}, #{item.officialPrice}, #{item.totalPriceFactor}, #{item.totalRentFactor}, #{item.totalPrice},
+             #{item.totalRent}, #{item.buyoutAmount}, #{item.dailyRent}, #{item.stock}, #{item.premium}, #{item.suggestedRetailPrice},
+             #{item.strikethroughPrice}, #{item.cashUsageRatio}, #{item.pointsUsageRatio}, #{item.pointsCount}, #{item.cashPrice},
+              #{item.isAllowOrder}, #{item.partnerId}, #{item.createBy}, #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted}
+            )
+        </foreach>
+    </insert>
 </mapper>

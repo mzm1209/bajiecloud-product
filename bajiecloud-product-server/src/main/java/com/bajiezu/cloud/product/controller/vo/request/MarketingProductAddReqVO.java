@@ -25,10 +25,10 @@ public class MarketingProductAddReqVO {
     private String name;
 
     @Schema(description = "商品成色 0:全新 1:非全新")
-    private List<Integer> productConditions;
+    private Integer productCondition;
 
     @Schema(description = "商品监控属性 0:监管 1:非监管")
-    private List<Integer> monitorAttributes;
+    private Integer monitorAttribute;
 
     @Schema(description = "商品主图")
     private List<String> mainPicUrls;
@@ -70,6 +70,8 @@ public class MarketingProductAddReqVO {
     private Long minBuybackPrice;
     @Schema(description = "最高回收价")
     private Long maxBuybackPrice;
+    @Schema(description = "收货地址")
+    private String receivingAddress;
 
 
     /**************************  增值服务 ********************************/

@@ -60,4 +60,6 @@ public class MarketingProductSkuVO {
 
     @Schema(description = "SKU属性")
     private List<SkuPropertyValueVO> propertyValues;
+
+    private String skuCode;
 }

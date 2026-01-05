@@ -128,7 +128,7 @@ public class MarketingProductSpu extends BaseDO {
     /**
      * 展示页面 0:SKU页 1:确认订单页
      */
-    private Integer showPage;
+    private String showPage;
 
     /**
      * 是否默认勾选 0:否 1:是
@@ -156,9 +156,9 @@ public class MarketingProductSpu extends BaseDO {
     private Long shippingTemplateId;
 
     /**
-     * 发货地区ID
+     * 发货地区编码
      */
-    private Long shippingAreaId;
+    private String shippingAreaCodes;
 
     /**
      * 收货地址
@@ -189,11 +189,6 @@ public class MarketingProductSpu extends BaseDO {
      * 是否为草稿 0:否 1:是
      */
     private Integer isDraft;
-
-    /**
-     * 状态 0:启用 1:禁用
-     */
-    private Integer status;
 
     /**
      * 审批状态 0:未审批 1:审批通过 2:审批拒绝
