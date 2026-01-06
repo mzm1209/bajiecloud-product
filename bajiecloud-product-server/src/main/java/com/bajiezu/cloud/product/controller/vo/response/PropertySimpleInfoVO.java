@@ -9,9 +9,12 @@ import java.util.List;
 @Data
 public class PropertySimpleInfoVO {
 
+    @Schema(description = "属性id")
     private Long id;
 
+    @Schema(description = "属性名称")
     private String name;
 
+    @Schema(description = "属性值信息")
     private List<PropertyValueSimpleInfoVO> propertyValues;
 }
