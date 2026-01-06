@@ -102,4 +102,35 @@
         </foreach>
         and is_deleted = 0
     </select>
+
+    <select id="selectMarketingSpuIdsByPropertyValuesIds" resultType="java.lang.Long">
+        select marketing_spu_id
+        from marketing_product_spu_property_value
+        where is_deleted = 0
+          and product_property_value_id in
+          <foreach item="id" collection="propertyValuesIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by marketing_spu_id
+        having count(id) = #{propertyValuesIdsCount}
+    </select>
+
+    <select id="selectMarketingSkuIdsByPropertyValuesIds" resultType="java.lang.Long">
+        select
+            msppv.marketing_product_sku_id
+        from
+            marketing_product_sku_property_value msppv
+        inner join marketing_product_spu_property_value mspv on msppv.marketing_spu_property_value_id = mspv.id
+        where
+            msppv.is_deleted = 0
+          and mspv.is_deleted = 0
+          and mspv.product_property_value_id in
+            <foreach item="id" collection="propertyValuesIds" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        group by
+            msppv.marketing_product_sku_id
+        having
+            count(msppv.id ) = #{propertyValuesIdsCount}
+    </select>
 </mapper>

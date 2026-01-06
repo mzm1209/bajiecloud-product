@@ -3,6 +3,8 @@ package com.bajiezu.cloud.product.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.List;
+
 @Schema(description = "属性值")
 @Data
 public class PropertyValueVO {
@@ -12,4 +14,7 @@ public class PropertyValueVO {
 
     @Schema(description = "属性值")
     private String propertyValue;
+
+    @Schema(description = "属性图片")
+    private List<String> propertyPics;
 }

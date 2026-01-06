@@ -5,10 +5,7 @@ import com.bajiezu.cloud.common.dto.LongIdsReqVO;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.*;
-import com.bajiezu.cloud.product.controller.vo.response.MarketingProductDetailRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.MarketingProductRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -87,5 +84,17 @@ public class MarketingProductController {
     @Operation(summary = "商品各种状态统计值")
     public CommonResult<StatusStatisticRespVO> statusStatistic(@RequestBody MarketingProductListReqVO reqVO) {
         return CommonResult.success(marketingProductService.statusStatistic(reqVO));
+    }
+
+    @PostMapping("/spuListForAddCoupon")
+    @Operation(summary = "获取SPU列表-提供给创建优惠券使用")
+    public CommonResult<PageResult<SpuRespVO>> spuListForAddCoupon(@Valid @RequestBody ProductListReqVO reqVO) {
+        return CommonResult.success(marketingProductService.spuListForAddCoupon(reqVO));
+    }
+
+    @PostMapping("/skuListForAddCoupon")
+    @Operation(summary = "获取SKU列表-提供给创建优惠券使用")
+    public CommonResult<PageResult<SkuRespVO>> skuListForAddCoupon(@Valid @RequestBody ProductListReqVO reqVO) {
+        return CommonResult.success(marketingProductService.skuListForAddCoupon(reqVO));
     }
 }

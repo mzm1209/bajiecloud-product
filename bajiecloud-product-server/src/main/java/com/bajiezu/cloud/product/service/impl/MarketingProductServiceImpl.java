@@ -14,14 +14,8 @@ import com.bajiezu.cloud.marketing.dto.channel.req.MarketingChannelIdsReqDTO;
 import com.bajiezu.cloud.marketing.dto.channel.resp.MarketingChannelRespDTO;
 import com.bajiezu.cloud.product.controller.MarketingProductPropertyValueVO;
 import com.bajiezu.cloud.product.controller.vo.*;
-import com.bajiezu.cloud.product.controller.vo.request.MarketingProductAddReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.MarketingProductApproveReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.OnOffShelvesReqVO;
-import com.bajiezu.cloud.product.controller.vo.response.MarketingProductDetailRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.MarketingProductRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
+import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.dal.dto.*;
 import com.bajiezu.cloud.product.dal.entity.*;
 import com.bajiezu.cloud.product.dal.mapper.*;
@@ -440,15 +434,16 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     public void del(List<Long> ids) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         log.info("del ids: {},operatorId:{}", ids, loginUser.getId());
-        if (CollUtil.isNotEmpty(ids)) {
+        if (CollUtil.isEmpty(ids)) {
             return;
         }
         // 批量逻辑删除
-        marketingProductSpuMapper.logicDeleteByIds(ids, loginUser.getId(), new Date());
-        spuPropertyMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), new Date());
-        spuPropertyValueMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), new Date());
-        skuMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), new Date());
-        skuPropertyValueMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), new Date());
+        Date now = new Date();
+        marketingProductSpuMapper.logicDeleteByIds(ids, loginUser.getId(), now);
+        spuPropertyMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), now);
+        spuPropertyValueMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), now);
+        skuMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), now);
+        skuPropertyValueMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), now);
 
     }
 
@@ -456,7 +451,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     public void onOffShelves(OnOffShelvesReqVO reqVO) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         log.info("onOffShelves reqVO: {},operatorId:{}", reqVO, loginUser.getId());
-        if (CollUtil.isNotEmpty(reqVO.getIds())) {
+        if (CollUtil.isEmpty(reqVO.getIds())) {
             return;
         }
 
@@ -688,6 +683,101 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         return detailRespVOS;
+    }
+
+    @Override
+    public PageResult<SpuRespVO> spuListForAddCoupon(ProductListReqVO reqVO) {
+        log.info("list product spu dto: {}", reqVO);
+
+        ProductQuery query = reqVO.convert2ProductQuery();
+        if (CollectionUtil.isNotEmpty(reqVO.getPropertyValuesIds())) {
+            List<Long> marketingSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValuesIds(reqVO.getPropertyValuesIds(),
+                    reqVO.getPropertyValuesIds().size());
+            if (CollectionUtil.isEmpty(marketingSpuIds)) {
+                return PageResult.empty();
+            }
+            query.setMarketingSpuIds(marketingSpuIds);
+        }
+        List<MarketingProductSpu> marketingProductSpus = marketingProductSpuMapper.selectListByCondition(query);
+        if (CollectionUtil.isEmpty(marketingProductSpus)) {
+            return PageResult.empty();
+        }
+        long count = marketingProductSpuMapper.selectCountByCondition(query);
+
+        List<Long> spuIds = marketingProductSpus.stream().map(MarketingProductSpu::getId).toList();
+        // 属性
+        List<MarketingProductSpuProperty> spuProperties = spuPropertyMapper.selectListBySpuIds(spuIds);
+        Map<Long, List<MarketingProductSpuProperty>> spuId2SpuPropertiesMap = spuProperties.stream().collect(
+                Collectors.groupingBy(MarketingProductSpuProperty::getMarketingSpuId));
+        List<Long> productPropertyIds = spuProperties.stream().map(MarketingProductSpuProperty::getProductPropertyId).toList();
+        List<ProductProperty> productProperties = productPropertyMapper.selectListByIds(productPropertyIds);
+        Map<Long, String> productPropertyId2NameMap = productProperties.stream().collect(Collectors.toMap(ProductProperty::getId, ProductProperty::getName));
+
+        // 属性值
+        List<MarketingProductSpuPropertyValue> spuPropertyValues = spuPropertyValueMapper.selectListBySpuIds(spuIds);
+        Map<Long, Map<Long, List<MarketingProductSpuPropertyValue>>> spuId2PropertyValueIdsMap = spuPropertyValues.stream().collect(
+                Collectors.groupingBy(MarketingProductSpuPropertyValue::getMarketingSpuId,
+                        Collectors.groupingBy(MarketingProductSpuPropertyValue::getSpuPropertyId)));
+        List<Long> productPropertyValueIds = spuPropertyValues.stream().map(MarketingProductSpuPropertyValue::getProductPropertyValueId).toList();
+        List<ProductPropertyValue> productPropertyValues = productPropertyValueMapper.selectListByIds(productPropertyValueIds);
+        Map<Long, String> productPropertyValueId2ValueMap = productPropertyValues.stream().collect(Collectors.toMap(
+                ProductPropertyValue::getId, ProductPropertyValue::getPropertyValue));
+
+        List<SpuRespVO> spuRespVOS = Lists.newArrayList();
+        for (MarketingProductSpu marketingProductSpu : marketingProductSpus) {
+            SpuRespVO spuRespVO = new SpuRespVO();
+            spuRespVOS.add(spuRespVO);
+
+            spuRespVO.setId(marketingProductSpu.getId());
+            spuRespVO.setCode(marketingProductSpu.getCode());
+            spuRespVO.setName(marketingProductSpu.getName());
+            spuRespVO.setMainPics(List.of(StringUtils.split(marketingProductSpu.getMainPicUrls(), ",")));
+
+            List<PropertyVO> properties = Lists.newArrayList();
+            spuRespVO.setProperties(properties);
+            for (MarketingProductSpuProperty spuProperty : spuId2SpuPropertiesMap.get(marketingProductSpu.getId())) {
+                PropertyVO propertyVO = new PropertyVO();
+                properties.add(propertyVO);
+
+                propertyVO.setPropertyId(spuProperty.getProductPropertyId());
+                propertyVO.setPropertyName(productPropertyId2NameMap.get(spuProperty.getProductPropertyId()));
+
+                List<PropertyValueVO> propertyValues = Lists.newArrayList();
+                propertyVO.setPropertyValues(propertyValues);
+                for (MarketingProductSpuPropertyValue spuPropertyValue : spuId2PropertyValueIdsMap.get(marketingProductSpu.getId()).get(spuProperty.getId())) {
+                    PropertyValueVO propertyValueVO = new PropertyValueVO();
+                    propertyValues.add(propertyValueVO);
+
+                    propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+                    if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                        propertyValueVO.setPropertyValue(productPropertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                    } else {
+                        propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+                    }
+                }
+            }
+        }
+        return new PageResult<>(spuRespVOS, count);
+    }
+
+    @Override
+    public PageResult<SkuRespVO> skuListForAddCoupon(ProductListReqVO reqVO) {
+        log.info("list product sku dto: {}", reqVO);
+        ProductQuery query = reqVO.convert2ProductQuery();
+        if (CollectionUtil.isNotEmpty(reqVO.getPropertyValuesIds())) {
+            List<Long> marketingSkuIds = spuPropertyValueMapper.selectMarketingSkuIdsByPropertyValuesIds(reqVO.getPropertyValuesIds(),
+                    reqVO.getPropertyValuesIds().size());
+            if (CollectionUtil.isEmpty(marketingSkuIds)) {
+                return PageResult.empty();
+            }
+        }
+
+        /*List<MarketingProductSku> marketingProductSKus = skuMapper.selectListByCondition(query);
+        if (CollectionUtil.isEmpty(marketingProductSKus)) {
+            return PageResult.empty();
+        }
+        long count = skuMapper.selectCountByCondition(query);*/
+        return null;
     }
 
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {

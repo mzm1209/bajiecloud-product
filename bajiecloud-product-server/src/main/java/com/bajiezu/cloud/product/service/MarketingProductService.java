@@ -1,14 +1,8 @@
 package com.bajiezu.cloud.product.service;
 
 import com.bajiezu.cloud.common.web.pojo.PageResult;
-import com.bajiezu.cloud.product.controller.vo.request.MarketingProductAddReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.MarketingProductApproveReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
-import com.bajiezu.cloud.product.controller.vo.request.OnOffShelvesReqVO;
-import com.bajiezu.cloud.product.controller.vo.response.MarketingProductDetailRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.MarketingProductRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
-import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
+import com.bajiezu.cloud.product.controller.vo.request.*;
+import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
 import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
 
@@ -35,4 +29,8 @@ public interface MarketingProductService {
     StatusStatisticRespVO statusStatistic(MarketingProductListReqVO reqVO);
 
     List<ProductDetailRespVO> batchGetProductDetail(MarketingProductReqVO reqVO);
+
+    PageResult<SpuRespVO> spuListForAddCoupon(ProductListReqVO reqVO);
+
+    PageResult<SkuRespVO> skuListForAddCoupon(ProductListReqVO reqVO);
 }

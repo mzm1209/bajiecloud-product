@@ -28,4 +28,10 @@ public interface MarketingProductSpuPropertyValueMapper extends BaseMapper<Marke
     List<MarketingProductSpuPropertyValue> selectListByIds(@Param("ids") Collection<Long> ids);
 
     List<MarketingProductSpuPropertyValue> selectListBySpuIds(@Param("spuIds") Collection<Long> spuIds);
+
+    List<Long> selectMarketingSpuIdsByPropertyValuesIds(@Param("propertyValuesIds") Collection<Long> propertyValuesIds,
+                                                        @Param("propertyValuesIdsCount") Integer propertyValuesIdsCount);
+
+    List<Long> selectMarketingSkuIdsByPropertyValuesIds(@Param("propertyValuesIds") Collection<Long> propertyValuesIds,
+                                                        @Param("propertyValuesIdsCount") Integer propertyValuesIdsCount);
 }

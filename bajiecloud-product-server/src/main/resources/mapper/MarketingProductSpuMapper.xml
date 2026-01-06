@@ -119,7 +119,7 @@
             update_by = #{updateBy},
             update_time = #{updateTime}
         where id in
-        <foreach item="id" collection="ids" separator="," open="(" close=")" index="">
+        <foreach item="id" collection="ids" separator="," open="(" close=")">
             #{id}
         </foreach>
     </update>
@@ -141,5 +141,45 @@
         <foreach item="id" collection="ids" separator="," open="(" close=")" index="">
             #{id}
         </foreach>
+    </select>
+
+    <select id="selectListByCondition" parameterType="com.bajiezu.cloud.product.dal.dto.ProductQuery" resultMap="BaseResultMap">
+        select * from marketing_product_spu where is_deleted = 0 and shelves_status = 1
+        <if test="name != null">
+            and name like concat('%', #{name}, '%')
+        </if>
+        <if test="code != null">
+            and code like concat('%', #{code}, '%')
+        </if>
+        <if test="productType != null">
+            and type = #{productType}
+        </if>
+        <if test="marketingSpuIds != null and marketingSpuIds.size > 0">
+            and id in
+            <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")" index="">
+                #{id}
+            </foreach>
+        </if>
+        order by create_time desc
+        limit #{offset}, #{pageSize}
+    </select>
+
+    <select id="selectCountByCondition" parameterType="com.bajiezu.cloud.product.dal.dto.ProductQuery" resultType="java.lang.Long">
+        select count(1) from marketing_product_spu where is_deleted = 0 and shelves_status = 1
+        <if test="name != null">
+            and name like concat('%', #{name}, '%')
+        </if>
+        <if test="code != null">
+            and code like concat('%', #{code}, '%')
+        </if>
+        <if test="productType != null">
+            and type = #{productType}
+        </if>
+        <if test="marketingSpuIds != null and marketingSpuIds.size > 0">
+            and id in
+            <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")" index="">
+                #{id}
+            </foreach>
+        </if>
     </select>
 </mapper>
