@@ -18,4 +18,6 @@ public class ProductQuery {
     private Integer offset;
 
     private Integer pageSize;
+
+    private List<Long> marketingSkuIds;
 }

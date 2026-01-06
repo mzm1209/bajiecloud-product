@@ -108,4 +108,7 @@ public class MarketingProductSku extends BaseDO {
 
     @TableField(exist = false)
     private String skuCode;
+
+    @TableField(exist = false)
+    private String name;
 }

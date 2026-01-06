@@ -24,4 +24,6 @@ public interface MarketingProductSkuPropertyValueMapper extends BaseMapper<Marke
     List<MarketingProductSkuPropertyValue> selectListByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId);
 
     List<Long> selectSpuPropertyValueIdsBySkuIds(@Param("skuIds") Collection<Long> skuIds);
+
+    List<MarketingProductSkuPropertyValue> selectListBySkuIds(@Param("skuIds") Collection<Long> skuIds);
 }

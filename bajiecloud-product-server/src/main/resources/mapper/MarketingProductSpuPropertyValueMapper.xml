@@ -75,7 +75,7 @@
 
     <select id="selectListByIds" resultMap="BaseResultMap">
         select
-            pv.product_property_value_id, pv.property_value, sp.product_property_id
+            pv.id, pv.product_property_value_id, pv.property_value, sp.product_property_id
         from
             marketing_product_spu_property_value pv left join marketing_product_spu_property sp on pv.spu_property_id = sp.id
         where

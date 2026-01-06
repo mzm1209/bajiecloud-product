@@ -770,14 +770,74 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             if (CollectionUtil.isEmpty(marketingSkuIds)) {
                 return PageResult.empty();
             }
+            query.setMarketingSkuIds(marketingSkuIds);
         }
 
-        /*List<MarketingProductSku> marketingProductSKus = skuMapper.selectListByCondition(query);
+        List<MarketingProductSku> marketingProductSKus = skuMapper.selectListByCondition(query);
         if (CollectionUtil.isEmpty(marketingProductSKus)) {
             return PageResult.empty();
         }
-        long count = skuMapper.selectCountByCondition(query);*/
-        return null;
+        long count = skuMapper.selectCountByCondition(query);
+
+        List<Long> skuIds = marketingProductSKus.stream().map(MarketingProductSku::getId).toList();
+        List<MarketingProductSkuPropertyValue> skuPropertyValues = skuPropertyValueMapper.selectListBySkuIds(skuIds);
+        Map<Long, List<MarketingProductSkuPropertyValue>> skuId2SpuPropertyValueIdsMap = skuPropertyValues.stream().collect(Collectors.groupingBy(
+                MarketingProductSkuPropertyValue::getMarketingProductSkuId));
+
+        List<Long> spuPropertyValueIds = skuPropertyValues.stream().map(MarketingProductSkuPropertyValue::getMarketingSpuPropertyValueId).toList();
+        List<MarketingProductSpuPropertyValue> spuPropertyValues = spuPropertyValueMapper.selectListByIds(spuPropertyValueIds);
+        Map<Long, MarketingProductSpuPropertyValue> spuPropertyId2SpuPropertyValueMap = spuPropertyValues.stream().collect(
+                Collectors.toMap(MarketingProductSpuPropertyValue::getId, Function.identity()));
+
+        List<Long> productPropertyIds = Lists.newArrayList();
+        List<Long> productPropertyValueIds = Lists.newArrayList();
+        for (MarketingProductSpuPropertyValue spuPropertyValue : spuPropertyValues) {
+            productPropertyIds.add(spuPropertyValue.getProductPropertyId());
+            if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                productPropertyValueIds.add(spuPropertyValue.getProductPropertyValueId());
+            }
+        }
+        List<ProductProperty> productProperties = productPropertyMapper.selectListByIds(productPropertyIds);
+        Map<Long, String> propertyId2NameMap = productProperties.stream().collect(Collectors.toMap(ProductProperty::getId, ProductProperty::getName));
+        Map<Long, String> propertyValueId2ValueMap = Maps.newHashMap();
+        if (CollectionUtil.isNotEmpty(productPropertyValueIds)) {
+            List<ProductPropertyValue> productPropertyValues = productPropertyValueMapper.selectListByIds(productPropertyValueIds);
+            propertyValueId2ValueMap = productPropertyValues.stream().collect(Collectors.toMap(
+                    ProductPropertyValue::getId, ProductPropertyValue::getPropertyValue));
+        }
+
+        List<SkuRespVO> skuRespVOS = Lists.newArrayList();
+        for (MarketingProductSku sku : marketingProductSKus) {
+            SkuRespVO skuRespVO = new SkuRespVO();
+            skuRespVOS.add(skuRespVO);
+
+            skuRespVO.setId(sku.getId());
+            skuRespVO.setName(sku.getName());
+            skuRespVO.setDailyRent(sku.getDailyRent());
+
+            List<PropertyVO> propertyVOS = Lists.newArrayList();
+            skuRespVO.setProperties(propertyVOS);
+            for (MarketingProductSkuPropertyValue skuPropertyValue : skuId2SpuPropertyValueIdsMap.get(sku.getId())) {
+                PropertyVO propertyVO = new PropertyVO();
+                propertyVOS.add(propertyVO);
+                MarketingProductSpuPropertyValue spuPropertyValue = spuPropertyId2SpuPropertyValueMap.get(skuPropertyValue.getMarketingSpuPropertyValueId());
+                propertyVO.setPropertyId(spuPropertyValue.getProductPropertyId());
+                propertyVO.setPropertyName(propertyId2NameMap.get(spuPropertyValue.getProductPropertyId()));
+
+                List<PropertyValueVO> propertyValueVOS = Lists.newArrayList();
+                propertyVO.setPropertyValues(propertyValueVOS);
+                PropertyValueVO propertyValueVO = new PropertyValueVO();
+                propertyValueVOS.add(propertyValueVO);
+                propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+                if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                    propertyValueVO.setPropertyValue(propertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                } else {
+                    propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+                }
+            }
+        }
+
+        return new PageResult<>(skuRespVOS, count);
     }
 
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {

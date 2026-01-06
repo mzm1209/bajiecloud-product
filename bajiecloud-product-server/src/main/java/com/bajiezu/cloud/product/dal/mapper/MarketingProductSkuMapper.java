@@ -2,6 +2,7 @@ package com.bajiezu.cloud.product.dal.mapper;
 
 import com.bajiezu.cloud.product.dal.dto.IdAndCountDTO;
 import com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO;
+import com.bajiezu.cloud.product.dal.dto.ProductQuery;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSku;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -38,4 +39,8 @@ public interface MarketingProductSkuMapper extends BaseMapper<MarketingProductSk
     List<MarketingProductSku> selectListByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId);
 
     List<MarketingProductSku> selectListByIds(@Param("ids") Collection<Long> ids);
+
+    List<MarketingProductSku> selectListByCondition(ProductQuery query);
+
+    Long selectCountByCondition(ProductQuery query);
 }
