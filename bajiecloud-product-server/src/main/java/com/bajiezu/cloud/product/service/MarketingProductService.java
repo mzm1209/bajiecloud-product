@@ -9,6 +9,8 @@ import com.bajiezu.cloud.product.controller.vo.response.MarketingProductDetailRe
 import com.bajiezu.cloud.product.controller.vo.response.MarketingProductRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ProductTypeStatisticRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.StatusStatisticRespVO;
+import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
+import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
 
 import java.util.List;
 
@@ -31,4 +33,6 @@ public interface MarketingProductService {
     void approve(MarketingProductApproveReqVO reqVO);
 
     StatusStatisticRespVO statusStatistic(MarketingProductListReqVO reqVO);
+
+    List<ProductDetailRespVO> batchGetProductDetail(MarketingProductReqVO reqVO);
 }

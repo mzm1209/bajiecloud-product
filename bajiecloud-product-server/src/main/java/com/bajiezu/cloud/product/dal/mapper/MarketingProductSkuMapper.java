@@ -36,4 +36,6 @@ public interface MarketingProductSkuMapper extends BaseMapper<MarketingProductSk
     List<IdAndPriceDTO> queryMinAndMaxSuggestedRetailPriceByMarketingProductSpuIds(@Param("marketingSpuIds") Collection<Long> marketingSpuId);
 
     List<MarketingProductSku> selectListByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId);
+
+    List<MarketingProductSku> selectListByIds(@Param("ids") Collection<Long> ids);
 }

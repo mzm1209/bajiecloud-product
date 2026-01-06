@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -35,4 +36,6 @@ public interface MarketingProductSpuMapper extends BaseMapper<MarketingProductSp
     List<MarketingProductSpu> selectListByQuery(@Param("query") MarketingProductQuery query);
 
     Long selectCountByQuery(@Param("query") MarketingProductQuery query);
+
+    List<MarketingProductSpu> selectListByIds(@Param("ids") Collection<Long> ids);
 }

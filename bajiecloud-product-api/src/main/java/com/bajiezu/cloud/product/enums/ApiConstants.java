@@ -17,4 +17,7 @@ public class ApiConstants {
 
     public static final String PREFIX = RpcConstants.RPC_API_PREFIX + "/product";
 
+    public static final String SKU = "SKU";
+    public static final String SPU = "SPU";
+
 }

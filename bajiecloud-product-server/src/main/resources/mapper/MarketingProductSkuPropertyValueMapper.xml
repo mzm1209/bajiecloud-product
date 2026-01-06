@@ -46,4 +46,12 @@
         select id, marketing_spu_id, marketing_product_sku_id, marketing_spu_property_value_id from marketing_product_sku_property_value
         where marketing_spu_id = #{marketingSpuId} and is_deleted = 0
     </select>
+
+    <select id="selectSpuPropertyValueIdsBySkuIds" resultType="java.lang.Long">
+        select marketing_spu_property_value_id from marketing_product_sku_property_value where is_deleted = 0 and
+        marketing_product_sku_id in
+         <foreach item="id" collection="skuIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
