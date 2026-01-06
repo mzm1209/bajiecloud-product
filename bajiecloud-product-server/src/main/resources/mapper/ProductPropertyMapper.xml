@@ -45,4 +45,11 @@
     <select id="queryAll" resultMap="BaseResultMap">
         select id, name from product_property where is_deleted = 0 order by sort
     </select>
+
+    <select id="selectListByIds" resultMap="BaseResultMap">
+        select * from product_property where id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

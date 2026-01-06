@@ -16,6 +16,8 @@
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="is_deleted" property="isDeleted" />
+
+        <result column="product_property_id" property="productPropertyId" />
     </resultMap>
 
     <update id="logicDelByMarketingSpuIds">
@@ -42,4 +44,22 @@
              #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted})
         </foreach>
     </insert>
+
+    <select id="selectListByMarketingProductSpuIds" resultMap="BaseResultMap">
+        select
+            pv.id,
+            pv.marketing_spu_id,
+            sp.product_property_id,
+            pv.product_property_value_id,
+            pv.property_value,
+            pv.sort
+        from
+            marketing_product_spu_property_value pv left join marketing_product_spu_property sp on pv.spu_property_id = sp.id
+        where
+            pv.marketing_spu_id in
+        <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+        and pv.is_deleted = 0
+    </select>
 </mapper>

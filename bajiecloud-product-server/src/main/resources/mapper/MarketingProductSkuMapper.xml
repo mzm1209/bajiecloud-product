@@ -59,4 +59,91 @@
             )
         </foreach>
     </insert>
+
+    <select id="querySkuCountByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndCountDTO">
+        select
+            marketing_spu_id as id,
+            count(*) as count
+        from
+            marketing_product_sku
+        where
+            is_deleted = 0 and marketing_spu_id in
+        <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{marketingSpuId}
+        </foreach>
+        group by
+            marketing_spu_id
+    </select>
+
+    <select id="queryStockByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndCountDTO">
+        select
+            marketing_spu_id as id,
+            sum(stock) as count
+        from
+            marketing_product_sku
+        where
+            is_deleted = 0 and marketing_spu_id in
+        <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{marketingSpuId}
+        </foreach>
+        group by
+            marketing_spu_id
+    </select>
+
+    <select id="queryMinAndMaxBuybackPriceByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO">
+        select
+            marketing_spu_id as id,
+            min(buyout_amount) as minPrice,
+            max(buyout_amount) as maxPrice
+        from
+            marketing_product_sku
+        where
+        is_deleted = 0 and marketing_spu_id in
+        <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{marketingSpuId}
+        </foreach>
+        group by
+        marketing_spu_id
+    </select>
+
+    <select id="queryMinDailyRentPriceByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO">
+        select
+            marketing_spu_id as id,
+            min(daily_rent) as minPrice
+        from
+            marketing_product_sku
+        where
+        is_deleted = 0 and marketing_spu_id in
+        <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{marketingSpuId}
+        </foreach>
+    </select>
+
+    <select id="queryMinAndMaxOfficialPriceByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO">
+        select
+            marketing_spu_id as id,
+            min(official_price) as minPrice,
+            max(official_price) as maxPrice
+        from
+            marketing_product_sku
+        where
+        is_deleted = 0 and marketing_spu_id in
+        <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{marketingSpuId}
+        </foreach>
+    </select>
+
+    <select id="queryMinAndMaxSuggestedRetailPriceByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO">
+        select
+            marketing_spu_id as id,
+            min(suggested_retail_price) as minPrice,
+            max(suggested_retail_price) as maxPrice
+        from
+            marketing_product_sku
+        where
+        is_deleted = 0 and marketing_spu_id in
+        <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{marketingSpuId}
+        </foreach>
+    </select>
 </mapper>

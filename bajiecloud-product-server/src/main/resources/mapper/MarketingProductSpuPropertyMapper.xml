@@ -41,4 +41,17 @@
             )
         </foreach>
     </insert>
+
+    <select id="selectListByMarketingProductSpuIds" resultMap="BaseResultMap">
+        select
+            id, marketing_spu_id, product_property_id, sort
+        from
+            marketing_product_spu_property
+        where
+            marketing_spu_id in
+        <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+    </select>
 </mapper>

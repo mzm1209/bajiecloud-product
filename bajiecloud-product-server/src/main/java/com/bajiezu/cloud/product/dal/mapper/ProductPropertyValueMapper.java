@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -31,4 +32,6 @@ public interface ProductPropertyValueMapper extends BaseMapper<ProductPropertyVa
     List<ProductPropertyValue> selectListByPropertyIds(@Param("propertyIds") List<Long> propertyIds);
 
     List<ProductPropertyValue> queryAll();
+
+    List<ProductPropertyValue> selectListByIds(@Param("ids") Collection<Long> ids);
 }

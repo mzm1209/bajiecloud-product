@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 营销商品SPU属性表 Mapper 接口
@@ -20,4 +21,6 @@ public interface MarketingProductSpuPropertyMapper extends BaseMapper<MarketingP
                                    @Param("updateTime") Date updateTime);
 
     void insertBatch(@Param("list") Collection<MarketingProductSpuProperty> list);
+
+    List<MarketingProductSpuProperty> selectListByMarketingProductSpuIds(@Param("marketingSpuIds") Collection<Long> marketingSpuIds);
 }

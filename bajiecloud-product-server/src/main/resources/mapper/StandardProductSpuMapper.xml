@@ -89,4 +89,11 @@
             and marketing_category_id = #{marketingCategoryId}
          </if>
     </select>
+
+    <select id="selectListByIds" resultMap="BaseResultMap">
+        select * from standard_product_spu where id in
+        <foreach item="id" collection="ids" separator="," close=")" open="(" index="">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
