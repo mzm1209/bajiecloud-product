@@ -54,4 +54,14 @@
         </foreach>
         and is_deleted = 0
     </select>
+
+    <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
+        select
+            id, marketing_spu_id, product_property_id, sort
+        from
+            marketing_product_spu_property
+        where
+            marketing_spu_id = #{marketingSpuId}
+        and is_deleted = 0
+    </select>
 </mapper>

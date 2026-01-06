@@ -16,15 +16,21 @@ public class MarketingProductDetailRespVO {
 
     @Schema(description = "商品ID")
     private Long id;
-
     @Schema(description = "商品编码")
     private String code;
-
     @Schema(description = "商品类型 1-租赁商品，2-售卖商品，3-回收商品，4-实物商品，5-虚拟商品")
     private Integer type;
+    @Schema(description = "营销商品名称")
+    private String name;
+    @Schema(description = "商品成色 0:全新 1:非全新")
+    private Integer productCondition;
+    @Schema(description = "商品监控属性 0:监管 1:非监管")
+    private Integer monitorAttribute;
 
     @Schema(description = "标准商品ID")
     private Long standardProductSpuId;
+    @Schema(description = "标准商品编码")
+    private String standardProductSpuCode;
     @Schema(description = "标准商品名称")
     private String standardProductSpuName;
     @Schema(description = "经营类目")
@@ -34,30 +40,17 @@ public class MarketingProductDetailRespVO {
     @Schema(description = "品牌")
     private String brandName;
 
-    @Schema(description = "营销商品名称")
-    private String name;
-
-    @Schema(description = "商品成色 0:全新 1:非全新")
-    private List<Integer> productConditions;
-
-    @Schema(description = "商品监控属性 0:监管 1:非监管")
-    private List<Integer> monitorAttributes;
 
     @Schema(description = "商品主图")
     private List<String> mainPicUrls;
-
     @Schema(description = "商详轮播图")
     private List<String> carouselPicUrls;
-
     @Schema(description = "商品视频")
     private List<String> videoUrls;
-
     @Schema(description = "商详介绍图")
     private List<String> detailPicUrls;
-
     @Schema(description = "商详标签")
     private List<IdAndNameVO> detailTags;
-
     @Schema(description = "SKU页标签")
     private List<IdAndNameVO> skuTags;
 
@@ -94,10 +87,12 @@ public class MarketingProductDetailRespVO {
     private Integer isDefaultSelected;
     @Schema(description = "默认勾选增值服务ID")
     private Long defaultSelectedValueAddedId;
+    @Schema(description = "默认勾选增值服务名称")
+    private String defaultSelectedValueAddedName;
 
 
 
-    /**************************  增值服务 ********************************/
+    /**************************  订单服务 ********************************/
     @Schema(description = "补偿规则ID")
     private Long compensationRuleId;
     @Schema(description = "发货方式 1:快递 2:同城配送 3:门店自提")
@@ -123,10 +118,8 @@ public class MarketingProductDetailRespVO {
 
     @Schema(description = "审批状态 0:待审批 1:审批通过 2:审批拒绝")
     private Integer approveStatus;
-
     @Schema(description = "上下架状态 0:待上架 1:已上架 2:已下架")
     private Integer shelvesStatus;
-
     @Schema(description = "是否草稿 0:否 1:是")
     private Integer isDraft;
 }

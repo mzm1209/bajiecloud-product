@@ -1,6 +1,7 @@
 package com.bajiezu.cloud.product.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.constants.OperateTypeEnum;
@@ -12,9 +13,7 @@ import com.bajiezu.cloud.marketing.api.channel.MarketingChannelApi;
 import com.bajiezu.cloud.marketing.dto.channel.req.MarketingChannelIdsReqDTO;
 import com.bajiezu.cloud.marketing.dto.channel.resp.MarketingChannelRespDTO;
 import com.bajiezu.cloud.product.controller.MarketingProductPropertyValueVO;
-import com.bajiezu.cloud.product.controller.vo.MarketingProductPropertyVO;
-import com.bajiezu.cloud.product.controller.vo.MarketingProductSkuVO;
-import com.bajiezu.cloud.product.controller.vo.SkuPropertyValueVO;
+import com.bajiezu.cloud.product.controller.vo.*;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductAddReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductApproveReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.MarketingProductListReqVO;
@@ -31,8 +30,10 @@ import com.bajiezu.cloud.product.enums.ProductTypeEnum;
 import com.bajiezu.cloud.product.enums.ShelvesStatusEnum;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
+import com.bajiezu.cloud.system.api.area.AreaApi;
 import com.bajiezu.cloud.system.api.user.AdminUserApi;
 import com.bajiezu.cloud.system.dto.AdminUserRespDTO;
+import com.bajiezu.cloud.system.dto.AreaCodeAndNameDTO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
@@ -71,11 +73,25 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     private ProductPropertyMapper productPropertyMapper;
     @Resource
     private ProductPropertyValueMapper productPropertyValueMapper;
+    @Resource
+    private ProductBusinessCategoryMapper businessCategoryMapper;
+    @Resource
+    private ProductMarketingCategoryMapper marketingCategoryMapper;
+    @Resource
+    private ProductBrandMapper brandMapper;
+    @Resource
+    private ProductTagMapper tagMapper;
+    @Resource
+    private ValueAddedMapper valueAddedMapper;
+    @Resource
+    private ExpressTemplateMapper expressTemplateMapper;
 
     @Resource
     private MarketingChannelApi marketingChannelApi;
     @Resource
     private AdminUserApi adminUserApi;
+    @Resource
+    private AreaApi areaApi;
 
     @Override
     public PageResult<MarketingProductRespVO> page(MarketingProductListReqVO reqVO) {
@@ -190,7 +206,228 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
     @Override
     public MarketingProductDetailRespVO detail(Long id) {
-        return null;
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        log.info("detail id: {},operatorId:{}", id, loginUser.getId());
+        // 查询营销商品
+        MarketingProductSpu marketingProductSpu = marketingProductSpuMapper.selectById(id);
+        if (marketingProductSpu == null) {
+            throw exception(MARKETING_PRODUCT_NOT_EXIST);
+        }
+        if (NumberUtils.INTEGER_ONE.equals(marketingProductSpu.getIsDeleted())) {
+            throw exception(MARKETING_PRODUCT_DELETED);
+        }
+        // 查询标准商品
+        StandardProductSpu standardProductSpu = standardProductSpuMapper.selectById(marketingProductSpu.getStandardProductSpuId());
+
+        // 获取营销
+
+        MarketingProductDetailRespVO detailRespVO = new MarketingProductDetailRespVO();
+        detailRespVO.setId(marketingProductSpu.getId());
+        detailRespVO.setCode(marketingProductSpu.getCode());
+        detailRespVO.setType(marketingProductSpu.getType());
+        detailRespVO.setName(marketingProductSpu.getName());
+        detailRespVO.setProductCondition(marketingProductSpu.getProductCondition());
+        detailRespVO.setMonitorAttribute(marketingProductSpu.getMonitorAttribute());
+
+        detailRespVO.setStandardProductSpuId(standardProductSpu.getId());
+        detailRespVO.setStandardProductSpuCode(standardProductSpu.getCode());
+        detailRespVO.setStandardProductSpuName(standardProductSpu.getName());
+        String businessCategoryName = businessCategoryMapper.selectNameById(standardProductSpu.getBusinessCategoryId());
+        detailRespVO.setBusinessCategoryName(businessCategoryName);
+        String marketingCategoryName = marketingCategoryMapper.selectNameById(standardProductSpu.getMarketingCategoryId());
+        detailRespVO.setMarketingCategoryName(marketingCategoryName);
+        String brandName = brandMapper.selectNameById(standardProductSpu.getProductBrandId());
+        detailRespVO.setBrandName(brandName);
+
+        detailRespVO.setMainPicUrls(List.of(StringUtils.split(marketingProductSpu.getMainPicUrls(), ",")));
+        detailRespVO.setCarouselPicUrls(List.of(StringUtils.split(marketingProductSpu.getCarouselPicUrls(), ",")));
+        detailRespVO.setVideoUrls(List.of(StringUtils.split(marketingProductSpu.getVideoUrls(), ",")));
+        detailRespVO.setDetailPicUrls(List.of(StringUtils.split(marketingProductSpu.getDetailPicUrls(), ",")));
+
+        // 标签
+        Set<Long> tagIds = Sets.newHashSet();
+        Set<Long> detailTagIds = null;
+        if (StringUtils.isNotBlank(marketingProductSpu.getDetailTagIds())) {
+            detailTagIds = parseIds(marketingProductSpu.getDetailTagIds());
+            tagIds.addAll(detailTagIds);
+        }
+        Set<Long> skuTagIds = null;
+        if (StringUtils.isNotBlank(marketingProductSpu.getSkuTagIds())) {
+            skuTagIds = parseIds(marketingProductSpu.getSkuTagIds());
+            tagIds.addAll(skuTagIds);
+        }
+        if (CollUtil.isNotEmpty(tagIds)) {
+            List<IdAndNameVO> tags = tagMapper.selectTagsByIds(tagIds);
+            Map<Long, String> tagIdNameMap = tags.stream().collect(Collectors.toMap(IdAndNameVO::getId, IdAndNameVO::getName));
+            if (CollUtil.isNotEmpty(detailTagIds)) {
+                List<IdAndNameVO> detailTags = buildIdAndNameList(detailTagIds, tagIdNameMap);
+                detailRespVO.setDetailTags(detailTags);
+            }
+            if (CollUtil.isNotEmpty(skuTagIds)) {
+                List<IdAndNameVO> skuTags = buildIdAndNameList(skuTagIds, tagIdNameMap);
+                detailRespVO.setSkuTags(skuTags);
+            }
+        }
+
+        detailRespVO.setMinBuybackPrice(marketingProductSpu.getMinBuybackPrice());
+        detailRespVO.setMaxBuybackPrice(marketingProductSpu.getMaxBuybackPrice());
+
+        // 增值服务
+        Set<Long> valueAddedIds = Sets.newHashSet();
+        if (StringUtils.isNotBlank(marketingProductSpu.getValueAddedIds())) {
+            valueAddedIds.addAll(parseIds(marketingProductSpu.getValueAddedIds()));
+        }
+        if (Objects.nonNull(marketingProductSpu.getDefaultSelectedValueAddedId())) {
+            valueAddedIds.add(marketingProductSpu.getDefaultSelectedValueAddedId());
+        }
+        if (CollUtil.isNotEmpty(valueAddedIds)) {
+            List<IdAndNameVO> valueAddedList = valueAddedMapper.selectIdAndNamesByIds(valueAddedIds);
+            Map<Long, String> valueAddedIdNameMap = valueAddedList.stream().collect(Collectors.toMap(IdAndNameVO::getId, IdAndNameVO::getName));
+            Set<Long> selectedValueAddedIds = parseIds(marketingProductSpu.getValueAddedIds());
+            List<IdAndNameVO> selectedValueAddedList = buildIdAndNameList(selectedValueAddedIds, valueAddedIdNameMap);
+            detailRespVO.setValueAddedList(selectedValueAddedList);
+
+            detailRespVO.setDefaultSelectedValueAddedId(marketingProductSpu.getDefaultSelectedValueAddedId());
+            detailRespVO.setDefaultSelectedValueAddedName(valueAddedIdNameMap.get(marketingProductSpu.getDefaultSelectedValueAddedId()));
+        }
+        detailRespVO.setShowPages(Arrays.stream(StringUtils.split(marketingProductSpu.getShowPage(), ","))
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .map(Integer::valueOf)
+                .collect(Collectors.toList()));
+        detailRespVO.setIsDefaultSelected(marketingProductSpu.getIsDefaultSelected());
+
+        // 订单服务
+        detailRespVO.setCompensationRuleId(marketingProductSpu.getCompensationRuleId());
+        detailRespVO.setShippingWay(marketingProductSpu.getShippingWay());
+        if (Objects.nonNull(marketingProductSpu.getShippingTemplateId())) {
+            detailRespVO.setShippingTemplateId(marketingProductSpu.getShippingTemplateId());
+            String expressTemplateName = expressTemplateMapper.selectNameById(marketingProductSpu.getShippingTemplateId());
+            detailRespVO.setShippingTemplateName(expressTemplateName);
+        }
+        if (StringUtils.isNotBlank(marketingProductSpu.getShippingAreaCodes())) {
+            Set<String> shippingAreaCodes = Set.of(StringUtils.split(marketingProductSpu.getShippingAreaCodes(), ","));
+            CommonResult<List<AreaCodeAndNameDTO>> areaResult = areaApi.getByAreaCodes(shippingAreaCodes);
+            if (areaResult.isSuccess() && CollectionUtil.isNotEmpty(areaResult.getData())) {
+                Map<String, String> areaCodeeAndNameMap = areaResult.getData().stream().collect(Collectors.toMap(
+                        AreaCodeAndNameDTO::getCode, AreaCodeAndNameDTO::getName));
+                List<AreaCodeAndNameVO> areaCodeAndNameVOS = Lists.newArrayList();
+                for (String shippingAreaCode : shippingAreaCodes) {
+                    AreaCodeAndNameVO areaCodeAndNameVO = new AreaCodeAndNameVO();
+                    areaCodeAndNameVO.setAreaCode(shippingAreaCode);
+                    areaCodeAndNameVO.setAreaName(areaCodeeAndNameMap.get(shippingAreaCode));
+                    areaCodeAndNameVOS.add(areaCodeAndNameVO);
+                }
+                detailRespVO.setShippingAreaCodes(areaCodeAndNameVOS);
+            }
+        }
+
+        // 商品上架信息
+        detailRespVO.setShelvingWay(marketingProductSpu.getShelvingWay());
+        detailRespVO.setShelvingTime(marketingProductSpu.getShelvingTime());
+        if (StringUtils.isNotBlank(marketingProductSpu.getShelvingChannelId())) {
+            Set<Long> shelvingChannelIds = parseIds(marketingProductSpu.getShelvingChannelId());
+            Map<Long, MarketingChannelRespDTO> channelId2ChannelMap = buildChannelId2ChannelMap(Lists.newArrayList(shelvingChannelIds));
+            List<IdAndNameVO> shelvingChannelList = Lists.newArrayList();
+            for (Long shelvingChannelId : shelvingChannelIds) {
+                IdAndNameVO idAndNameVO = new IdAndNameVO();
+                idAndNameVO.setId(shelvingChannelId);
+                idAndNameVO.setName(channelId2ChannelMap.get(shelvingChannelId).getChannelName());
+                shelvingChannelList.add(idAndNameVO);
+            }
+            detailRespVO.setShelvingChannels(shelvingChannelList);
+        }
+
+        detailRespVO.setApproveStatus(marketingProductSpu.getApprovalStatus());
+        detailRespVO.setShelvesStatus(marketingProductSpu.getShelvesStatus());
+        detailRespVO.setIsDraft(marketingProductSpu.getIsDraft());
+
+        // SPU属性、属性值信息
+        List<MarketingProductSpuProperty> spuProperties = spuPropertyMapper.selectListByMarketingSpuId(marketingProductSpu.getId());
+        List<Long> productPropertyIds = spuProperties.stream().map(MarketingProductSpuProperty::getProductPropertyId).toList();
+        List<IdAndNameVO> productProperties = productPropertyMapper.selectIdAndNamesByIds(productPropertyIds);
+        Map<Long, String> propertyIdNameMap = productProperties.stream().collect(Collectors.toMap(IdAndNameVO::getId, IdAndNameVO::getName));
+
+        List<MarketingProductSpuPropertyValue> spuPropertyValues = spuPropertyValueMapper.selectListByMarketingSpuId(marketingProductSpu.getId());
+        Map<Long, List<MarketingProductSpuPropertyValue>> spuPropertyId2PropertyValues = spuPropertyValues.stream().collect(Collectors.groupingBy(MarketingProductSpuPropertyValue::getSpuPropertyId));
+        Map<Long, MarketingProductSpuPropertyValue> id2SpuPropertyValueMap = spuPropertyValues.stream().collect(Collectors.toMap(MarketingProductSpuPropertyValue::getId, Function.identity()));
+
+        List<Long> productPropertyValueIds = spuPropertyValues.stream().map(MarketingProductSpuPropertyValue::getProductPropertyValueId).toList();
+        List<ProductPropertyValue> productPropertyValues = productPropertyValueMapper.selectListByIds(productPropertyValueIds);
+        Map<Long, String> productPropertyId2ValueMap = productPropertyValues.stream().collect(Collectors.toMap(ProductPropertyValue::getId, ProductPropertyValue::getPropertyValue));
+
+        List<MarketingProductPropertyVO> spuPropertyVOS = Lists.newArrayList();
+        for (MarketingProductSpuProperty spuProperty : spuProperties) {
+            MarketingProductPropertyVO spuPropertyVO = new MarketingProductPropertyVO();
+            spuPropertyVOS.add(spuPropertyVO);
+            spuPropertyVO.setPropertyId(spuProperty.getProductPropertyId());
+            spuPropertyVO.setPropertyName(propertyIdNameMap.get(spuProperty.getProductPropertyId()));
+            spuPropertyVO.setSort(spuProperty.getSort());
+
+            List<MarketingProductPropertyValueVO> spuPropertyValueVOS = Lists.newArrayList();
+            spuPropertyVO.setPropertyValues(spuPropertyValueVOS);
+            for (MarketingProductSpuPropertyValue spuPropertyValue : spuPropertyId2PropertyValues.get(spuProperty.getId())) {
+                MarketingProductPropertyValueVO spuPropertyValueVO = new MarketingProductPropertyValueVO();
+                spuPropertyValueVOS.add(spuPropertyValueVO);
+                spuPropertyValueVO.setProductPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+                if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                    spuPropertyValueVO.setValue(productPropertyId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                } else {
+                    spuPropertyValueVO.setValue(spuPropertyValue.getPropertyValue());
+                }
+            }
+        }
+        detailRespVO.setSpuProperties(spuPropertyVOS);
+
+
+        // SKU信息
+        List<MarketingProductSku> skus = skuMapper.selectListByMarketingSpuId(marketingProductSpu.getId());
+        List<MarketingProductSkuPropertyValue> skuPropertyValues = skuPropertyValueMapper.selectListByMarketingSpuId(marketingProductSpu.getId());
+        Map<Long, List<MarketingProductSkuPropertyValue>> skuId2SkuPropertyValues = skuPropertyValues.stream().collect(Collectors.groupingBy(MarketingProductSkuPropertyValue::getMarketingProductSkuId));
+
+        List<MarketingProductSkuVO> skuVOS = Lists.newArrayList();
+        for (MarketingProductSku sku : skus) {
+            MarketingProductSkuVO skuVO = new MarketingProductSkuVO();
+            skuVOS.add(skuVO);
+
+            skuVO.setId(sku.getId());
+            skuVO.setOfficialPrice(sku.getOfficialPrice());
+            skuVO.setTotalPriceFactor(sku.getTotalPriceFactor());
+            skuVO.setTotalRentFactor(sku.getTotalRentFactor());
+            skuVO.setTotalPrice(sku.getTotalPrice());
+            skuVO.setTotalRent(sku.getTotalRent());
+            skuVO.setBuyoutAmount(sku.getBuyoutAmount());
+            skuVO.setDailyRent(sku.getDailyRent());
+            skuVO.setStock(sku.getStock());
+            skuVO.setPremium(sku.getPremium());
+            skuVO.setSuggestedRetailPrice(sku.getSuggestedRetailPrice());
+            skuVO.setStrikethroughPrice(sku.getStrikethroughPrice());
+            skuVO.setCashUsageRatio(sku.getCashUsageRatio());
+            skuVO.setPointsUsageRatio(sku.getPointsUsageRatio());
+            skuVO.setPointsCount(sku.getPointsCount());
+            skuVO.setCashPrice(sku.getCashPrice());
+
+            List<MarketingProductSkuPropertyValue> marketingProductSkuPropertyValues = skuId2SkuPropertyValues.get(sku.getId());
+            List<SkuPropertyValueVO> skuPropertyValueVOS = Lists.newArrayList();
+            for (MarketingProductSkuPropertyValue marketingProductSkuPropertyValue : marketingProductSkuPropertyValues) {
+                SkuPropertyValueVO skuPropertyValueVO = new SkuPropertyValueVO();
+                skuPropertyValueVOS.add(skuPropertyValueVO);
+
+                MarketingProductSpuPropertyValue spuPropertyValue = id2SpuPropertyValueMap.get(marketingProductSkuPropertyValue.getMarketingSpuPropertyValueId());
+                skuPropertyValueVO.setPropertyId(spuPropertyValue.getProductPropertyId());
+                skuPropertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+                if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                    skuPropertyValueVO.setPropertyValue(productPropertyId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                } else {
+                    skuPropertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+                }
+
+            }
+            skuVO.setPropertyValues(skuPropertyValueVOS);
+        }
+        detailRespVO.setSkus(skuVOS);
+
+        return detailRespVO;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -350,16 +587,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         // 获取渠道
-        Map<Long, MarketingChannelRespDTO> channelId2ChannelMap = Maps.newHashMap();
-        if (CollUtil.isNotEmpty(channelIds)) {
-            MarketingChannelIdsReqDTO marketingChannelIdsReqDTO = new MarketingChannelIdsReqDTO();
-            marketingChannelIdsReqDTO.setChannelIds(channelIds);
-            CommonResult<List<MarketingChannelRespDTO>> channelResult = marketingChannelApi.getChannelListByIdsApi(marketingChannelIdsReqDTO);
-            if (channelResult.isSuccess() && channelResult.getData() != null) {
-                channelId2ChannelMap = channelResult.getData().stream().collect(Collectors.toMap(MarketingChannelRespDTO::getChannelId
-                        , marketingChannelRespDTO -> marketingChannelRespDTO));
-            }
-        }
+        Map<Long, MarketingChannelRespDTO> channelId2ChannelMap = buildChannelId2ChannelMap(channelIds);
 
         // 最低日租金（租赁商品才有）
         Map<Long, IdAndPriceDTO> minDailyRentPriceMap = Maps.newHashMap();
@@ -698,5 +926,42 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             return null;
         }
         return String.join(",", list.stream().map(String::valueOf).toArray(String[]::new));
+    }
+
+    // 辅助方法：解析ID
+    private Set<Long> parseIds(String idsStr) {
+        return Arrays.stream(idsStr.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::parseLong)
+                .collect(Collectors.toSet());
+    }
+
+    // 辅助方法：构建id和名称列表
+    private List<IdAndNameVO> buildIdAndNameList(Set<Long> ids, Map<Long, String> idNameMap) {
+        List<IdAndNameVO> tagList = Lists.newArrayList();
+        for (Long id : ids) {
+            IdAndNameVO idAndNameVO = new IdAndNameVO();
+            idAndNameVO.setId(id);
+            idAndNameVO.setName(idNameMap.getOrDefault(id, null));
+            tagList.add(idAndNameVO);
+        }
+        return tagList;
+    }
+
+    private Map<Long, MarketingChannelRespDTO> buildChannelId2ChannelMap(List<Long> channelIds) {
+        Map<Long, MarketingChannelRespDTO> channelId2ChannelMap = Maps.newHashMap();
+        if (CollUtil.isEmpty(channelIds)) {
+            log.info("buildChannelId2ChannelMap,channelIds is empty");
+            return channelId2ChannelMap;
+        }
+        MarketingChannelIdsReqDTO marketingChannelIdsReqDTO = new MarketingChannelIdsReqDTO();
+        marketingChannelIdsReqDTO.setChannelIds(channelIds);
+        CommonResult<List<MarketingChannelRespDTO>> channelResult = marketingChannelApi.getChannelListByIdsApi(marketingChannelIdsReqDTO);
+        if (channelResult.isSuccess() && channelResult.getData() != null) {
+            channelId2ChannelMap = channelResult.getData().stream().collect(Collectors.toMap(MarketingChannelRespDTO::getChannelId
+                    , marketingChannelRespDTO -> marketingChannelRespDTO));
+        }
+        return channelId2ChannelMap;
     }
 }

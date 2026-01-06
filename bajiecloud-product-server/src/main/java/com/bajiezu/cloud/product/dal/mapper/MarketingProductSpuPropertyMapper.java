@@ -23,4 +23,6 @@ public interface MarketingProductSpuPropertyMapper extends BaseMapper<MarketingP
     void insertBatch(@Param("list") Collection<MarketingProductSpuProperty> list);
 
     List<MarketingProductSpuProperty> selectListByMarketingProductSpuIds(@Param("marketingSpuIds") Collection<Long> marketingSpuIds);
+
+    List<MarketingProductSpuProperty> selectListByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId);
 }

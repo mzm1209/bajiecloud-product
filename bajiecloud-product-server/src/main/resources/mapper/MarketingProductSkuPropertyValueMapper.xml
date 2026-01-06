@@ -41,4 +41,9 @@
             )
         </foreach>
     </insert>
+
+    <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
+        select id, marketing_spu_id, marketing_product_sku_id, marketing_spu_property_value_id from marketing_product_sku_property_value
+        where marketing_spu_id = #{marketingSpuId} and is_deleted = 0
+    </select>
 </mapper>

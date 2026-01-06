@@ -53,4 +53,11 @@
     <select id="selectCountByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.ValueAddedQuery" resultType="java.lang.Long">
         select count(1) from value_added <include refid="listSql"/>
     </select>
+
+    <select id="selectIdAndNamesByIds" resultType="com.bajiezu.cloud.product.controller.vo.IdAndNameVO">
+        select id, name from value_added where id in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

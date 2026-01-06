@@ -20,4 +20,6 @@ public interface MarketingProductSkuPropertyValueMapper extends BaseMapper<Marke
                                    @Param("updateTime") Date updateTime);
 
     void insertBatch(@Param("list") List<MarketingProductSkuPropertyValue> skuPropertyValues);
+
+    List<MarketingProductSkuPropertyValue> selectListByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId);
 }

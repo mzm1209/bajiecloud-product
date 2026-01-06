@@ -146,4 +146,8 @@
             #{marketingSpuId}
         </foreach>
     </select>
+
+    <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
+        select * from marketing_product_sku where marketing_spu_id = #{marketingSpuId} and is_deleted = 0
+    </select>
 </mapper>

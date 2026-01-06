@@ -62,4 +62,14 @@
         </foreach>
         and pv.is_deleted = 0
     </select>
+
+    <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
+        select
+            id, marketing_spu_id, spu_property_id, product_property_value_id, property_value, sort
+        from
+            marketing_product_spu_property_value
+        where
+            marketing_spu_id = #{marketingSpuId}
+            and is_deleted = 0
+    </select>
 </mapper>

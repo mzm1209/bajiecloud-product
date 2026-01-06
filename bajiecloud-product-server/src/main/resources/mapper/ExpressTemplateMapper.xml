@@ -41,4 +41,8 @@
             and status = #{status}
         </if>
     </select>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        select template_name from express_template where id = #{id}
+    </select>
 </mapper>

@@ -52,4 +52,11 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectIdAndNamesByIds" resultType="com.bajiezu.cloud.product.controller.vo.IdAndNameVO">
+        select id, name from product_property where id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

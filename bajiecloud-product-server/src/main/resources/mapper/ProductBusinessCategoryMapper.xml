@@ -59,4 +59,8 @@
             #{item}
         </foreach>
     </select>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        select name from product_business_category where id = #{id}
+    </select>
 </mapper>

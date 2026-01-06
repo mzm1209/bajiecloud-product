@@ -1,5 +1,6 @@
 package com.bajiezu.cloud.product.dal.mapper;
 
+import com.bajiezu.cloud.product.controller.vo.IdAndNameVO;
 import com.bajiezu.cloud.product.dal.entity.ProductProperty;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -31,4 +32,6 @@ public interface ProductPropertyMapper extends BaseMapper<ProductProperty> {
     List<ProductProperty> queryAll();
 
     List<ProductProperty> selectListByIds(@Param("ids") Collection<Long> ids);
+
+    List<IdAndNameVO> selectIdAndNamesByIds(@Param("ids") Collection<Long> ids);
 }

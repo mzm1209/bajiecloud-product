@@ -4,6 +4,7 @@ import com.bajiezu.cloud.product.dal.dto.ExpressTemplateQuery;
 import com.bajiezu.cloud.product.dal.entity.ExpressTemplate;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -13,4 +14,6 @@ public interface ExpressTemplateMapper extends BaseMapper<ExpressTemplate> {
     List<ExpressTemplate> selectListByQuery(ExpressTemplateQuery query);
 
     Long selectCountByQuery(ExpressTemplateQuery query);
+
+    String selectNameById(@Param("id") Long id);
 }

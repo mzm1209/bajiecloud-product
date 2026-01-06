@@ -43,4 +43,11 @@
             and find_in_set(show_page, #{showPage})
         </if>
     </select>
+
+    <select id="selectTagsByIds" resultType="com.bajiezu.cloud.product.controller.vo.IdAndNameVO">
+        select id, name from product_tag where id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
