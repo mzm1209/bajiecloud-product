@@ -7,7 +7,7 @@ import com.bajiezu.cloud.product.enums.ApiConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public interface MarketingProductApi {
 
     String PREFIX = ApiConstants.PREFIX + "/mk";
 
-    @GetMapping(PREFIX + "/batchGetProductDetail")
+    @PostMapping(PREFIX + "/batchGetProductDetail")
     @Operation(summary = "批量获取营销商品详情")
     CommonResult<List<ProductDetailRespVO>> batchGetProductDetail(@RequestBody MarketingProductReqVO reqVO);
 
