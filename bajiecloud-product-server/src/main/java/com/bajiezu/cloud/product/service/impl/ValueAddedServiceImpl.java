@@ -348,8 +348,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
 
     private ValueAdded buildValueAdded(ValueAddedAddReqVO reqVO, LoginUser<?> loginUser, Date now) {
         ValueAdded valueAdded = new ValueAdded();
-        String code = "ZZ" + DateUtil.format(new Date(), "yyMMdd") + sequenceGenerator.getValueAddedSequence();
-        valueAdded.setCode(code);
+        valueAdded.setCode(sequenceGenerator.getValueAddedSequence());
         valueAdded.setName(reqVO.getName());
         valueAdded.setStatus(reqVO.getStatus());
         valueAdded.setSalePrice(reqVO.getSalePrice());

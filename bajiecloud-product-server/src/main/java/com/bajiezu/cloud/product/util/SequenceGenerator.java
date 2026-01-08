@@ -1,30 +1,38 @@
 package com.bajiezu.cloud.product.util;
 
+import cn.hutool.core.date.DateUtil;
 import jakarta.annotation.Resource;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class SequenceGenerator {
+
+    private static final String YYMMDD = "yyMMdd";
 
     /**
      * 增值服务
      */
     private static final String VALUE_ADD_SEQUENCE_KEY = "value_added:sequence:";
-    public static final String VALUE_ADD_PARTNER_CODE_FORMAT = "%04d";
+    private static final String VALUE_ADD_PARTNER_CODE_FORMAT = "%04d";
+    private static final String ZZ = "ZZ";
 
     /**
      *  快递模版
      */
     private static final String EXPRESS_TEMPLATE_SEQUENCE_KEY = "express_template:sequence:";
-    public static final String EXPRESS_TEMPLATE_PARTNER_CODE_FORMAT = "%06d";
+    private static final String EXPRESS_TEMPLATE_PARTNER_CODE_FORMAT = "%06d";
+    private static final String KD = "KD";
 
     /**
      * 标准商品
      */
     private static final String STANDARD_PRODUCT_SEQUENCE_KEY = "standard_product:sequence:";
-    public static final String STANDARD_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+    private static final String STANDARD_PRODUCT_PARTNER_CODE_FORMAT = "%06d";
+    private static final String BSPU = "BSPU";
 
     /**
      * 租赁商品
@@ -66,15 +74,18 @@ public class SequenceGenerator {
     private RedissonClient redissonClient;
 
     public String getValueAddedSequence() {
-        return generateSequence(VALUE_ADD_SEQUENCE_KEY, VALUE_ADD_PARTNER_CODE_FORMAT);
+        return ZZ + DateUtil.format(new Date(), YYMMDD) + generateSequence(VALUE_ADD_SEQUENCE_KEY,
+                VALUE_ADD_PARTNER_CODE_FORMAT);
     }
 
     public String getExpressTemplateSequence() {
-        return generateSequence(EXPRESS_TEMPLATE_SEQUENCE_KEY, EXPRESS_TEMPLATE_PARTNER_CODE_FORMAT);
+        return KD + DateUtil.format(new Date(), YYMMDD) + generateSequence(EXPRESS_TEMPLATE_SEQUENCE_KEY,
+                EXPRESS_TEMPLATE_PARTNER_CODE_FORMAT);
     }
 
     public String getStandardProductSequence() {
-        return generateSequence(STANDARD_PRODUCT_SEQUENCE_KEY, STANDARD_PRODUCT_PARTNER_CODE_FORMAT);
+        return BSPU + DateUtil.format(new Date(), YYMMDD) + generateSequence(STANDARD_PRODUCT_SEQUENCE_KEY,
+                STANDARD_PRODUCT_PARTNER_CODE_FORMAT);
     }
 
     public String getRentalProductSequence() {
