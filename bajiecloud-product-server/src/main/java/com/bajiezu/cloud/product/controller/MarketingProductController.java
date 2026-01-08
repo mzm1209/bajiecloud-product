@@ -49,7 +49,7 @@ public class MarketingProductController {
     @PostMapping("/mod")
     @Operation(summary = "编辑")
     public CommonResult<Boolean> mod(@Valid @RequestBody MarketingProductModReqVO reqVO) {
-        marketingProductService.mod(reqVO);
+        //marketingProductService.mod(reqVO);
         return CommonResult.success(true);
     }
 
