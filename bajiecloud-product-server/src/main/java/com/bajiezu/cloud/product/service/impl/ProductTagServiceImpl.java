@@ -88,11 +88,11 @@ public class ProductTagServiceImpl implements ProductTagService {
         Integer offset = (reqVO.getPageNo() - 1) * reqVO.getPageSize();
         Integer limit = reqVO.getPageSize();
 
-        List<ProductTag> tagList = productTagMapper.queryList(reqVO.getName(), offset, limit);
+        List<ProductTag> tagList = productTagMapper.queryList(reqVO.getName(), reqVO.getStatus(), offset, limit);
         if (CollectionUtils.isEmpty(tagList)) {
             return PageResult.empty();
         }
-        Long count = productTagMapper.queryCount(reqVO.getName());
+        Long count = productTagMapper.queryCount(reqVO.getName(), reqVO.getStatus());
 
         List<ProductTagRespVO> list = tagList.stream().map(item -> {
             ProductTagRespVO vo = new ProductTagRespVO();

@@ -16,13 +16,14 @@ public interface ProductTagMapper extends BaseMapper<ProductTag> {
      * 查询标签列表（支持分页和条件查询）
      */
     List<ProductTag> queryList(@Param("name") String name,
+                               @Param("status") Integer status,
                                @Param("offset") Integer offset,
                                @Param("limit") Integer limit);
 
     /**
      * 查询标签总数（支持条件查询）
      */
-    Long queryCount(@Param("name") String name);
+    Long queryCount(@Param("name") String name, @Param("status") Integer status);
 
     List<ProductTag> querySimpleList(@Param("showPage") Integer showPage);
 
