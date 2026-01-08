@@ -11,7 +11,8 @@ import java.util.List;
 @Mapper
 public interface ProductBrandMapper extends BaseMapper<ProductBrand> {
 
-    List<ProductBrand> queryList(@Param("name") String name, @Param("offset") Integer offset, @Param("limit") Integer limit);
+    List<ProductBrand> queryList(@Param("name") String name, @Param("offset") Integer offset,
+                                 @Param("limit") Integer limit);
 
     Long queryCount(@Param("name") String name);
 

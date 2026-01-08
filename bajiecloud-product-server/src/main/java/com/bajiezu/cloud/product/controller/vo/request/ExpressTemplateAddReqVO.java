@@ -41,6 +41,5 @@ public class ExpressTemplateAddReqVO {
     private Integer status;
 
     @Schema(description = "收货地区", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "收货地区不能为空")
     private List<AreaCodeAndNameVO> shippingTos;
 }
