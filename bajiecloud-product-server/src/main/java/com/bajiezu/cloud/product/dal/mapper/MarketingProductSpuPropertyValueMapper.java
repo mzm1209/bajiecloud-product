@@ -34,4 +34,14 @@ public interface MarketingProductSpuPropertyValueMapper extends BaseMapper<Marke
 
     List<Long> selectMarketingSkuIdsByPropertyValuesIds(@Param("propertyValuesIds") Collection<Long> propertyValuesIds,
                                                         @Param("propertyValuesIdsCount") Integer propertyValuesIdsCount);
+
+    void logicDeleteByMarketingSpuIdAndSpuPropertyIds(@Param("marketingSpuId") Long marketingSpuId,
+                                                      @Param("spuPropertyIds") Collection<Long> spuPropertyIds,
+                                                      @Param("updateBy") Long updateBy,
+                                                      @Param("updateTime") Date updateTime);
+
+    List<MarketingProductSpuPropertyValue> selectListByMarketingSpuIdAndSpuPropertyIds(@Param("marketingSpuId") Long marketingSpuId,
+                                                                                       @Param("spuPropertyIds") Collection<Long> spuPropertyIds);
+
+    void logicDelByIds(@Param("ids") Collection<Long> ids, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 }

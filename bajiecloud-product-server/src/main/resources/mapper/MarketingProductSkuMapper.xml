@@ -196,4 +196,45 @@
             </foreach>
         </if>
     </select>
+
+    <update id="logicDelByIds">
+        update
+            marketing_product_sku
+        set
+            is_deleted = 1,
+            update_time = #{updateTime},
+            update_by = #{updateBy}
+        where id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateBatch">
+        <foreach item="item" collection="list" separator=";" index="">
+            update
+                marketing_product_sku
+            set
+                official_price = #{item.officialPrice},
+                total_price_factor = #{item.totalPriceFactor},
+                total_rent_factor = #{item.totalRentFactor},
+                total_price = #{item.totalPrice},
+                total_rent = #{item.totalRent},
+                buyout_amount = #{item.buyoutAmount},
+                daily_rent = #{item.dailyRent},
+                stock = #{item.stock},
+                premium = #{item.premium},
+                suggested_retail_price = #{item.suggestedRetailPrice},
+                strikethrough_price = #{item.strikethroughPrice},
+                cashUsage_ratio = #{item.cashUsageRatio},
+                pointsUsage_ratio = #{item.pointsUsageRatio},
+                points_count = #{item.pointsCount},
+                cash_price = #{item.cashPrice},
+                is_allow_order = #{item.isAllowOrder},
+                update_by = #{item.updateBy},
+                update_time = #{item.updateTime}
+            where
+                id = #{item.id}
+        </foreach>
+    </update>
 </mapper>

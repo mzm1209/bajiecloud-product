@@ -1,6 +1,7 @@
 package com.bajiezu.cloud.product.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.bajiezu.cloud.common.constants.CommonStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
@@ -13,11 +14,12 @@ import com.bajiezu.cloud.product.controller.vo.request.ValueAddedModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedStatusChangeReqVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSimpleInfoRespVO;
+import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSkuRespVO;
 import com.bajiezu.cloud.product.dal.dto.ValueAddedQuery;
-import com.bajiezu.cloud.product.dal.entity.ValueAdded;
-import com.bajiezu.cloud.product.dal.entity.ValueAddedProduct;
-import com.bajiezu.cloud.product.dal.mapper.ValueAddedMapper;
-import com.bajiezu.cloud.product.dal.mapper.ValueAddedProductMapper;
+import com.bajiezu.cloud.product.dal.entity.*;
+import com.bajiezu.cloud.product.dal.mapper.*;
+import com.bajiezu.cloud.product.dto.PropertyVO;
+import com.bajiezu.cloud.product.dto.PropertyValueVO;
 import com.bajiezu.cloud.product.service.ValueAddedService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import com.bajiezu.cloud.system.api.user.AdminUserApi;
@@ -32,10 +34,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
@@ -53,6 +53,18 @@ public class ValueAddedServiceImpl implements ValueAddedService {
     private ValueAddedMapper valueAddedMapper;
     @Resource
     private ValueAddedProductMapper valueAddedProductMapper;
+    @Resource
+    private MarketingProductSkuPropertyValueMapper skuPropertyValueMapper;
+    @Resource
+    private MarketingProductSpuPropertyValueMapper spuPropertyValueMapper;
+    @Resource
+    private ProductPropertyMapper productPropertyMapper;
+    @Resource
+    private ProductPropertyValueMapper productPropertyValueMapper;
+    @Resource
+    private MarketingProductSkuMapper skuMapper;
+    @Resource
+    private MarketingProductSpuMapper spuMapper;
     @Resource
     private AdminUserApi adminUserApi;
 
@@ -189,9 +201,6 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         if (NumberUtils.INTEGER_ONE.equals(valueAdded.getIsDeleted())) {
             throw exception(VALUE_ADDED_DELETED);
         }
-
-        List<Long> marketingProductSkuIds = valueAddedProductMapper.queryMarketingProductSkuIdsByValueAddedId(id);
-
         // 构造返回结果
         ValueAddedRespVO valueAddedRespVO = new ValueAddedRespVO();
         valueAddedRespVO.setId(valueAdded.getId());
@@ -205,9 +214,80 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAddedRespVO.setPicUrls(List.of(StringUtils.split(valueAdded.getPicUrl(), ",")));
         valueAddedRespVO.setStatus(valueAdded.getStatus());
 
-        // todo 根据营销商品skuIds获取对应的商品信息
-
+        List<ValueAddedSkuRespVO> valueAddedSkus = buildValueAddedSkus(id);
+        valueAddedRespVO.setSkuRespVOList(valueAddedSkus);
         return valueAddedRespVO;
+    }
+
+    private List<ValueAddedSkuRespVO> buildValueAddedSkus(Long valueAddedId) {
+        List<Long> skuIds = valueAddedProductMapper.queryMarketingProductSkuIdsByValueAddedId(valueAddedId);
+        if (CollUtil.isEmpty(skuIds)) {
+            return Collections.emptyList();
+        }
+
+        List<MarketingProductSkuPropertyValue> skuPropertyValues = skuPropertyValueMapper.selectListBySkuIds(skuIds);
+        Map<Long, List<MarketingProductSkuPropertyValue>> skuId2SpuPropertyValueIdsMap = skuPropertyValues.stream().collect(Collectors.groupingBy(
+                MarketingProductSkuPropertyValue::getMarketingProductSkuId));
+
+        List<Long> spuPropertyValueIds = skuPropertyValues.stream().map(MarketingProductSkuPropertyValue::getMarketingSpuPropertyValueId).toList();
+        List<MarketingProductSpuPropertyValue> spuPropertyValues = spuPropertyValueMapper.selectListByIds(spuPropertyValueIds);
+        Map<Long, MarketingProductSpuPropertyValue> spuPropertyId2SpuPropertyValueMap = spuPropertyValues.stream().collect(
+                Collectors.toMap(MarketingProductSpuPropertyValue::getId, Function.identity()));
+
+        List<Long> productPropertyIds = Lists.newArrayList();
+        List<Long> productPropertyValueIds = Lists.newArrayList();
+        for (MarketingProductSpuPropertyValue spuPropertyValue : spuPropertyValues) {
+            productPropertyIds.add(spuPropertyValue.getProductPropertyId());
+            if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                productPropertyValueIds.add(spuPropertyValue.getProductPropertyValueId());
+            }
+        }
+        List<ProductProperty> productProperties = productPropertyMapper.selectListByIds(productPropertyIds);
+        Map<Long, String> propertyId2NameMap = productProperties.stream().collect(Collectors.toMap(ProductProperty::getId, ProductProperty::getName));
+        Map<Long, String> propertyValueId2ValueMap = Maps.newHashMap();
+        if (CollectionUtil.isNotEmpty(productPropertyValueIds)) {
+            List<ProductPropertyValue> productPropertyValues = productPropertyValueMapper.selectListByIds(productPropertyValueIds);
+            propertyValueId2ValueMap = productPropertyValues.stream().collect(Collectors.toMap(
+                    ProductPropertyValue::getId, ProductPropertyValue::getPropertyValue));
+        }
+
+        List<MarketingProductSku> marketingProductSKus = skuMapper.selectListByIds(skuIds);
+        Set<Long> spuIds = marketingProductSKus.stream().map(MarketingProductSku::getMarketingSpuId).collect(Collectors.toSet());
+        List<MarketingProductSpu> spus = spuMapper.selectListByIds(spuIds);
+        Map<Long, MarketingProductSpu> spuId2SpuMap = spus.stream().collect(Collectors.toMap(MarketingProductSpu::getId, Function.identity()));
+
+        List<ValueAddedSkuRespVO> skuRespVOS = Lists.newArrayList();
+        for (MarketingProductSku sku : marketingProductSKus) {
+            ValueAddedSkuRespVO skuRespVO = new ValueAddedSkuRespVO();
+            skuRespVOS.add(skuRespVO);
+
+            skuRespVO.setId(sku.getId());
+            skuRespVO.setName(sku.getName());
+            skuRespVO.setApproveStatus(spuId2SpuMap.get(sku.getMarketingSpuId()).getApprovalStatus());
+            skuRespVO.setShelvesStatus(spuId2SpuMap.get(sku.getMarketingSpuId()).getShelvesStatus());
+            List<PropertyVO> propertyVOS = Lists.newArrayList();
+            skuRespVO.setProperties(propertyVOS);
+            for (MarketingProductSkuPropertyValue skuPropertyValue : skuId2SpuPropertyValueIdsMap.get(sku.getId())) {
+                PropertyVO propertyVO = new PropertyVO();
+                propertyVOS.add(propertyVO);
+                MarketingProductSpuPropertyValue spuPropertyValue = spuPropertyId2SpuPropertyValueMap.get(skuPropertyValue.getMarketingSpuPropertyValueId());
+                propertyVO.setPropertyId(spuPropertyValue.getProductPropertyId());
+                propertyVO.setPropertyName(propertyId2NameMap.get(spuPropertyValue.getProductPropertyId()));
+
+                List<PropertyValueVO> propertyValueVOS = Lists.newArrayList();
+                propertyVO.setPropertyValues(propertyValueVOS);
+                PropertyValueVO propertyValueVO = new PropertyValueVO();
+                propertyValueVOS.add(propertyValueVO);
+                propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+                if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                    propertyValueVO.setPropertyValue(propertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                } else {
+                    propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+                }
+                propertyValueVO.setPropertyPics(Lists.newArrayList(spuPropertyValue.getPicUrl()));
+            }
+        }
+        return skuRespVOS;
     }
 
     @Transactional(rollbackFor = Exception.class)

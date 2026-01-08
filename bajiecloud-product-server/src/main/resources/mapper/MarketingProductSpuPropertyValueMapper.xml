@@ -9,6 +9,7 @@
         <result column="spu_property_id" property="spuPropertyId" />
         <result column="product_property_value_id" property="productPropertyValueId" />
         <result column="property_value" property="propertyValue" />
+        <result column="pic_url" property="picUrl" />
         <result column="sort" property="sort" />
         <result column="partner_id" property="partnerId" />
         <result column="create_by" property="createBy" />
@@ -65,12 +66,20 @@
 
     <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
         select
-            id, marketing_spu_id, spu_property_id, product_property_value_id, property_value, sort
+            pv.id,
+            pv.marketing_spu_id,
+            pv.spu_property_id,
+            sp.product_property_id,
+            pv.product_property_value_id,
+            pv.property_value,
+            pv.sort
         from
-            marketing_product_spu_property_value
+            marketing_product_spu_property_value pv
+        join
+            marketing_product_spu_property sp on pv.spu_property_id = sp.id
         where
-            marketing_spu_id = #{marketingSpuId}
-            and is_deleted = 0
+            pv.marketing_spu_id = #{marketingSpuId}
+            and pv.is_deleted = 0
     </select>
 
     <select id="selectListByIds" resultMap="BaseResultMap">
@@ -133,4 +142,40 @@
         having
             count(msppv.id ) = #{propertyValuesIdsCount}
     </select>
+
+    <update id="logicDeleteByMarketingSpuIdAndSpuPropertyIds">
+        update
+            marketing_product_spu_property_value
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where
+            marketing_spu_id = #{marketingSpuId}
+            and spu_property_id in
+            <foreach item="id" collection="spuPropertyIds" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+    </update>
+
+    <select id="selectListByMarketingSpuIdAndSpuPropertyIds" resultMap="BaseResultMap">
+        select * from marketing_product_spu_property_value where marketing_spu_id = #{marketingSpuId} and spu_property_id in
+        <foreach item="id" collection="spuPropertyIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+    </select>
+
+    <update id="logicDelByIds">
+        update marketing_product_spu_property_value
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where
+            id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

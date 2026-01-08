@@ -77,4 +77,29 @@
         </foreach>
         and is_deleted = 0
     </select>
+
+    <select id="selectProductPropertyIdsByMarketingProductSpuId" resultType="java.lang.Long">
+        select
+            product_property_id
+        from
+            marketing_product_spu_property
+        where
+            marketing_spu_id = #{spuId}
+        and is_deleted = 0
+    </select>
+
+    <update id="logicDeleteByMarketingSpuIdAndPropertyIds">
+        update
+            marketing_product_spu_property
+        set
+            is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where
+            marketing_spu_id = #{spuId}
+        and product_property_id in
+        <foreach item="id" collection="productPropertyIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

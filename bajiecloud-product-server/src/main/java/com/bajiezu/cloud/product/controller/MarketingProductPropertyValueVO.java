@@ -15,4 +15,7 @@ public class MarketingProductPropertyValueVO {
 
     @Schema(description = "排序")
     private Integer sort = 0;
+
+    @Schema(description = "图片")
+    private String picUrl;
 }

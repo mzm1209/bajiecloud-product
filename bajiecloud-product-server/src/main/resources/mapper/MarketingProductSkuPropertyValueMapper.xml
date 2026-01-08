@@ -61,4 +61,20 @@
             #{skuId}
         </foreach>
     </select>
+
+    <update id="logicDelBySkuIds">
+        update marketing_product_sku_property_value set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}
+        where marketing_product_sku_id in
+        <foreach item="id" collection="skuIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="logicDelBySkuIdAndSpuPropertyValueIds">
+        update marketing_product_sku_property_value set is_deleted = 1, update_by = #{updateBy}, update_time = #{updateTime}
+        where marketing_product_sku_id = #{skuId} and marketing_spu_property_value_id in
+        <foreach item="id" collection="spuPropertyValueIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

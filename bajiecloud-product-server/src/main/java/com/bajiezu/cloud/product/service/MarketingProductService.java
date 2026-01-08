@@ -16,7 +16,7 @@ public interface MarketingProductService {
 
     void add(MarketingProductAddReqVO reqVO);
 
-    void mod(MarketingProductAddReqVO reqVO);
+    void mod(MarketingProductModReqVO reqVO);
 
     MarketingProductDetailRespVO detail(Long id);
 

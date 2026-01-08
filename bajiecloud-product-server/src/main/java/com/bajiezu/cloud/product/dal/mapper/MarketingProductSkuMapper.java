@@ -43,4 +43,8 @@ public interface MarketingProductSkuMapper extends BaseMapper<MarketingProductSk
     List<MarketingProductSku> selectListByCondition(ProductQuery query);
 
     Long selectCountByCondition(ProductQuery query);
+
+    void logicDelByIds(@Param("ids") Collection<Long> ids, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
+
+    void updateBatch(@Param("list") Collection<MarketingProductSku> list);
 }
