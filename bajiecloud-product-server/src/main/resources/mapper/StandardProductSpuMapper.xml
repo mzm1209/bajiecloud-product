@@ -25,7 +25,7 @@
     <sql id="listSql">
         where is_deleted = 0
         <if test="name != null">
-            and name like concat('%',#{name},'%')
+            and (name like concat('%',#{name},'%') or code like concat('%',#{name},'%'))
         </if>
         <if test="marketingCategoryId != null">
             and marketing_category_id = #{marketingCategoryId}

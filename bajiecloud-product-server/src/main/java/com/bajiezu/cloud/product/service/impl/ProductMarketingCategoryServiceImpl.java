@@ -57,10 +57,13 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         productMarketingCategoryMapper.insert(category);
 
         // 如果不是根节点 那么需要更新改类目的path
+        String path = reqVO.getPath();
         if (!Objects.equals(category.getParentId(), NumberUtils.LONG_ZERO)) {
-            String path = reqVO.getPath() + "," + category.getId();
-            productMarketingCategoryMapper.updatePathById(category.getId(), path);
+            path = path + "," + category.getId();
+        } else {
+            path = String.valueOf(category.getId());
         }
+        productMarketingCategoryMapper.updatePathById(category.getId(), path);
     }
 
     @Override
