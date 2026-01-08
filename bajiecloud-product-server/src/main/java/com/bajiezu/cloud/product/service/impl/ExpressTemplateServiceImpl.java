@@ -224,6 +224,7 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
         expressTemplate.setDefaultShippingCost(reqVO.getDefaultShippingCost());
         expressTemplate.setStatus(reqVO.getStatus());
         expressTemplate.setUpdateTime(now);
+        expressTemplate.setUpdateBy(loginUser.getId());
         expressTemplateMapper.updateById(expressTemplate);
 
         // 2、处理发货地区

@@ -28,7 +28,7 @@
             and (name like concat('%',#{name},'%') or code like concat('%',#{name},'%'))
         </if>
         <if test="marketingCategoryId != null">
-            and marketing_category_id = #{marketingCategoryId}
+            and find_in_set(marketing_category_id, #{marketingCategoryId})
         </if>
         <if test="brandId != null">
             and product_brand_id = #{brandId}
