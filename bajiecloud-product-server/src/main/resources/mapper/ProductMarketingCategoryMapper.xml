@@ -50,7 +50,7 @@
     </update>
 
     <select id="queryByName" resultMap="BaseResultMap">
-        select * from product_marketing_category where name = #{name} and is_deleted = 0
+        select * from product_marketing_category where name like concat('%',#{name},'%') and is_deleted = 0
     </select>
 
     <select id="selectByLevel" resultMap="BaseResultMap">

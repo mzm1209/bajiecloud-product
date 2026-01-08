@@ -21,7 +21,7 @@
     <select id="selectListByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.ExpressTemplateQuery" resultMap="BaseResultMap">
         select * from express_template where is_deleted = 0
         <if test="templateName != null">
-            and template_name = #{templateName}
+            and template_name like concat('%', #{templateName}, '%')
         </if>
         <if test="status != null">
             and status = #{status}
@@ -35,7 +35,7 @@
     <select id="selectCountByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.ExpressTemplateQuery" resultType="java.lang.Long">
         select count(*) from express_template where is_deleted = 0
         <if test="templateName != null">
-            and template_name = #{templateName}
+            and template_name like concat('%', #{templateName}, '%')
         </if>
         <if test="status != null">
             and status = #{status}

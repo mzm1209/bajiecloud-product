@@ -156,7 +156,6 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
     public PageResult<ProductMcRespVO> page(ProductMCListReq reqVO) {
         log.info("list dto: {}", reqVO);
 
-
         // 根据营销类目名称查询营销类目
         Set<Long> firstLevelCategoryIds = Sets.newHashSet();
         if (StringUtils.isNotEmpty(reqVO.getName())) {
