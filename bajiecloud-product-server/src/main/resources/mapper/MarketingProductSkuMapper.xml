@@ -243,4 +243,25 @@
                 id = #{item.id}
         </foreach>
     </update>
+
+    <select id="selectCategoryId2SkuCount" resultType="com.bajiezu.cloud.product.dal.dto.IdAndCountDTO">
+        select
+            sps.marketing_category_id as id,
+            count(*) as count
+        from
+            marketing_product_sku sku
+        join marketing_product_spu mps on sku.marketing_spu_id = mps.id
+        join standard_product_spu sps on sps.id = mps.standard_product_spu_id
+        where
+            sku.is_deleted = 0
+          and mps.shelves_status = #{shelvesStatus}
+          and sps.marketing_category_id in
+            <foreach item="marketingCategoryId" collection="marketingCategoryIds" separator="," open="(" close=")">
+                #{marketingCategoryId}
+            </foreach>
+        group by
+            sps.marketing_category_id
+        having
+            count > 0;
+    </select>
 </mapper>

@@ -8,9 +8,12 @@ import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.ProductMcRespVO;
+import com.bajiezu.cloud.product.dal.dto.IdAndCountDTO;
 import com.bajiezu.cloud.product.dal.entity.ProductMarketingCategory;
+import com.bajiezu.cloud.product.dal.mapper.MarketingProductSkuMapper;
 import com.bajiezu.cloud.product.dal.mapper.ProductMarketingCategoryMapper;
 import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
+import com.bajiezu.cloud.product.enums.ShelvesStatusEnum;
 import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
 import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.*;
@@ -34,6 +38,8 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
 
     @Resource
     private ProductMarketingCategoryMapper productMarketingCategoryMapper;
+    @Resource
+    private MarketingProductSkuMapper skuMapper;
 
     @Override
     public void add(PMCAddReqVO reqVO) {
@@ -164,9 +170,7 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
                 return PageResult.empty();
             }
             for (ProductMarketingCategory marketingCategory : marketingCategories) {
-                if (StringUtils.isEmpty(marketingCategory.getPath())) {
-                    firstLevelCategoryIds.add(Long.parseLong(marketingCategory.getPath().split(",")[0]));
-                }
+                firstLevelCategoryIds.add(Long.parseLong(marketingCategory.getPath().split(",")[0]));
             }
         }
 
@@ -187,16 +191,25 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
 
         // 获取一级类目的id
         List<Long> categoryIds = levelCategories.stream().map(ProductMarketingCategory::getId).toList();
+        // 获取所有的类目id
+        List<Long> allCategoryIds = Lists.newArrayList(categoryIds);
         // 批量查询所有子孙类目 （使用路径前缀匹配）
         List<ProductMarketingCategory> childrenCategories = productMarketingCategoryMapper.batchSelectByPathPrefix(categoryIds);
         List<ProductMcRespVO> childrenCategoryRespVOList = childrenCategories.stream().map(category -> {
             ProductMcRespVO respVO = new ProductMcRespVO();
             BeanUtils.copyProperties(category, respVO);
+
+            allCategoryIds.add(category.getId());
             return respVO;
         }).toList();
 
+        // 获取类目id下的已上架的sku数量
+        List<IdAndCountDTO> categoryId2SkuCounts = skuMapper.selectCategoryId2SkuCount(allCategoryIds, ShelvesStatusEnum.ON_SHELVES.getValue());
+        Map<Long, Long> categoryId2SkuCountsMap = categoryId2SkuCounts.stream().collect(Collectors.toMap(IdAndCountDTO::getId, IdAndCountDTO::getCount));
+
         // 根据一级类目构造成树形结构
-        List<ProductMcRespVO> treeList = buildTree(firstLevelCategoryRespVOList, childrenCategoryRespVOList);
+        List<ProductMcRespVO> treeList = buildTree(firstLevelCategoryRespVOList, childrenCategoryRespVOList, categoryId2SkuCountsMap);
+
         return new PageResult<>(treeList, count);
     }
 
@@ -219,7 +232,7 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
             }
         }
 
-        return buildTree(firstLevelCategoryRespVOList, childrenCategoryRespVOList);
+        return buildTree(firstLevelCategoryRespVOList, childrenCategoryRespVOList, Maps.newHashMap());
     }
 
 
@@ -283,12 +296,18 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         return category;
     }
 
-    private List<ProductMcRespVO> buildTree(List<ProductMcRespVO> rootCategories, List<ProductMcRespVO> allCategories) {
+    private List<ProductMcRespVO> buildTree(List<ProductMcRespVO> rootCategories, List<ProductMcRespVO> allCategories,
+                                            Map<Long, Long> categoryId2SkuCountsMap) {
         // 创建一个Map，以父ID为key，子节点列表为value
         Map<Long, List<ProductMcRespVO>> childrenMap = Maps.newHashMap();
 
         // 遍历所有分类，构建父ID到子节点列表的映射
         for (ProductMcRespVO category : allCategories) {
+            if (categoryId2SkuCountsMap != null && categoryId2SkuCountsMap.containsKey(category.getId())) {
+                category.setSkuCount(categoryId2SkuCountsMap.get(category.getId()));
+            } else {
+                category.setSkuCount(0L);
+            }
             Long parentId = category.getParentId();
             childrenMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(category);
         }

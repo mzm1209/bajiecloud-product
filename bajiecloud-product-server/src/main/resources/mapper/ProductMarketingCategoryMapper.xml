@@ -63,7 +63,7 @@
         </if>
         order by sort
         <if test="offset != null">
-           limit #{offset},#{limit}
+           limit #{offset}, #{pageSize}
         </if>
     </select>
 
@@ -78,10 +78,11 @@
     </select>
 
     <select id="batchSelectByPathPrefix" resultMap="BaseResultMap">
-        <foreach collection="categoryIds" item="categoryId" separator=" OR " open="(" close=")">
+        select * from product_marketing_category where is_deleted = 0 and (
+        <foreach collection="ids" item="categoryId" separator=" OR " open="" close="" index="index">
             path like CONCAT(#{categoryId}, ',%')
         </foreach>
-        and is_deleted = 0
+        )
     </select>
 
     <update id="updatePathById">

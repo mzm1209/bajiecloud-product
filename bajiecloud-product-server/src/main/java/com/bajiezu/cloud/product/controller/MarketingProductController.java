@@ -6,6 +6,8 @@ import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.*;
+import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
+import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 
 @Tag(name = "管理后台 - 营销商品管理")

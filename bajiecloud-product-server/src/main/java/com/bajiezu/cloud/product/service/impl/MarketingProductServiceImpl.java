@@ -871,6 +871,9 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             Map<Long, MarketingProductSpu> spuId2SpuMap = marketingProductSpus.stream().collect(Collectors.toMap(MarketingProductSpu::getId, spu -> spu));
 
             List<Long> marketingSpuPropertyValuesIds = skuPropertyValueMapper.selectSpuPropertyValueIdsBySkuIds(skuIds);
+            if (CollectionUtil.isEmpty(marketingSpuPropertyValuesIds)) {
+                return Collections.emptyList();
+            }
             List<MarketingProductSpuPropertyValue> marketingSpuPropertyValues = spuPropertyValueMapper.selectListByIds(marketingSpuPropertyValuesIds);
             List<Long> productPropertyIds = Lists.newArrayList();
             List<Long> productPropertyValueIds = Lists.newArrayList();

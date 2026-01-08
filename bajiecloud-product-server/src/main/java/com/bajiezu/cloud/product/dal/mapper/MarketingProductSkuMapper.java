@@ -47,4 +47,7 @@ public interface MarketingProductSkuMapper extends BaseMapper<MarketingProductSk
     void logicDelByIds(@Param("ids") Collection<Long> ids, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 
     void updateBatch(@Param("list") Collection<MarketingProductSku> list);
+
+    List<IdAndCountDTO> selectCategoryId2SkuCount(@Param("marketingCategoryIds") Collection<Long> marketingCategoryIds,
+                                                  @Param("shelvesStatus") Integer shelvesStatus);
 }

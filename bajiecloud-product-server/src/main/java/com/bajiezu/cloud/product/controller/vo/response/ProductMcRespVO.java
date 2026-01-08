@@ -39,4 +39,10 @@ public class ProductMcRespVO {
 
     @Schema(description = "子类目", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<ProductMcRespVO> children;
+
+    @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String remark;
+
+    @Schema(description = "sku数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Long skuCount;
 }
