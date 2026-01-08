@@ -3,6 +3,8 @@ package com.bajiezu.cloud.product.controller.vo.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.Date;
+
 @Schema(description = "品牌信息")
 @Data
 public class PBRespVO {
@@ -21,4 +23,7 @@ public class PBRespVO {
 
     @Schema(description = "启动禁用状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Integer status;
+
+    @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Date createTime;
 }

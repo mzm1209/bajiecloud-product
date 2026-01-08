@@ -107,6 +107,7 @@ public class ProductBrandServiceImpl implements ProductBrandService {
             vo.setSort(item.getSort());
             vo.setRemark(item.getRemark());
             vo.setStatus(item.getStatus());
+            vo.setCreateTime(item.getCreateTime());
             return vo;
         }).toList();
         return new PageResult<>(list, count);
