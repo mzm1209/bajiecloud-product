@@ -159,11 +159,20 @@
     </update>
 
     <select id="selectListByMarketingSpuIdAndSpuPropertyIds" resultMap="BaseResultMap">
-        select * from marketing_product_spu_property_value where marketing_spu_id = #{marketingSpuId} and spu_property_id in
+        select
+            pv.id,
+            pv.marketing_spu_id,
+            pv.spu_property_id,
+            sp.product_property_id,
+            pv.product_property_value_id,
+            pv.property_value,
+            pv.sort
+        from marketing_product_spu_property_value pv left join marketing_product_spu_property sp on pv.spu_property_id = sp.id
+        where pv.marketing_spu_id = #{marketingSpuId} and pv.spu_property_id in
         <foreach item="id" collection="spuPropertyIds" separator="," open="(" close=")">
             #{id}
         </foreach>
-        and is_deleted = 0
+        and pv.is_deleted = 0
     </select>
 
     <update id="logicDelByIds">

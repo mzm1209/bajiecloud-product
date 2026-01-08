@@ -18,4 +18,6 @@ public class MarketingProductPropertyValueVO {
 
     @Schema(description = "图片")
     private String picUrl;
+
+    private String unqKey;
 }

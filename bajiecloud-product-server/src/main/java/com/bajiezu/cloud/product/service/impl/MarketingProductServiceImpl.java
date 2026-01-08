@@ -276,8 +276,13 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         List<Long> updateSpuPropertyIds = updateProductPropertyIds.stream().map(productPropertyId2SpuPropertyIdMap::get).toList();
         if (CollectionUtil.isNotEmpty(updateSpuPropertyIds)) {
             List<MarketingProductSpuPropertyValue> updateSpuPropertyValues = spuPropertyValueMapper.selectListByMarketingSpuIdAndSpuPropertyIds(reqVO.getId(), updateSpuPropertyIds);
-            Map<Long, List<MarketingProductSpuPropertyValue>> spuPropertyId2PropertyValuesMap = updateSpuPropertyValues.stream()
-                    .collect(Collectors.groupingBy(MarketingProductSpuPropertyValue::getSpuPropertyId));
+            updateSpuPropertyValues.forEach(spuPropertyValue -> {
+                String unqKey = spuPropertyValue.getProductPropertyId() + "_" + spuPropertyValue.getProductPropertyValueId() + "_" + spuPropertyValue.getPropertyValue();
+                spuPropertyValue.setUnqKey(unqKey);
+            });
+
+            // spuPropertyId -> 属性值
+            Map<Long, List<MarketingProductSpuPropertyValue>> spuPropertyId2PropertyValuesMap = updateSpuPropertyValues.stream().collect(Collectors.groupingBy(MarketingProductSpuPropertyValue::getSpuPropertyId));
 
             // spu属性值id对应的属性id
             Map<Long, Long> spuPropertyId2ProductPropertyIdMap = existSpuPropertyList.stream().collect(Collectors.toMap(MarketingProductSpuProperty::getId,
@@ -291,43 +296,43 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             for (Long updateSpuPropertyId : updateSpuPropertyIds) {
                 // 属性对应的已存在的属性值记录
                 List<MarketingProductSpuPropertyValue> existSpuPropertyValues = spuPropertyId2PropertyValuesMap.get(updateSpuPropertyId);
+                Map<String, MarketingProductSpuPropertyValue> unqKey2ExistSpuPropertyValueMap = existSpuPropertyValues.stream().collect(Collectors.toMap(MarketingProductSpuPropertyValue::getUnqKey,
+                        Function.identity()));
 
                 // 前端传过来的属性对应的属性值
                 Long productPropertyId = spuPropertyId2ProductPropertyIdMap.get(updateSpuPropertyId);
                 List<MarketingProductPropertyValueVO> newPropertyValues = productPropertyId2PropertyValuesMap.get(productPropertyId);
+                newPropertyValues.forEach(newPropertyValue -> {
+                    String unqKey = productPropertyId + "_" + newPropertyValue.getProductPropertyValueId() + "_" + newPropertyValue.getValue();
+                    newPropertyValue.setUnqKey(unqKey);
+                });
+                Map<String, MarketingProductPropertyValueVO> unqKey2NewPropertyValueMap = newPropertyValues.stream().collect(Collectors.toMap(MarketingProductPropertyValueVO::getUnqKey,
+                        Function.identity()));
 
                 // 删除不存在的属性值
                 for (MarketingProductSpuPropertyValue existSpuPropertyValue : existSpuPropertyValues) {
-                    for (MarketingProductPropertyValueVO newPropertyValue : newPropertyValues) {
-                        if (!(existSpuPropertyValue.getProductPropertyValueId().equals(newPropertyValue.getProductPropertyValueId()) &&
-                            existSpuPropertyValue.getPropertyValue().equals(newPropertyValue.getValue()))) {
-                            deleteSpuPropertyValueIds.add(existSpuPropertyValue.getId());
-                            break;
-                        }
+                    if (!unqKey2NewPropertyValueMap.containsKey(existSpuPropertyValue.getUnqKey())) {
+                        deleteSpuPropertyValueIds.add(existSpuPropertyValue.getId());
                     }
                 }
 
                 // 新增不存在的属性值
                 for (MarketingProductPropertyValueVO newPropertyValue : newPropertyValues) {
-                    for (MarketingProductSpuPropertyValue existSpuPropertyValue : existSpuPropertyValues) {
-                        if (!(existSpuPropertyValue.getProductPropertyValueId().equals(newPropertyValue.getProductPropertyValueId()) &&
-                             existSpuPropertyValue.getPropertyValue().equals(newPropertyValue.getValue()))) {
-                            MarketingProductSpuPropertyValue spuPropertyValue = new MarketingProductSpuPropertyValue();
-                            spuPropertyValue.setMarketingSpuId(reqVO.getId());
-                            spuPropertyValue.setSpuPropertyId(updateSpuPropertyId);
-                            spuPropertyValue.setProductPropertyValueId(newPropertyValue.getProductPropertyValueId());
-                            spuPropertyValue.setPropertyValue(newPropertyValue.getValue());
-                            spuPropertyValue.setPicUrl(newPropertyValue.getPicUrl());
-                            spuPropertyValue.setSort(newPropertyValue.getSort());
-                            spuPropertyValue.setPartnerId(marketingProductSpu.getPartnerId());
-                            spuPropertyValue.setCreateBy(loginUser.getId());
-                            spuPropertyValue.setUpdateBy(loginUser.getId());
-                            spuPropertyValue.setCreateTime(now);
-                            spuPropertyValue.setUpdateTime(now);
-                            spuPropertyValue.setIsDeleted(NumberUtils.INTEGER_ZERO);
-                            needAddSpuPropertyValues.add(spuPropertyValue);
-                            break;
-                        }
+                    if (!unqKey2ExistSpuPropertyValueMap.containsKey(newPropertyValue.getUnqKey())) {
+                        MarketingProductSpuPropertyValue spuPropertyValue = new MarketingProductSpuPropertyValue();
+                        spuPropertyValue.setMarketingSpuId(reqVO.getId());
+                        spuPropertyValue.setSpuPropertyId(updateSpuPropertyId);
+                        spuPropertyValue.setProductPropertyValueId(newPropertyValue.getProductPropertyValueId());
+                        spuPropertyValue.setPropertyValue(newPropertyValue.getValue());
+                        spuPropertyValue.setPicUrl(newPropertyValue.getPicUrl());
+                        spuPropertyValue.setSort(newPropertyValue.getSort());
+                        spuPropertyValue.setPartnerId(marketingProductSpu.getPartnerId());
+                        spuPropertyValue.setCreateBy(loginUser.getId());
+                        spuPropertyValue.setUpdateBy(loginUser.getId());
+                        spuPropertyValue.setCreateTime(now);
+                        spuPropertyValue.setUpdateTime(now);
+                        spuPropertyValue.setIsDeleted(NumberUtils.INTEGER_ZERO);
+                        needAddSpuPropertyValues.add(spuPropertyValue);
                     }
                 }
             }
@@ -445,7 +450,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             // skuId -> spuPropertyValueIds
             Map<Long, List<Long>> skuId2SpuPropertyValueIdsMap = skuPropertyValues.stream().collect(Collectors.groupingBy(
                     MarketingProductSkuPropertyValue::getMarketingProductSkuId,
-                    Collectors.mapping(MarketingProductSkuPropertyValue::getId, Collectors.toList())));
+                    Collectors.mapping(MarketingProductSkuPropertyValue::getMarketingSpuPropertyValueId, Collectors.toList())));
 
             // 处理需要更新的sku的属性
             List<MarketingProductSkuPropertyValue> addSkuPropertyValues = Lists.newArrayList();

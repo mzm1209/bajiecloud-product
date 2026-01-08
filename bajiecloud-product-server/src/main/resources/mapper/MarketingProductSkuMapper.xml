@@ -177,6 +177,9 @@
                 #{id}
             </foreach>
         </if>
+        <if test="productType != null">
+            and spu.type = #{productType}
+        </if>
         order by sku.create_time desc
         limit #{offset}, #{pageSize}
     </select>
@@ -188,6 +191,9 @@
         where sku.is_deleted = 0 and spu.is_deleted = 0 and spu.shelves_status = 1
         <if test="name != null">
             and spu.name like concat('%', #{name}, '%')
+        </if>
+        <if test="productType != null">
+            and spu.type = #{productType}
         </if>
         <if test="marketingSkuIds != null and marketingSkuIds.size>0">
             and sku.id in
