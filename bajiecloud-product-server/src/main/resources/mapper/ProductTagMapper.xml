@@ -46,7 +46,7 @@
     <select id="querySimpleList" resultMap="BaseResultMap">
         select id, name from product_tag where is_deleted = 0 and status = 1
         <if test="showPage != null">
-            and find_in_set(show_page, #{showPage})
+            and find_in_set(#{showPage}, show_page)
         </if>
     </select>
 

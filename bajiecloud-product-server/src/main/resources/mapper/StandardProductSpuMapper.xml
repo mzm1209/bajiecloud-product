@@ -28,7 +28,7 @@
             and (name like concat('%',#{name},'%') or code like concat('%',#{name},'%'))
         </if>
         <if test="marketingCategoryId != null">
-            and find_in_set(marketing_category_id, #{marketingCategoryId})
+            and marketing_category_id = #{marketingCategoryId}
         </if>
         <if test="brandId != null">
             and product_brand_id = #{brandId}
@@ -40,7 +40,7 @@
             and is_draft = #{isDraft}
         </if>
         <if test="productCondition != null">
-            and find_in_set(product_condition, #{productCondition})
+            and find_in_set(#{productCondition}, product_condition)
         </if>
         <if test="createTimeBegin != null">
             and create_time >= #{createTimeBegin}
