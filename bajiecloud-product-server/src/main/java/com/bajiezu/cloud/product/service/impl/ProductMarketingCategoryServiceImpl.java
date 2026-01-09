@@ -296,13 +296,21 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         return category;
     }
 
-    private List<ProductMcRespVO> buildTree(List<ProductMcRespVO> rootCategories, List<ProductMcRespVO> allCategories,
+    private List<ProductMcRespVO> buildTree(List<ProductMcRespVO> rootCategories, List<ProductMcRespVO> childrenCategories,
                                             Map<Long, Long> categoryId2SkuCountsMap) {
         // 创建一个Map，以父ID为key，子节点列表为value
         Map<Long, List<ProductMcRespVO>> childrenMap = Maps.newHashMap();
 
+        for (ProductMcRespVO category : rootCategories) {
+            if (categoryId2SkuCountsMap != null && categoryId2SkuCountsMap.containsKey(category.getId())) {
+                category.setSkuCount(categoryId2SkuCountsMap.get(category.getId()));
+            } else {
+                category.setSkuCount(0L);
+            }
+        }
+
         // 遍历所有分类，构建父ID到子节点列表的映射
-        for (ProductMcRespVO category : allCategories) {
+        for (ProductMcRespVO category : childrenCategories) {
             if (categoryId2SkuCountsMap != null && categoryId2SkuCountsMap.containsKey(category.getId())) {
                 category.setSkuCount(categoryId2SkuCountsMap.get(category.getId()));
             } else {
@@ -324,22 +332,26 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
      * @return 构建后的树形结构
      */
     private List<ProductMcRespVO> buildTreeRecursive(List<ProductMcRespVO> categories,
-                                                            Map<Long, List<ProductMcRespVO>> childrenMap) {
+                                                     Map<Long, List<ProductMcRespVO>> childrenMap) {
         List<ProductMcRespVO> result = new ArrayList<>();
         for (ProductMcRespVO category : categories) {
             // 复制当前节点
             ProductMcRespVO node = new ProductMcRespVO();
             BeanUtils.copyProperties(category, node);
-            // 获取当前节点的子节点
+
+            // 获取当前节点的子节点并按sort字段排序
             List<ProductMcRespVO> children = childrenMap.get(category.getId());
             if (CollectionUtil.isNotEmpty(children)) {
+                // 按sort字段排序
+                children.sort(Comparator.comparing(ProductMcRespVO::getSort));
                 // 递归构建子节点的树形结构
                 List<ProductMcRespVO> childTree = buildTreeRecursive(children, childrenMap);
-                // 这里需要设置子节点的属性，具体取决于你的实体类设计
                 node.setChildren(childTree);
             }
             result.add(node);
         }
+        // 对当前层级的节点也按sort字段排序
+        result.sort(Comparator.comparing(ProductMcRespVO::getSort));
         return result;
     }
 }

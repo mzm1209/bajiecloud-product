@@ -16,9 +16,6 @@ public class ProductMcRespVO {
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private String name;
 
-    @Schema(description = "商品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    private Integer productCount;
-
     @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Integer sort;
 
@@ -43,6 +40,6 @@ public class ProductMcRespVO {
     @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED)
     private String remark;
 
-    @Schema(description = "sku数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(description = "商品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long skuCount;
 }
