@@ -31,6 +31,11 @@ public class MarketingProductController {
     @Resource
     private MarketingProductService marketingProductService;
 
+    @PostMapping("/test")
+    public CommonResult<List<ProductDetailRespVO>> test(@Valid @RequestBody MarketingProductReqVO reqVO) {
+        return CommonResult.success(marketingProductService.batchGetProductDetail(reqVO));
+    }
+
     @PostMapping("/page")
     @Operation(summary = "列表")
     public CommonResult<PageResult<MarketingProductRespVO>> page(@Valid @RequestBody MarketingProductListReqVO reqVO) {

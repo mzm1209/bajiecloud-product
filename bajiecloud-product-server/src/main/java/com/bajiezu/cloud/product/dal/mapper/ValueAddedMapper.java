@@ -23,4 +23,6 @@ public interface ValueAddedMapper extends BaseMapper<ValueAdded> {
     Long selectCountByQuery(ValueAddedQuery query);
 
     List<IdAndNameVO> selectIdAndNamesByIds(@Param("ids") Collection<Long> ids);
+
+    List<ValueAdded> selectListByIds(@Param("ids") Collection<Long> ids);
 }

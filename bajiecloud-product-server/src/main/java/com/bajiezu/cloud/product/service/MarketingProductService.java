@@ -5,6 +5,7 @@ import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
 import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
+import com.bajiezu.cloud.product.dto.SkuRespDto;
 
 import java.util.List;
 
@@ -33,4 +34,6 @@ public interface MarketingProductService {
     PageResult<SpuRespVO> spuListForAddCoupon(ProductListReqVO reqVO);
 
     PageResult<SkuRespVO> skuListForAddCoupon(ProductListReqVO reqVO);
+
+    SkuRespDto getSkuInfoById(Long skuId);
 }

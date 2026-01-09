@@ -19,10 +19,7 @@ import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.dal.dto.*;
 import com.bajiezu.cloud.product.dal.entity.*;
 import com.bajiezu.cloud.product.dal.mapper.*;
-import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
-import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
-import com.bajiezu.cloud.product.dto.PropertyVO;
-import com.bajiezu.cloud.product.dto.PropertyValueVO;
+import com.bajiezu.cloud.product.dto.*;
 import com.bajiezu.cloud.product.enums.ApiConstants;
 import com.bajiezu.cloud.product.enums.ApproveStatusEnum;
 import com.bajiezu.cloud.product.enums.ProductTypeEnum;
@@ -870,10 +867,15 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             List<MarketingProductSpu> marketingProductSpus = marketingProductSpuMapper.selectListByIds(spuIds);
             Map<Long, MarketingProductSpu> spuId2SpuMap = marketingProductSpus.stream().collect(Collectors.toMap(MarketingProductSpu::getId, spu -> spu));
 
-            List<Long> marketingSpuPropertyValuesIds = skuPropertyValueMapper.selectSpuPropertyValueIdsBySkuIds(skuIds);
-            if (CollectionUtil.isEmpty(marketingSpuPropertyValuesIds)) {
+            List<MarketingProductSkuPropertyValue> skuPropertyValues = skuPropertyValueMapper.selectListBySkuIds(skuIds);
+            if (CollectionUtil.isEmpty(skuPropertyValues)) {
                 return Collections.emptyList();
             }
+            Map<Long, List<Long>> skuId2SpuPropertyValuesIdsMap = skuPropertyValues.stream().collect(Collectors.groupingBy(
+                    MarketingProductSkuPropertyValue::getMarketingProductSkuId, Collectors.mapping(
+                            MarketingProductSkuPropertyValue::getMarketingSpuPropertyValueId, Collectors.toList())));
+            List<Long> marketingSpuPropertyValuesIds = skuId2SpuPropertyValuesIdsMap.values().stream().flatMap(Collection::stream).toList();
+
             List<MarketingProductSpuPropertyValue> marketingSpuPropertyValues = spuPropertyValueMapper.selectListByIds(marketingSpuPropertyValuesIds);
             List<Long> productPropertyIds = Lists.newArrayList();
             List<Long> productPropertyValueIds = Lists.newArrayList();
@@ -904,21 +906,24 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 productDetailRespVO.setTotalPrice(marketingProductSku.getTotalPrice());
                 productDetailRespVO.setDailyRent(marketingProductSku.getDailyRent());
 
+                List<Long> spuPropertyValuesIds = skuId2SpuPropertyValuesIdsMap.get(marketingProductSku.getId());
                 List<PropertyVO> properties = Lists.newArrayList();
                 for (MarketingProductSpuPropertyValue spuPropertyValue : marketingSpuPropertyValues) {
-                    PropertyVO propertyVO = new PropertyVO();
-                    properties.add(propertyVO);
+                    if (spuPropertyValuesIds.contains(spuPropertyValue.getId())) {
+                        PropertyVO propertyVO = new PropertyVO();
+                        properties.add(propertyVO);
 
-                    propertyVO.setPropertyId(spuPropertyValue.getProductPropertyId());
-                    propertyVO.setPropertyName(productPropertyId2NameMap.get(spuPropertyValue.getProductPropertyId()));
-                    List<PropertyValueVO> propertyValues = Lists.newArrayList();
-                    propertyVO.setPropertyValues(propertyValues);
-                    PropertyValueVO propertyValueVO = new PropertyValueVO();
-                    propertyValues.add(propertyValueVO);
-                    propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
-                    propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
-                    if (Objects.nonNull(spuPropertyValue.getProductPropertyId())) {
-                        propertyValueVO.setPropertyValue(productPropertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                        propertyVO.setPropertyId(spuPropertyValue.getProductPropertyId());
+                        propertyVO.setPropertyName(productPropertyId2NameMap.get(spuPropertyValue.getProductPropertyId()));
+                        List<PropertyValueVO> propertyValues = Lists.newArrayList();
+                        propertyVO.setPropertyValues(propertyValues);
+                        PropertyValueVO propertyValueVO = new PropertyValueVO();
+                        propertyValues.add(propertyValueVO);
+                        propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+                        propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+                        if (Objects.nonNull(spuPropertyValue.getProductPropertyId())) {
+                            propertyValueVO.setPropertyValue(productPropertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                        }
                     }
                 }
                 productDetailRespVO.setProperties(properties);
@@ -1139,6 +1144,47 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         return new PageResult<>(skuRespVOS, count);
+    }
+
+    @Override
+    public SkuRespDto getSkuInfoById(Long skuId) {
+        if (skuId == null) {
+            return null;
+        }
+        MarketingProductSku marketingProductSku = skuMapper.selectById(skuId);
+        if (marketingProductSku == null) {
+            return null;
+        }
+
+        // sku对应的spu信息
+        MarketingProductSpu marketingProductSpu = marketingProductSpuMapper.selectById(marketingProductSku.getMarketingSpuId());
+
+        // spu对应的标准商品
+        StandardProductSpu standardProduct = standardProductSpuMapper.selectById(marketingProductSpu.getStandardProductSpuId());
+        // 品牌名称
+        String brandName = brandMapper.selectNameById(standardProduct.getProductBrandId());
+        // 经营类目名称
+
+        // 获取sku对应的属性id和属性值id
+        List<Long> spuPropertyValueIds = skuPropertyValueMapper.selectSpuPropertyValueIdsBySkuIds(Lists.newArrayList(skuId));
+        List<MarketingProductSpuPropertyValue> spuPropertyValues = spuPropertyValueMapper.selectListByIds(spuPropertyValueIds);
+        List<Long> productPropertyIds = Lists.newArrayList();
+        List<Long> productPropertyValueIds = Lists.newArrayList();
+        for (MarketingProductSpuPropertyValue spuPropertyValue : spuPropertyValues) {
+            productPropertyIds.add(spuPropertyValue.getProductPropertyId());
+            if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                productPropertyValueIds.add(spuPropertyValue.getProductPropertyValueId());
+            }
+        }
+        // 属性
+        List<IdAndNameVO> productIdAndNameVOS = productPropertyMapper.selectIdAndNamesByIds(productPropertyIds);
+        Map<Long, String> propertyId2NameMap = productIdAndNameVOS.stream().collect(Collectors.toMap(IdAndNameVO::getId, IdAndNameVO::getName));
+        // 属性值
+        List<ProductPropertyValue> productPropertyValues = productPropertyValueMapper.selectListByIds(productPropertyValueIds);
+        Map<Long, String> propertyValueId2ValueMap = productPropertyValues.stream().collect(Collectors.toMap(
+                ProductPropertyValue::getId, ProductPropertyValue::getPropertyValue));
+
+        return null;
     }
 
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {

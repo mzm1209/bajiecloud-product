@@ -60,4 +60,11 @@
             #{item}
         </foreach>
     </select>
+
+    <select id="selectListByIds" resultMap="BaseResultMap">
+        select * from value_added where id in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

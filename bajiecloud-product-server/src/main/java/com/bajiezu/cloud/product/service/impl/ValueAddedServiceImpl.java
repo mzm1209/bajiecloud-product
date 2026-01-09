@@ -2,7 +2,6 @@ package com.bajiezu.cloud.product.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
 import com.bajiezu.cloud.common.constants.CommonStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
@@ -20,6 +19,7 @@ import com.bajiezu.cloud.product.dal.entity.*;
 import com.bajiezu.cloud.product.dal.mapper.*;
 import com.bajiezu.cloud.product.dto.PropertyVO;
 import com.bajiezu.cloud.product.dto.PropertyValueVO;
+import com.bajiezu.cloud.product.dto.ValueAddedRespDto;
 import com.bajiezu.cloud.product.service.ValueAddedService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import com.bajiezu.cloud.system.api.user.AdminUserApi;
@@ -344,6 +344,33 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             valueAddedSimpleInfoRespVO.setName(valueAdded.getName());
             return valueAddedSimpleInfoRespVO;
         }).toList();
+    }
+
+    @Override
+    public List<ValueAddedRespDto> getByIds(Collection<Long> ids) {
+        log.info("valueAdded getByIds ids: {}", ids);
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        List<ValueAdded> valueAddedList = valueAddedMapper.selectListByIds(ids);
+        if (CollUtil.isEmpty(valueAddedList)) {
+            return Collections.emptyList();
+        }
+
+        return valueAddedList.stream().map(this::toValueAddedRespDto).toList();
+    }
+
+    private ValueAddedRespDto toValueAddedRespDto(ValueAdded valueAdded) {
+        ValueAddedRespDto respDto = new ValueAddedRespDto();
+        respDto.setId(valueAdded.getId());
+        respDto.setCode(valueAdded.getCode());
+        respDto.setName(valueAdded.getName());
+        respDto.setStatus(valueAdded.getStatus());
+        respDto.setSalePrice(valueAdded.getSalePrice());
+        respDto.setRenewalPrice(valueAdded.getRenewalPrice());
+        respDto.setStrikethroughPrice(valueAdded.getStrikethroughPrice());
+        respDto.setIsDeleted(valueAdded.getIsDeleted());
+        return respDto;
     }
 
     private ValueAdded buildValueAdded(ValueAddedAddReqVO reqVO, LoginUser<?> loginUser, Date now) {

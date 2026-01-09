@@ -7,7 +7,9 @@ import com.bajiezu.cloud.product.controller.vo.request.ValueAddedModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedStatusChangeReqVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSimpleInfoRespVO;
+import com.bajiezu.cloud.product.dto.ValueAddedRespDto;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ValueAddedService {
@@ -46,4 +48,9 @@ public interface ValueAddedService {
      * 增值服务简明信息 用于创建营销商品
      */
     List<ValueAddedSimpleInfoRespVO> simpleList();
+
+    /**
+     * 根据ids查询增值服务信息
+     */
+    List<ValueAddedRespDto> getByIds(Collection<Long> ids);
 }
