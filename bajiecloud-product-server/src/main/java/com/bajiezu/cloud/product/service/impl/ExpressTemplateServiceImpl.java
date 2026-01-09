@@ -18,6 +18,7 @@ import com.bajiezu.cloud.product.dal.entity.ExpressTemplateShippingTo;
 import com.bajiezu.cloud.product.dal.mapper.ExpressTemplateMapper;
 import com.bajiezu.cloud.product.dal.mapper.ExpressTemplateShippingFromMapper;
 import com.bajiezu.cloud.product.dal.mapper.ExpressTemplateShippingToMapper;
+import com.bajiezu.cloud.product.enums.PostageTypeEnum;
 import com.bajiezu.cloud.product.service.ExpressTemplateService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import com.bajiezu.cloud.system.api.area.AreaApi;
@@ -245,45 +246,50 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
         }
 
         // 3、处理收货地区
-        List<ExpressTemplateShippingTo> existShippingTos = shippingToMapper.selectByTemplateId(expressTemplate.getId());
-        Map<String, ExpressTemplateShippingTo> existShippingToMap = existShippingTos.stream().collect(Collectors.toMap(
-                ExpressTemplateShippingTo::getAreaCode, value -> value));
-        Map<String, AreaCodeAndNameVO> areaCodeToShippingToMap = reqVO.getShippingTos().stream().collect(Collectors.toMap(
-                AreaCodeAndNameVO::getAreaCode, value -> value));
+        // 如果是包邮那么就没有收货地区
+        if (PostageTypeEnum.FREE_SHIPPING.getValue().equals(reqVO.getPostageType())) {
+            shippingToMapper.logicDelByTemplateId(expressTemplate.getId(), loginUser.getId(), now);
+        } else {
+            List<ExpressTemplateShippingTo> existShippingTos = shippingToMapper.selectByTemplateId(expressTemplate.getId());
+            Map<String, ExpressTemplateShippingTo> existShippingToMap = existShippingTos.stream().collect(Collectors.toMap(
+                    ExpressTemplateShippingTo::getAreaCode, value -> value));
+            Map<String, AreaCodeAndNameVO> areaCodeToShippingToMap = reqVO.getShippingTos().stream().collect(Collectors.toMap(
+                    AreaCodeAndNameVO::getAreaCode, value -> value));
 
-        Set<String> deleteShippingToAreaCodes = Sets.newHashSet();
-        List<AreaCodeAndNameVO> addShippingTos = Lists.newArrayList();
-        List<ExpressTemplateShippingTo> updateShippingTos = Lists.newArrayList();
-        for (AreaCodeAndNameVO areaCodeAndNameVO : reqVO.getShippingTos()) {
-            ExpressTemplateShippingTo shippingTo = existShippingToMap.get(areaCodeAndNameVO.getAreaCode());
-            if (shippingTo == null) {
-                addShippingTos.add(areaCodeAndNameVO);
-            } else {
-                if (areaCodeAndNameVO.getShippingCost().equals(shippingTo.getShippingCost())) {
-                    shippingTo.setShippingCost(areaCodeAndNameVO.getShippingCost());
-                    shippingTo.setUpdateBy(loginUser.getId());
-                    shippingTo.setUpdateTime(now);
-                    updateShippingTos.add(shippingTo);
+            Set<String> deleteShippingToAreaCodes = Sets.newHashSet();
+            List<AreaCodeAndNameVO> addShippingTos = Lists.newArrayList();
+            List<ExpressTemplateShippingTo> updateShippingTos = Lists.newArrayList();
+            for (AreaCodeAndNameVO areaCodeAndNameVO : reqVO.getShippingTos()) {
+                ExpressTemplateShippingTo shippingTo = existShippingToMap.get(areaCodeAndNameVO.getAreaCode());
+                if (shippingTo == null) {
+                    addShippingTos.add(areaCodeAndNameVO);
+                } else {
+                    if (!areaCodeAndNameVO.getShippingCost().equals(shippingTo.getShippingCost())) {
+                        shippingTo.setShippingCost(areaCodeAndNameVO.getShippingCost());
+                        shippingTo.setUpdateBy(loginUser.getId());
+                        shippingTo.setUpdateTime(now);
+                        updateShippingTos.add(shippingTo);
+                    }
                 }
             }
-        }
-        for (ExpressTemplateShippingTo shippingTo : existShippingTos) {
-            if (!areaCodeToShippingToMap.containsKey(shippingTo.getAreaCode())) {
-                deleteShippingToAreaCodes.add(shippingTo.getAreaCode());
+            for (ExpressTemplateShippingTo shippingTo : existShippingTos) {
+                if (!areaCodeToShippingToMap.containsKey(shippingTo.getAreaCode())) {
+                    deleteShippingToAreaCodes.add(shippingTo.getAreaCode());
+                }
             }
-        }
 
-        if (CollectionUtil.isNotEmpty(deleteShippingToAreaCodes)) {
-            shippingToMapper.logicDelByTemplateIdAndAreaCodes(expressTemplate.getId(), deleteShippingToAreaCodes, loginUser.getId(), now);
-        }
+            if (CollectionUtil.isNotEmpty(deleteShippingToAreaCodes)) {
+                shippingToMapper.logicDelByTemplateIdAndAreaCodes(expressTemplate.getId(), deleteShippingToAreaCodes, loginUser.getId(), now);
+            }
 
-        if (CollectionUtil.isNotEmpty(addShippingTos)) {
-            List<ExpressTemplateShippingTo> shippingTos = buildShippingTos(expressTemplate.getId(), addShippingTos, now, loginUser);
-            shippingToMapper.insertBatch(shippingTos);
-        }
+            if (CollectionUtil.isNotEmpty(addShippingTos)) {
+                List<ExpressTemplateShippingTo> shippingTos = buildShippingTos(expressTemplate.getId(), addShippingTos, now, loginUser);
+                shippingToMapper.insertBatch(shippingTos);
+            }
 
-        if (CollectionUtil.isNotEmpty(updateShippingTos)) {
-            shippingToMapper.updateBatch(updateShippingTos);
+            if (CollectionUtil.isNotEmpty(updateShippingTos)) {
+                shippingToMapper.updateBatch(updateShippingTos);
+            }
         }
     }
 
