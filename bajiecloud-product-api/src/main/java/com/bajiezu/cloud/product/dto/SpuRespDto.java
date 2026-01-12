@@ -17,9 +17,11 @@ public class SpuRespDto {
     private String code;
 
     @Schema(description = "商品成色")
+    private Integer productCondition;
     private String productConditionDesc;
 
     @Schema(description = "监管属性")
+    private Integer monitorAttribute;
     private String monitorAttributeDesc;
 
     @Schema(description = "品牌名称")

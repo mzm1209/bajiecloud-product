@@ -20,10 +20,7 @@ import com.bajiezu.cloud.product.dal.dto.*;
 import com.bajiezu.cloud.product.dal.entity.*;
 import com.bajiezu.cloud.product.dal.mapper.*;
 import com.bajiezu.cloud.product.dto.*;
-import com.bajiezu.cloud.product.enums.ApiConstants;
-import com.bajiezu.cloud.product.enums.ApproveStatusEnum;
-import com.bajiezu.cloud.product.enums.ProductTypeEnum;
-import com.bajiezu.cloud.product.enums.ShelvesStatusEnum;
+import com.bajiezu.cloud.product.enums.*;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import com.bajiezu.cloud.system.api.area.AreaApi;
@@ -1163,7 +1160,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         StandardProductSpu standardProduct = standardProductSpuMapper.selectById(marketingProductSpu.getStandardProductSpuId());
         // 品牌名称
         String brandName = brandMapper.selectNameById(standardProduct.getProductBrandId());
+        // 营销类目名称
+        String marketingCategoryName = marketingCategoryMapper.selectNameById(standardProduct.getMarketingCategoryId());
         // 经营类目名称
+        String businessCategoryName = businessCategoryMapper.selectNameById(standardProduct.getBusinessCategoryId());
 
         // 获取sku对应的属性id和属性值id
         List<Long> spuPropertyValueIds = skuPropertyValueMapper.selectSpuPropertyValueIdsBySkuIds(Lists.newArrayList(skuId));
@@ -1184,7 +1184,60 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         Map<Long, String> propertyValueId2ValueMap = productPropertyValues.stream().collect(Collectors.toMap(
                 ProductPropertyValue::getId, ProductPropertyValue::getPropertyValue));
 
-        return null;
+        // 基本信息
+        SkuRespDto skuRespDto = new SkuRespDto();
+        skuRespDto.setId(marketingProductSku.getId());
+        skuRespDto.setOfficialPrice(marketingProductSku.getOfficialPrice());
+        skuRespDto.setTotalPriceFactor(marketingProductSku.getTotalPriceFactor());
+        skuRespDto.setTotalRentFactor(marketingProductSku.getTotalRentFactor());
+        skuRespDto.setTotalPrice(marketingProductSku.getTotalPrice());
+        skuRespDto.setTotalRent(marketingProductSku.getTotalRent());
+        skuRespDto.setBuyoutAmount(marketingProductSku.getBuyoutAmount());
+        skuRespDto.setDailyRent(marketingProductSku.getDailyRent());
+        skuRespDto.setPremium(marketingProductSku.getPremium());
+        skuRespDto.setSuggestedRetailPrice(marketingProductSku.getSuggestedRetailPrice());
+        skuRespDto.setStrikethroughPrice(marketingProductSku.getStrikethroughPrice());
+        skuRespDto.setCashUsageRatio(marketingProductSku.getCashUsageRatio());
+        skuRespDto.setPointsUsageRatio(marketingProductSku.getPointsUsageRatio());
+        skuRespDto.setPointsCount(marketingProductSku.getPointsCount());
+        skuRespDto.setCashPrice(marketingProductSku.getCashPrice());
+        skuRespDto.setIsAllowOrder(marketingProductSku.getIsAllowOrder());
+
+        // 属性信息
+        List<PropertyVO> propertyVOS = Lists.newArrayList();
+        skuRespDto.setProperties(propertyVOS);
+        for (MarketingProductSpuPropertyValue spuPropertyValue : spuPropertyValues) {
+            PropertyVO propertyVO = new PropertyVO();
+            propertyVOS.add(propertyVO);
+            propertyVO.setPropertyId(spuPropertyValue.getProductPropertyId());
+            propertyVO.setPropertyName(propertyId2NameMap.get(spuPropertyValue.getProductPropertyId()));
+            List<PropertyValueVO> propertyValueVOS = Lists.newArrayList();
+            propertyVO.setPropertyValues(propertyValueVOS);
+            PropertyValueVO propertyValueVO = new PropertyValueVO();
+            propertyValueVOS.add(propertyValueVO);
+            propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+            if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                propertyValueVO.setPropertyValue(propertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+            } else {
+                propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+            }
+        }
+
+        // 对应的商品信息
+        SpuRespDto spuRespDto = new SpuRespDto();
+        skuRespDto.setSpuInfo(spuRespDto);
+        spuRespDto.setId(marketingProductSpu.getStandardProductSpuId());
+        spuRespDto.setName(marketingProductSpu.getName());
+        spuRespDto.setCode(marketingProductSpu.getCode());
+        spuRespDto.setProductCondition(marketingProductSpu.getProductCondition());
+        spuRespDto.setProductConditionDesc(ProductConditionEnum.get(marketingProductSpu.getProductCondition()).getDesc());
+        spuRespDto.setMonitorAttribute(marketingProductSpu.getMonitorAttribute());
+        spuRespDto.setMonitorAttributeDesc(MonitorAtttributeEnum.get(marketingProductSpu.getMonitorAttribute()).getDesc());
+        spuRespDto.setBrandName(brandName);
+        spuRespDto.setBusinessCategoryName(businessCategoryName);
+        spuRespDto.setMarketingCategoryName(marketingCategoryName);
+
+        return skuRespDto;
     }
 
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {

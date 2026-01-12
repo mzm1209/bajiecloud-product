@@ -47,7 +47,7 @@ public class SkuRespDto {
     private BigDecimal cashUsageRatio;
 
     @Schema(description = "积分使用比例")
-    private BigDecimal pintsUsageRatio;
+    private BigDecimal pointsUsageRatio;
 
     @Schema(description = "积分数量")
     private Integer pointsCount;
