@@ -854,7 +854,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         List<ProductDetailRespVO> detailRespVOS = Lists.newArrayList();
-        if (ApiConstants.SKU.equals(reqVO.getType())) {
+        if (ProductApiConstants.SKU.equals(reqVO.getType())) {
             List<MarketingProductSku> marketingProductSkus = skuMapper.selectListByIds(reqVO.getIds());
             if (CollectionUtil.isEmpty(marketingProductSkus)) {
                 return Collections.emptyList();
