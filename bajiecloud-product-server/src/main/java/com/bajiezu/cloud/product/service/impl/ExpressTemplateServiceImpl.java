@@ -56,7 +56,6 @@ public class ExpressTemplateServiceImpl implements ExpressTemplateService {
     private ExpressTemplateShippingFromMapper shippingFromMapper;
     @Resource
     private SequenceGenerator sequenceGenerator;
-
     @Resource
     private AdminUserApi adminUserApi;
     @Resource
