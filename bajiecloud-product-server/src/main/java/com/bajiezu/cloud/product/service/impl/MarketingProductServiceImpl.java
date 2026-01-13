@@ -91,6 +91,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         log.info("list marketingProduct reqVO: {}", reqVO);
 
         MarketingProductQuery query = reqVO.toQuery();
+        // 审批状态 和上下架状态的不应该是草稿状态的商品
+        if (reqVO.getApprovalStatus() != null || reqVO.getShelvesStatus() != null) {
+            query.setIsDraft(NumberUtils.INTEGER_ZERO);
+        }
+
         // 根据品牌、营销类目搜索
         if (reqVO.getBrandId() != null || reqVO.getMarketingCategoryId() != null) {
             List<Long> standardProductSpuIds = standardProductSpuMapper.selectIdsByBrandIdAndMarketingCategoryId(
