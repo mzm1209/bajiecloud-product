@@ -813,7 +813,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         Integer draftCount = marketingProductSpuMapper.queryCount(query);
 
         // 获取审核商品数
-        query.setIsDraft(null);
+        query.setIsDraft(0);
         List<ApproveStatusStatisticCountDTO> approveStatusStatisticCountDTOS = marketingProductSpuMapper.approveStatusStatistic(query);
 
         // 获取上下架商品数

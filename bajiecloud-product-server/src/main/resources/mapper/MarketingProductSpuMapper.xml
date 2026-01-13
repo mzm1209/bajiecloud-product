@@ -91,10 +91,12 @@
 
     <select id="approveStatusStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ApproveStatusStatisticCountDTO">
         select approval_status as approveStatus, count(1) as count from marketing_product_spu <include refid="listSql"/>
+        group by approval_status
     </select>
 
     <select id="shelvesStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ShelvesStatisticCountDTO">
         select shelves_status as shelvesStatus, count(1) as count from marketing_product_spu <include refid="listSql"/>
+        group by shelves_status
     </select>
 
     <update id="updateShelvesStatusByIds">
