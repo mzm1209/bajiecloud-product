@@ -3,11 +3,9 @@ package com.bajiezu.cloud.product.api;
 import cn.hutool.core.collection.CollectionUtil;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSku;
-import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
-import com.bajiezu.cloud.product.dto.McSimpleInfoRespVO;
-import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
-import com.bajiezu.cloud.product.dto.SkuRespDto;
+import com.bajiezu.cloud.product.dto.*;
 import com.bajiezu.cloud.product.enums.ErrorCodeConstants;
+import com.bajiezu.cloud.product.enums.ProductApiConstants;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
 import jakarta.annotation.Resource;
@@ -46,6 +44,28 @@ public class MarketingProductApiImpl implements MarketingProductApi {
             return CommonResult.error(ErrorCodeConstants.SKU_ID_IS_NULL);
         }
         SkuRespDto skuRespDto = marketingProductService.getSkuInfoById(skuId);
+        if (skuRespDto != null) {
+            List<PropertyVO> properties = skuRespDto.getProperties();
+            for (PropertyVO propertyVO : properties) {
+                // 租期
+                if (ProductApiConstants.RENTAL_PERIOD.equals(propertyVO.getPropertyName())) {
+                    int leaseTermCount = Integer.parseInt(propertyVO.getPropertyValues().get(0).getPropertyValue()) / ProductApiConstants.THIRTY;
+                    if (leaseTermCount == 0) {
+                        leaseTermCount = 1;
+                    }
+                    skuRespDto.setLeaseTermCount(leaseTermCount);
+                }
+                // 续租租期
+                if (ProductApiConstants.RENEWAL_TERM.equals(propertyVO.getPropertyName())) {
+                    int renewalTermCount = Integer.parseInt(propertyVO.getPropertyValues().get(0).getPropertyValue()) / ProductApiConstants.THIRTY;
+                    if (renewalTermCount == 0) {
+                        renewalTermCount = 1;
+                    }
+                    skuRespDto.setRenewalTermCount(renewalTermCount);
+                }
+            }
+        }
+
         return CommonResult.success(skuRespDto);
     }
 }

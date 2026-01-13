@@ -63,4 +63,10 @@ public class SkuRespDto {
 
     @Schema(description = "sku对应的spu信息")
     private SpuRespDto spuInfo;
+
+    @Schema(description = "租赁期数")
+    private Integer leaseTermCount;
+
+    @Schema(description = "续租期数")
+    private Integer renewalTermCount;
 }

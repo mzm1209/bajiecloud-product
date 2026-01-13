@@ -814,14 +814,16 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         Integer totalCount = marketingProductSpuMapper.queryCount(query);
 
         // 获取草稿商品数
-        query.setIsDraft(1);
+        query.setIsDraft(NumberUtils.INTEGER_ONE);
         Integer draftCount = marketingProductSpuMapper.queryCount(query);
 
         // 获取审核商品数
-        query.setIsDraft(0);
+        query.setIsDraft(NumberUtils.INTEGER_ZERO);
+        query.setShelvesStatus(ShelvesStatusEnum.WAIT_SHELVES.getValue());
         List<ApproveStatusStatisticCountDTO> approveStatusStatisticCountDTOS = marketingProductSpuMapper.approveStatusStatistic(query);
 
         // 获取上下架商品数
+        query.setShelvesStatus(null);
         List<ShelvesStatisticCountDTO> shelvesStatisticCountDTOS = marketingProductSpuMapper.shelvesStatistic(query);
 
         StatusStatisticRespVO statusStatisticRespVO = new StatusStatisticRespVO();

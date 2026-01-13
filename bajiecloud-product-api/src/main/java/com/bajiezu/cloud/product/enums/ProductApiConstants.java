@@ -19,6 +19,7 @@ public class ProductApiConstants {
 
     public static final String SKU = "SKU";
     public static final String SPU = "SPU";
+    public static final int THIRTY = 30;
 
     /*************************  属性名常量   ********************************/
     public static final String PRODUCT_CONDITION = "商品成色";
