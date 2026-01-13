@@ -239,6 +239,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             List<MarketingProductSpuProperty> addSpuProperties = buildMarketingProductSpuProperty(addProductProperties,
                     loginUser, reqVO.getId(), now);
             spuPropertyMapper.insertBatch(addSpuProperties);
+            Map<Long, Long> addProductPropertyId2SpuPropertyIdMap = addSpuProperties.stream().collect(Collectors.toMap(MarketingProductSpuProperty::getProductPropertyId,
+                    MarketingProductSpuProperty::getId));
             Map<Long, List<MarketingProductPropertyValueVO>> addProductPropertyId2PropertyValuesMap = addProductProperties.stream()
                     .collect(Collectors.toMap(MarketingProductPropertyVO::getPropertyId,
                             MarketingProductPropertyVO::getPropertyValues));
@@ -249,7 +251,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                     addSpuPropertyValues.add(spuPropertyValue);
 
                     spuPropertyValue.setMarketingSpuId(reqVO.getId());
-                    spuPropertyValue.setSpuPropertyId(productPropertyId2SpuPropertyIdMap.get(productPropertyId));
+                    spuPropertyValue.setSpuPropertyId(addProductPropertyId2SpuPropertyIdMap.get(productPropertyId));
                     spuPropertyValue.setProductPropertyValueId(propertyValue.getProductPropertyValueId());
                     spuPropertyValue.setPropertyValue(propertyValue.getValue());
                     spuPropertyValue.setPicUrl(propertyValue.getPicUrl());
