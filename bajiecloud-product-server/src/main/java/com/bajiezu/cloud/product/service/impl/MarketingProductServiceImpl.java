@@ -268,6 +268,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         // 需要更新的商品SPU属性值
         List<Long> updateProductPropertyIds = newProductPropertyIds.stream().filter(existProductPropertyIds::contains).toList();
         List<Long> updateSpuPropertyIds = updateProductPropertyIds.stream().map(productPropertyId2SpuPropertyIdMap::get).toList();
+        List<MarketingProductSpuPropertyValue> needUpdateSpuPropertyValues = Lists.newArrayList();
         if (CollectionUtil.isNotEmpty(updateSpuPropertyIds)) {
             List<MarketingProductSpuPropertyValue> updateSpuPropertyValues = spuPropertyValueMapper.selectListByMarketingSpuIdAndSpuPropertyIds(reqVO.getId(), updateSpuPropertyIds);
             updateSpuPropertyValues.forEach(spuPropertyValue -> {
@@ -307,6 +308,13 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 for (MarketingProductSpuPropertyValue existSpuPropertyValue : existSpuPropertyValues) {
                     if (!unqKey2NewPropertyValueMap.containsKey(existSpuPropertyValue.getUnqKey())) {
                         deleteSpuPropertyValueIds.add(existSpuPropertyValue.getId());
+                    } else {
+                        if (!Objects.equals(existSpuPropertyValue.getPicUrl(), unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl())) {
+                            existSpuPropertyValue.setPicUrl(unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl());
+                            existSpuPropertyValue.setUpdateTime(now);
+                            existSpuPropertyValue.setUpdateBy(loginUser.getId());
+                            needUpdateSpuPropertyValues.add(existSpuPropertyValue);
+                        }
                     }
                 }
 
@@ -337,6 +345,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
             if (CollectionUtil.isNotEmpty(needAddSpuPropertyValues)) {
                 spuPropertyValueMapper.insertBatch(needAddSpuPropertyValues);
+            }
+
+            if (CollectionUtil.isNotEmpty(needUpdateSpuPropertyValues)) {
+                spuPropertyValueMapper.updateBatch(needUpdateSpuPropertyValues);
             }
         }
 
