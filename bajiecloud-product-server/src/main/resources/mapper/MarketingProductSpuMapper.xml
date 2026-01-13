@@ -53,7 +53,7 @@
     <sql id="listSql">
         where is_deleted = 0 and type = #{query.productType}
         <if test="query.name != null">
-            and name like concat('%', #{query.name}, '%')
+            and (name like concat('%', #{query.name}, '%') or code like concat('%', #{query.name}, '%'))
         </if>
         <if test="query.standardProductSpuIds != null and query.standardProductSpuIds.size > 0">
             and standard_product_spu_id in
