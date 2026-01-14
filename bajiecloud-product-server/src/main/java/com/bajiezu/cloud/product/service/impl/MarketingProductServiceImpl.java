@@ -597,11 +597,13 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             detailRespVO.setDefaultSelectedValueAddedId(marketingProductSpu.getDefaultSelectedValueAddedId());
             detailRespVO.setDefaultSelectedValueAddedName(valueAddedIdNameMap.get(marketingProductSpu.getDefaultSelectedValueAddedId()));
         }
-        detailRespVO.setShowPages(Arrays.stream(StringUtils.split(marketingProductSpu.getShowPage(), ","))
-                .filter(StringUtils::isNotBlank)
-                .map(String::trim)
-                .map(Integer::valueOf)
-                .collect(Collectors.toList()));
+        if (StringUtils.isNotBlank(marketingProductSpu.getShowPage())) {
+            detailRespVO.setShowPages(Arrays.stream(StringUtils.split(marketingProductSpu.getShowPage(), ","))
+                    .filter(StringUtils::isNotBlank)
+                    .map(String::trim)
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toList()));
+        }
         detailRespVO.setIsDefaultSelected(marketingProductSpu.getIsDefaultSelected());
 
         // 订单服务
