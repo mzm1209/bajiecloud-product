@@ -96,7 +96,7 @@
             update_by = #{updateBy},
             update_time = #{updateTime}
         where
-            marketing_spu_id = #{spuId}
+            marketing_spu_id = #{marketingSpuId}
         and product_property_id in
         <foreach item="id" collection="productPropertyIds" separator="," open="(" close=")">
             #{id}

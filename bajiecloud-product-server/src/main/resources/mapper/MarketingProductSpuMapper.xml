@@ -65,7 +65,7 @@
             and product_condition = #{query.productCondition}
         </if>
         <if test="query.createTimeBegin != null">
-            and create_time >= #{rquery.createTimeBegin}
+            and create_time >= #{query.createTimeBegin}
         </if>
         <if test="query.createTimeEnd != null">
             and create_time &lt;= #{query.createTimeEnd}
