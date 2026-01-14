@@ -1013,9 +1013,12 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         log.info("list product spu dto: {}", reqVO);
 
         ProductQuery query = reqVO.convert2ProductQuery();
-        if (CollectionUtil.isNotEmpty(reqVO.getPropertyValuesIds())) {
-            List<Long> marketingSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValuesIds(reqVO.getPropertyValuesIds(),
-                    reqVO.getPropertyValuesIds().size());
+        if (CollectionUtil.isNotEmpty(reqVO.getPropertyValues())) {
+            reqVO.getPropertyValues().forEach(propertyValueVO -> {
+                int size = reqVO.getPropertyValues() != null ? reqVO.getPropertyValues().size() : 0;
+                propertyValueVO.setValueCount(size);
+            });
+            Set<Long> marketingSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValuesIds(reqVO.getPropertyValues());
             if (CollectionUtil.isEmpty(marketingSpuIds)) {
                 return PageResult.empty();
             }
@@ -1087,9 +1090,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     public PageResult<SkuRespVO> skuListForAddCoupon(ProductListReqVO reqVO) {
         log.info("list product sku dto: {}", reqVO);
         ProductQuery query = reqVO.convert2ProductQuery();
-        if (CollectionUtil.isNotEmpty(reqVO.getPropertyValuesIds())) {
-            List<Long> marketingSkuIds = spuPropertyValueMapper.selectMarketingSkuIdsByPropertyValuesIds(reqVO.getPropertyValuesIds(),
-                    reqVO.getPropertyValuesIds().size());
+        if (CollectionUtil.isNotEmpty(reqVO.getPropertyValues())) {
+            Set<Long> marketingSkuIds = spuPropertyValueMapper.selectMarketingSkuIdsByPropertyValuesIds(reqVO.getPropertyValues(), reqVO.getPropertyValues().size());
             if (CollectionUtil.isEmpty(marketingSkuIds)) {
                 return PageResult.empty();
             }

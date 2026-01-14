@@ -25,6 +25,8 @@ public class ProductListReqVO extends PageParam {
     @Schema(description = "商品类型 1:租赁商品 2:售卖商品 3:回收商品 4:实物商品 5:虚拟商品")
     private Integer productType;
 
+    private List<PropertyValueVO> propertyValues;
+
     public ProductQuery convert2ProductQuery() {
         ProductQuery query = new ProductQuery();
         query.setName(this.getName());
@@ -33,5 +35,15 @@ public class ProductListReqVO extends PageParam {
         query.setOffset((getPageNo() - 1) * getPageSize());
         query.setPageSize(getPageSize());
         return query;
+    }
+
+    @Data
+    public static class PropertyValueVO {
+        @Schema(description = "属性项ID")
+        private Long propertyId;
+        @Schema(description = "属性值ID")
+        private List<Long> valueIds;
+
+        private Integer valueCount;
     }
 }

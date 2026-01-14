@@ -1,5 +1,6 @@
 package com.bajiezu.cloud.product.dal.mapper;
 
+import com.bajiezu.cloud.product.controller.vo.request.ProductListReqVO;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpuPropertyValue;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -8,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 营销商品SPU属性值表 Mapper 接口
@@ -29,11 +31,10 @@ public interface MarketingProductSpuPropertyValueMapper extends BaseMapper<Marke
 
     List<MarketingProductSpuPropertyValue> selectListBySpuIds(@Param("spuIds") Collection<Long> spuIds);
 
-    List<Long> selectMarketingSpuIdsByPropertyValuesIds(@Param("propertyValuesIds") Collection<Long> propertyValuesIds,
-                                                        @Param("propertyValuesIdsCount") Integer propertyValuesIdsCount);
+    Set<Long> selectMarketingSpuIdsByPropertyValuesIds(@Param("groups") List<ProductListReqVO.PropertyValueVO> propertyValues);
 
-    List<Long> selectMarketingSkuIdsByPropertyValuesIds(@Param("propertyValuesIds") Collection<Long> propertyValuesIds,
-                                                        @Param("propertyValuesIdsCount") Integer propertyValuesIdsCount);
+    Set<Long> selectMarketingSkuIdsByPropertyValuesIds(@Param("groups") List<ProductListReqVO.PropertyValueVO> propertyValues,
+                                                       @Param("groupSize") Integer groupSize);
 
     void logicDeleteByMarketingSpuIdAndSpuPropertyIds(@Param("marketingSpuId") Long marketingSpuId,
                                                       @Param("spuPropertyIds") Collection<Long> spuPropertyIds,

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -30,11 +31,6 @@ public class MarketingProductController {
 
     @Resource
     private MarketingProductService marketingProductService;
-
-    @PostMapping("/test")
-    public CommonResult<List<ProductDetailRespVO>> test(@Valid @RequestBody MarketingProductReqVO reqVO) {
-        return CommonResult.success(marketingProductService.batchGetProductDetail(reqVO));
-    }
 
     @PostMapping("/page")
     @Operation(summary = "列表")

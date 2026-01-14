@@ -3,6 +3,7 @@ package com.bajiezu.cloud.product.dal.dto;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class ProductQuery {
@@ -13,11 +14,11 @@ public class ProductQuery {
 
     private Integer productType;
 
-    private List<Long> marketingSpuIds;
+    private Set<Long> marketingSpuIds;
 
     private Integer offset;
 
     private Integer pageSize;
 
-    private List<Long> marketingSkuIds;
+    private Set<Long> marketingSkuIds;
 }

@@ -117,15 +117,19 @@
     </select>
 
     <select id="selectMarketingSpuIdsByPropertyValuesIds" resultType="java.lang.Long">
-        select marketing_spu_id
-        from marketing_product_spu_property_value
-        where is_deleted = 0
-          and product_property_value_id in
-          <foreach item="id" collection="propertyValuesIds" separator="," open="(" close=")">
-            #{id}
+        <foreach collection="groups" item="group" separator=" union all ">
+            select pv.marketing_spu_id
+            from marketing_product_spu_property_value pv JOIN marketing_product_spu_property sp on pv.spu_property_id =
+            sp.id
+            where pv.is_deleted = 0
+            and sp.product_property_id = #{group.propertyId}
+            and pv.product_property_value_id in
+            <foreach item="id" collection="group.valueIds" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            group by pv.marketing_spu_id
+            having count(pv.id) = #{group.valueCount}
         </foreach>
-        group by marketing_spu_id
-        having count(id) = #{propertyValuesIdsCount}
     </select>
 
     <select id="selectMarketingSkuIdsByPropertyValuesIds" resultType="java.lang.Long">
@@ -134,17 +138,23 @@
         from
             marketing_product_sku_property_value msppv
         inner join marketing_product_spu_property_value mspv on msppv.marketing_spu_property_value_id = mspv.id
+        inner join marketing_product_spu_property msp on mspv.spu_property_id = msp.id
         where
             msppv.is_deleted = 0
-          and mspv.is_deleted = 0
-          and mspv.product_property_value_id in
-            <foreach item="id" collection="propertyValuesIds" separator="," open="(" close=")">
-                #{id}
-            </foreach>
+          and mspv.is_deleted = 0 and (
+          <foreach collection="groups" item="group" separator=" or ">
+              (
+                  msp.product_property_id = #{group.propertyId}
+                  and mspv.product_property_value_id in
+                  <foreach item="id" collection="group.valueIds" separator="," open="(" close=")">
+                    #{id}
+                 </foreach>
+              )
+          </foreach>
+        )
         group by
-            msppv.marketing_product_sku_id
-        having
-            count(msppv.id ) = #{propertyValuesIdsCount}
+        msppv.marketing_product_sku_id
+        having count(msppv.id ) = #{groupSize}
     </select>
 
     <update id="logicDeleteByMarketingSpuIdAndSpuPropertyIds">
