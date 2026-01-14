@@ -10,5 +10,8 @@ public class ApproveStatusStatisticCountDTO {
      */
     private Integer approveStatus;
 
+    /**
+     * 数量
+     */
     private Integer count;
 }
