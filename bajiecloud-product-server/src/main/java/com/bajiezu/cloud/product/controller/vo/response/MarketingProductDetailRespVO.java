@@ -78,6 +78,7 @@ public class MarketingProductDetailRespVO {
     private Long maxBuybackPrice;
 
 
+
     /**************************  增值服务 ********************************/
     @Schema(description = "增值服务")
     private List<IdAndNameVO> valueAddedList;
@@ -91,7 +92,6 @@ public class MarketingProductDetailRespVO {
     private String defaultSelectedValueAddedName;
 
 
-
     /**************************  订单服务 ********************************/
     @Schema(description = "补偿规则ID")
     private Long compensationRuleId;
@@ -103,6 +103,8 @@ public class MarketingProductDetailRespVO {
     private String shippingTemplateName;
     @Schema(description = "发货地区")
     private List<AreaCodeAndNameVO> shippingAreaCodes;
+    @Schema(description = "收货地址")
+    private String receivingAddress;
 
 
     /**************************  商品上架信息 ********************************/

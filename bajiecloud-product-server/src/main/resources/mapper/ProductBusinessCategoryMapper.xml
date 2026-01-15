@@ -63,4 +63,12 @@
     <select id="selectNameById" resultType="java.lang.String">
         select name from product_business_category where id = #{id}
     </select>
+
+    <select id="selectSelfAndParentNamesById" resultType="java.lang.String">
+        select t2.name as category_name
+        from product_business_category t1
+        join product_business_category t2 on find_in_set(t2.id, concat(t1.path, ',', t1.id))
+        where t1.id = #{id}
+        order by t2.level
+    </select>
 </mapper>

@@ -539,10 +539,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         detailRespVO.setStandardProductSpuId(standardProductSpu.getId());
         detailRespVO.setStandardProductSpuCode(standardProductSpu.getCode());
         detailRespVO.setStandardProductSpuName(standardProductSpu.getName());
-        String businessCategoryName = businessCategoryMapper.selectNameById(standardProductSpu.getBusinessCategoryId());
-        detailRespVO.setBusinessCategoryName(businessCategoryName);
-        String marketingCategoryName = marketingCategoryMapper.selectNameById(standardProductSpu.getMarketingCategoryId());
-        detailRespVO.setMarketingCategoryName(marketingCategoryName);
+        List<String> selfAndParentBusinessCategoryNames = businessCategoryMapper.selectSelfAndParentNamesById(standardProductSpu.getBusinessCategoryId());
+        detailRespVO.setBusinessCategoryName(String.join(">", selfAndParentBusinessCategoryNames));
+        List<String> selfAndParentMarketingCategoryNames = marketingCategoryMapper.selectSelfAndParentNamesById(standardProductSpu.getMarketingCategoryId());
+        detailRespVO.setMarketingCategoryName(String.join(">", selfAndParentMarketingCategoryNames));
         String brandName = brandMapper.selectNameById(standardProductSpu.getProductBrandId());
         detailRespVO.setBrandName(brandName);
 
@@ -630,6 +630,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 detailRespVO.setShippingAreaCodes(areaCodeAndNameVOS);
             }
         }
+        detailRespVO.setReceivingAddress(marketingProductSpu.getReceivingAddress());
 
         // 商品上架信息
         detailRespVO.setShelvingWay(marketingProductSpu.getShelvingWay());

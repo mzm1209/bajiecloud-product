@@ -47,4 +47,6 @@ public interface ProductMarketingCategoryMapper extends BaseMapper<ProductMarket
     List<ProductMarketingCategory> selectListByIds(@Param("ids") Collection<Long> ids);
 
     String selectNameById(@Param("id") Long id);
+
+    List<String> selectSelfAndParentNamesById(@Param("id") Long id);
 }

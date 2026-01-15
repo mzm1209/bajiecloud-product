@@ -46,10 +46,12 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         log.info("add dto: {}", reqVO);
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
 
+        // 上级的path
+        String parentPath = "";
         if (Objects.isNull(reqVO.getParentId())) {
             reqVO.setParentId(NumberUtils.LONG_ZERO);
         } else {
-            validateParent(reqVO.getParentId());
+            parentPath = validateAndGetParentPath(reqVO.getParentId());
         }
 
         // 判断分组名称是否已存在
@@ -62,10 +64,10 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         ProductMarketingCategory category = buildCategory(reqVO, loginUser);
         productMarketingCategoryMapper.insert(category);
 
-        // 如果不是根节点 那么需要更新改类目的path
-        String path = reqVO.getPath();
-        if (!Objects.equals(category.getParentId(), NumberUtils.LONG_ZERO)) {
-            path = path + "," + category.getId();
+        // 更新类目的path
+        String path;
+        if (StringUtils.isNotBlank(parentPath)) {
+            path = parentPath + "," + category.getId();
         } else {
             path = String.valueOf(category.getId());
         }
@@ -78,7 +80,7 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
 
         // 判断父分组是否存在
-        validateParent(reqVO.getParentId());
+        String parentPath = validateAndGetParentPath(reqVO.getParentId());
 
         // 判断编辑的分组是否存在
         ProductMarketingCategory category = productMarketingCategoryMapper.selectById(reqVO.getId());
@@ -97,16 +99,18 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         category.setName(reqVO.getName());
         category.setParentId(reqVO.getParentId());
         category.setSort(reqVO.getSort());
-        category.setPath(reqVO.getPath());
         category.setRemark(reqVO.getRemark());
         category.setUpdateBy(loginUser.getId());
         category.setUpdateTime(new Date());
         productMarketingCategoryMapper.updateById(category);
 
-        if (!Objects.equals(category.getParentId(), NumberUtils.LONG_ZERO)) {
-            String path = reqVO.getPath() + "," + category.getId();
-            productMarketingCategoryMapper.updatePathById(category.getId(), path);
+        String path;
+        if (StringUtils.isNotBlank(parentPath)) {
+            path = parentPath + "," + category.getId();
+        } else {
+            path = String.valueOf(category.getId());
         }
+        productMarketingCategoryMapper.updatePathById(category.getId(), path);
     }
 
     @Override
@@ -264,9 +268,9 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         return simpleList;
     }
 
-    private void validateParent(Long parentId) {
+    private String validateAndGetParentPath(Long parentId) {
         if (parentId == null || parentId == 0) {
-            return;
+            return "";
         }
         // 判断父级分组是否存在
         ProductMarketingCategory parentCategory = productMarketingCategoryMapper.selectById(parentId);
@@ -276,6 +280,7 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         if (CommonStatusEnum.DISABLE.getStatus().equals(parentCategory.getStatus())) {
             throw exception(PRODUCT_MARKETING_CATEGORY_DISABLED);
         }
+        return parentCategory.getPath();
     }
 
     private ProductMarketingCategory buildCategory(PMCAddReqVO reqVO, LoginUser<?> user) {
@@ -321,7 +326,12 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         }
 
         // 递归构建树形结构
-        return buildTreeRecursive(rootCategories, childrenMap);
+        List<ProductMcRespVO> result =  buildTreeRecursive(rootCategories, childrenMap);
+
+        // 计算每个节点的总SKU数量（包含子节点的SKU数量）
+        calculateTotalSkuCount(result);
+
+        return result;
     }
 
     /**
@@ -353,5 +363,36 @@ public class ProductMarketingCategoryServiceImpl implements ProductMarketingCate
         // 对当前层级的节点也按sort字段排序
         result.sort(Comparator.comparing(ProductMcRespVO::getSort));
         return result;
+    }
+
+    /**
+     * 递归计算每个节点的总SKU数量（包含子节点的SKU数量）
+     *
+     * @param nodes 当前节点列表
+     * @return 该层节点的总SKU数量
+     */
+    private Long calculateTotalSkuCount(List<ProductMcRespVO> nodes) {
+        if (CollectionUtil.isEmpty(nodes)) {
+            return 0L;
+        }
+
+        long totalSkuCount = 0L;
+
+        for (ProductMcRespVO node : nodes) {
+            long childSkuCount = 0L;
+
+            // 如果有子节点，先计算子节点的总SKU数量
+            if (CollectionUtil.isNotEmpty(node.getChildren())) {
+                childSkuCount = calculateTotalSkuCount(node.getChildren());
+            }
+
+            // 当前节点的总SKU数量 = 本身的SKU数量 + 所有子节点的SKU数量
+            long currentTotalSkuCount = node.getSkuCount() + childSkuCount;
+            node.setSkuCount(currentTotalSkuCount);
+
+            totalSkuCount += currentTotalSkuCount;
+        }
+
+        return totalSkuCount;
     }
 }
