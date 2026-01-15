@@ -48,7 +48,7 @@
     </update>
 
     <select id="selectListByValueAddedIds" resultType="com.bajiezu.cloud.product.dal.entity.ValueAddedProduct">
-        select * from value_added_product where value_added_id in
+        select * from value_added_product where is_deleted = 0 and value_added_id in
         <foreach item="item" collection="valueAddedIds" separator="," open="(" close=")">
             #{item}
         </foreach>
