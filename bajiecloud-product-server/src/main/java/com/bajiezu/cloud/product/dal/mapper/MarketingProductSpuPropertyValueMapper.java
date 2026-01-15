@@ -31,7 +31,8 @@ public interface MarketingProductSpuPropertyValueMapper extends BaseMapper<Marke
 
     List<MarketingProductSpuPropertyValue> selectListBySpuIds(@Param("spuIds") Collection<Long> spuIds);
 
-    Set<Long> selectMarketingSpuIdsByPropertyValuesIds(@Param("groups") List<ProductListReqVO.PropertyValueVO> propertyValues);
+    Set<Long> selectMarketingSpuIdsByPropertyValuesIds(@Param("groups") List<ProductListReqVO.PropertyValueVO> propertyValues,
+                                                       @Param("groupSize") Integer groupSize);
 
     Set<Long> selectMarketingSkuIdsByPropertyValuesIds(@Param("groups") List<ProductListReqVO.PropertyValueVO> propertyValues,
                                                        @Param("groupSize") Integer groupSize);

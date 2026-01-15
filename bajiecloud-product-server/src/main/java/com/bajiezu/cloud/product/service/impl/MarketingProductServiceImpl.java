@@ -1017,11 +1017,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         ProductQuery query = reqVO.convert2ProductQuery();
         if (CollectionUtil.isNotEmpty(reqVO.getPropertyValues())) {
-            reqVO.getPropertyValues().forEach(propertyValueVO -> {
-                int size = propertyValueVO.getValueIds() != null ? propertyValueVO.getValueIds().size() : 0;
-                propertyValueVO.setValueCount(size);
-            });
-            Set<Long> marketingSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValuesIds(reqVO.getPropertyValues());
+            Set<Long> marketingSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValuesIds(reqVO.getPropertyValues(), reqVO.getPropertyValues().size());
             if (CollectionUtil.isEmpty(marketingSpuIds)) {
                 return PageResult.empty();
             }
