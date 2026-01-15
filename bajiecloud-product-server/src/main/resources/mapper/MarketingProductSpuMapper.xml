@@ -149,7 +149,7 @@
     <select id="selectListByCondition" parameterType="com.bajiezu.cloud.product.dal.dto.ProductQuery" resultMap="BaseResultMap">
         select * from marketing_product_spu where is_deleted = 0 and shelves_status = 1
         <if test="name != null">
-            and name like concat('%', #{name}, '%')
+            and (name like concat('%', #{name}, '%') or code like concat('%', #{name}, '%'))
         </if>
         <if test="code != null">
             and code like concat('%', #{code}, '%')
@@ -170,7 +170,7 @@
     <select id="selectCountByCondition" parameterType="com.bajiezu.cloud.product.dal.dto.ProductQuery" resultType="java.lang.Long">
         select count(1) from marketing_product_spu where is_deleted = 0 and shelves_status = 1
         <if test="name != null">
-            and name like concat('%', #{name}, '%')
+            and (name like concat('%', #{name}, '%') or code like concat('%', #{name}, '%'))
         </if>
         <if test="code != null">
             and code like concat('%', #{code}, '%')
