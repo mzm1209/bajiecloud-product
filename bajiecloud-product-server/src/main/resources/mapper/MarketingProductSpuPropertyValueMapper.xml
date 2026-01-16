@@ -117,24 +117,21 @@
     </select>
 
     <select id="selectMarketingSpuIdsByPropertyValuesIds" resultType="java.lang.Long">
-        <foreach collection="groups" item="group" separator=" union all ">
-            select pv.marketing_spu_id
-            from marketing_product_spu_property_value pv JOIN marketing_product_spu_property sp on pv.spu_property_id =
-            sp.id
-            where pv.is_deleted = 0 and (
-            <foreach collection="groups" item="group" separator=" or ">
-                (
-                sp.product_property_id = #{group.propertyId}
-                and pv.product_property_value_id in
-                <foreach item="id" collection="group.valueIds" separator="," open="(" close=")">
-                    #{id}
-                </foreach>
-                )
+        select pv.marketing_spu_id
+        from marketing_product_spu_property_value pv JOIN marketing_product_spu_property sp on pv.spu_property_id = sp.id
+        where pv.is_deleted = 0 and (
+        <foreach collection="groups" item="group" separator=" or ">
+            (
+            sp.product_property_id = #{group.propertyId}
+            and pv.product_property_value_id in
+            <foreach item="id" collection="group.valueIds" separator="," open="(" close=")">
+                #{id}
             </foreach>
             )
-            group by pv.marketing_spu_id
-            having count(pv.id) = #{groupSize}
         </foreach>
+        )
+        group by pv.marketing_spu_id
+        having count(distinct sp.product_property_id) = #{groupSize}
     </select>
 
     <select id="selectMarketingSkuIdsByPropertyValuesIds" resultType="java.lang.Long">
