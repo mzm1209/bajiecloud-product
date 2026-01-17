@@ -1304,11 +1304,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         // 回收价 （回收商品才有）
-        Map<Long, IdAndPriceDTO> buybackPriceMap = Maps.newHashMap();
+        /*Map<Long, IdAndPriceDTO> buybackPriceMap = Maps.newHashMap();
         if (ProductTypeEnum.RECYCLED_PRODUCT.getValue().equals(productType)) {
             List<IdAndPriceDTO> buybackPrices = skuMapper.queryMinAndMaxBuybackPriceByMarketingProductSpuIds(marketingSpuIds);
             buybackPriceMap = buybackPrices.stream().collect(Collectors.toMap(IdAndPriceDTO::getId, idAndPriceDTO -> idAndPriceDTO));
-        }
+        }*/
 
         // 获取商品对应的SKU数量
         List<IdAndCountDTO> skuCountLists = skuMapper.querySkuCountByMarketingProductSpuIds(marketingSpuIds);
@@ -1419,10 +1419,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             marketingProductRespVO.setUpdaterName(userId2NameMap.get(marketingProductSpu.getUpdateBy()));
             marketingProductRespVO.setUpdateTime(marketingProductSpu.getUpdateTime());
 
-            if (buybackPriceMap.containsKey(marketingProductSpu.getId())) {
+            /*if (buybackPriceMap.containsKey(marketingProductSpu.getId())) {
                 marketingProductRespVO.setMinBuybackPrice(buybackPriceMap.get(marketingProductSpu.getId()).getMinPrice());
                 marketingProductRespVO.setMaxBuybackPrice(buybackPriceMap.get(marketingProductSpu.getId()).getMaxPrice());
-            }
+            }*/
 
         }
 
