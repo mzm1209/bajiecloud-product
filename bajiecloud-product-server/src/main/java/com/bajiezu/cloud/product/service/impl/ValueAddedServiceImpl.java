@@ -370,6 +370,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         respDto.setRenewalPrice(valueAdded.getRenewalPrice());
         respDto.setStrikethroughPrice(valueAdded.getStrikethroughPrice());
         respDto.setIsDeleted(valueAdded.getIsDeleted());
+        respDto.setPartnerId(valueAdded.getPartnerId());
         return respDto;
     }
 

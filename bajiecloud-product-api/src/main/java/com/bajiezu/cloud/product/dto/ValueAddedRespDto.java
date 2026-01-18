@@ -30,4 +30,7 @@ public class ValueAddedRespDto {
 
     @Schema(description = "是否删除 0:否 1:是")
     private Integer isDeleted;
+
+    @Schema(description = "合作商ID")
+    private Long partnerId;
 }

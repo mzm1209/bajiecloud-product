@@ -1224,6 +1224,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         skuRespDto.setPointsCount(marketingProductSku.getPointsCount());
         skuRespDto.setCashPrice(marketingProductSku.getCashPrice());
         skuRespDto.setIsAllowOrder(marketingProductSku.getIsAllowOrder());
+        skuRespDto.setPartnerId(marketingProductSku.getPartnerId());
 
         // 属性信息
         List<PropertyVO> propertyVOS = Lists.newArrayList();

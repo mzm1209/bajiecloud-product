@@ -69,4 +69,7 @@ public class SkuRespDto {
 
     @Schema(description = "续租期数")
     private Integer renewalTermCount;
+
+    @Schema(description = "合作商ID")
+    private Long partnerId;
 }
