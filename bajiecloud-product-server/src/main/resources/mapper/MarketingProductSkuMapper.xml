@@ -17,8 +17,8 @@
         <result column="premium" property="premium" />
         <result column="suggested_retail_price" property="suggestedRetailPrice" />
         <result column="strikethrough_price" property="strikethroughPrice" />
-        <result column="cashUsage_ratio" property="cashUsageRatio" />
-        <result column="pointsUsage_ratio" property="pointsUsageRatio" />
+        <result column="cash_usage_ratio" property="cashUsageRatio" />
+        <result column="points_usage_ratio" property="pointsUsageRatio" />
         <result column="points_count" property="pointsCount" />
         <result column="cash_price" property="cashPrice" />
         <result column="is_allow_order" property="isAllowOrder" />
@@ -49,7 +49,7 @@
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into marketing_product_sku (marketing_spu_id, official_price, total_price_factor, total_rent_factor, total_price,
                                            total_rent, buyout_amount, daily_rent, stock, premium, suggested_retail_price,
-                                           strikethrough_price, cashUsage_ratio, pointsUsage_ratio, points_count, cash_price,
+                                           strikethrough_price, cash_usage_ratio, points_usage_ratio, points_count, cash_price,
                                            is_allow_order, partner_id, create_by, update_by, create_time, update_time, is_deleted)
         values
         <foreach item="item" collection="list" separator="," index="">
@@ -232,8 +232,8 @@
                 premium = #{item.premium},
                 suggested_retail_price = #{item.suggestedRetailPrice},
                 strikethrough_price = #{item.strikethroughPrice},
-                cashUsage_ratio = #{item.cashUsageRatio},
-                pointsUsage_ratio = #{item.pointsUsageRatio},
+                cash_usage_ratio = #{item.cashUsageRatio},
+                points_usage_ratio = #{item.pointsUsageRatio},
                 points_count = #{item.pointsCount},
                 cash_price = #{item.cashPrice},
                 is_allow_order = #{item.isAllowOrder},
