@@ -12,6 +12,9 @@ public class ProductDetailRespVO {
     @Schema(description = "SPU/SKU ID")
     private Long id;
 
+    @Schema(description = "商品编码 SPU有编码 SKU无编码")
+    private String code;
+
     @Schema(description = "商品名称")
     private String name;
 

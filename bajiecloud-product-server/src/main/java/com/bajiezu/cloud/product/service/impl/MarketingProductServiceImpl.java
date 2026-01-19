@@ -979,6 +979,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 detailRespVOS.add(productDetailRespVO);
 
                 productDetailRespVO.setId(marketingProductSpu.getId());
+                productDetailRespVO.setCode(marketingProductSpu.getCode());
                 productDetailRespVO.setName(marketingProductSpu.getName());
                 productDetailRespVO.setProductType(marketingProductSpu.getType());
 
