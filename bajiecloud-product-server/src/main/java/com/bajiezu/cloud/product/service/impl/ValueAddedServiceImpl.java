@@ -262,9 +262,10 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             skuRespVOS.add(skuRespVO);
 
             skuRespVO.setId(sku.getId());
-            skuRespVO.setName(sku.getName());
-            skuRespVO.setApproveStatus(spuId2SpuMap.get(sku.getMarketingSpuId()).getApprovalStatus());
-            skuRespVO.setShelvesStatus(spuId2SpuMap.get(sku.getMarketingSpuId()).getShelvesStatus());
+            MarketingProductSpu spu = spuId2SpuMap.get(sku.getMarketingSpuId());
+            skuRespVO.setName(spu.getName());
+            skuRespVO.setApproveStatus(spu.getApprovalStatus());
+            skuRespVO.setShelvesStatus(spu.getShelvesStatus());
             List<PropertyVO> propertyVOS = Lists.newArrayList();
             skuRespVO.setProperties(propertyVOS);
             for (MarketingProductSkuPropertyValue skuPropertyValue : skuId2SpuPropertyValueIdsMap.get(sku.getId())) {
