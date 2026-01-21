@@ -67,10 +67,17 @@
     </select>
 
     <select id="selectListByIds" resultMap="BaseResultMap">
-        select * from product_property_value
-        where  id in
-        <foreach item="item" collection="ids" separator="," open="(" close=")" index="">
-            #{item}
-        </foreach>
+        select * from product_property_value where
+        <choose>
+            <when test="ids != null and ids.size > 0">
+                id in
+                <foreach item="item" collection="ids" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                false
+            </otherwise>
+        </choose>
     </select>
 </mapper>

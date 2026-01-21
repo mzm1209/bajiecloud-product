@@ -3,6 +3,7 @@ package com.bajiezu.cloud.product.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.constants.OperateTypeEnum;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
@@ -985,27 +986,29 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
                 List<PropertyVO> properties = Lists.newArrayList();
                 productDetailRespVO.setProperties(properties);
-                for (MarketingProductSpuProperty spuProperty : spuId2SpuPropertiesMap.get(marketingProductSpu.getId())) {
-                    PropertyVO propertyVO = new PropertyVO();
-                    properties.add(propertyVO);
-                    propertyVO.setPropertyId(spuProperty.getProductPropertyId());
-                    propertyVO.setPropertyName(productPropertyId2NameMap.get(spuProperty.getProductPropertyId()));
+                if (MapUtil.isNotEmpty(spuId2SpuPropertiesMap)) {
+                    for (MarketingProductSpuProperty spuProperty : spuId2SpuPropertiesMap.get(marketingProductSpu.getId())) {
+                        PropertyVO propertyVO = new PropertyVO();
+                        properties.add(propertyVO);
+                        propertyVO.setPropertyId(spuProperty.getProductPropertyId());
+                        propertyVO.setPropertyName(productPropertyId2NameMap.get(spuProperty.getProductPropertyId()));
 
-                    List<PropertyValueVO> propertyValues = Lists.newArrayList();
-                    propertyVO.setPropertyValues(propertyValues);
-                    for (MarketingProductSpuPropertyValue spuPropertyValue : spuId2SpuPropertyValuesMap.get(marketingProductSpu.getId()).get(spuProperty.getId())) {
-                        PropertyValueVO propertyValueVO = new PropertyValueVO();
-                        propertyValues.add(propertyValueVO);
+                        List<PropertyValueVO> propertyValues = Lists.newArrayList();
+                        propertyVO.setPropertyValues(propertyValues);
+                        for (MarketingProductSpuPropertyValue spuPropertyValue : spuId2SpuPropertyValuesMap.get(marketingProductSpu.getId()).get(spuProperty.getId())) {
+                            PropertyValueVO propertyValueVO = new PropertyValueVO();
+                            propertyValues.add(propertyValueVO);
 
-                        propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
-                        if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
-                            propertyValueVO.setPropertyValue(productPropertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
-                        } else {
-                            propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+                            propertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
+                            if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
+                                propertyValueVO.setPropertyValue(productPropertyValueId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));
+                            } else {
+                                propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
+                            }
                         }
                     }
+                    productDetailRespVO.setProperties(properties);
                 }
-                productDetailRespVO.setProperties(properties);
             }
         }
 

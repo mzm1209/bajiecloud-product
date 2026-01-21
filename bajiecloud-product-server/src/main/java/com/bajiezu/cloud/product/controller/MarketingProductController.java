@@ -102,4 +102,10 @@ public class MarketingProductController {
     public CommonResult<PageResult<SkuRespVO>> skuListForAddCoupon(@Valid @RequestBody ProductListReqVO reqVO) {
         return CommonResult.success(marketingProductService.skuListForAddCoupon(reqVO));
     }
+
+    /*@PostMapping("/batchGetProductDetail")
+    @Operation(summary = "批量获取商品详情")
+    public CommonResult<List<ProductDetailRespVO>> batchGetProductDetail(@Valid @RequestBody MarketingProductReqVO reqVO) {
+        return CommonResult.success(marketingProductService.batchGetProductDetail(reqVO));
+    }*/
 }
