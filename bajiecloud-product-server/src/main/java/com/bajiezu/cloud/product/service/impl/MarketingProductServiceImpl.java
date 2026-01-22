@@ -101,6 +101,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         if (reqVO.getBrandId() != null || reqVO.getMarketingCategoryId() != null) {
             List<Long> standardProductSpuIds = standardProductSpuMapper.selectIdsByBrandIdAndMarketingCategoryId(
                     reqVO.getBrandId(), reqVO.getMarketingCategoryId());
+            if (CollectionUtil.isEmpty(standardProductSpuIds)) {
+                log.info("根据brandId:{},marketingCategoryId:{}未查询到记录", reqVO.getBrandId(), reqVO.getMarketingCategoryId());
+                return PageResult.empty();
+            }
             query.setStandardProductSpuIds(standardProductSpuIds);
         }
 
@@ -807,12 +811,16 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     public StatusStatisticRespVO statusStatistic(MarketingProductListReqVO reqVO) {
         log.info("查询商品状态统计信息,reqVO:{}", reqVO);
 
+        StatusStatisticRespVO statusStatisticRespVO = new StatusStatisticRespVO();
         MarketingProductQuery query = reqVO.toQuery();
         // 根据品牌、营销类目搜索
         if (reqVO.getBrandId() != null || reqVO.getMarketingCategoryId() != null) {
             List<Long> standardProductSpuIds = standardProductSpuMapper.selectIdsByBrandIdAndMarketingCategoryId(
                     reqVO.getBrandId(), reqVO.getMarketingCategoryId());
             query.setStandardProductSpuIds(standardProductSpuIds);
+            if (CollectionUtil.isEmpty(standardProductSpuIds)) {
+                return statusStatisticRespVO;
+            }
         }
         // 获取商品总数
         Integer totalCount = marketingProductSpuMapper.queryCount(query);
@@ -830,7 +838,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         query.setShelvesStatus(null);
         List<ShelvesStatisticCountDTO> shelvesStatisticCountDTOS = marketingProductSpuMapper.shelvesStatistic(query);
 
-        StatusStatisticRespVO statusStatisticRespVO = new StatusStatisticRespVO();
+        // 构造返回结果
         statusStatisticRespVO.setTotalCount(totalCount);
         statusStatisticRespVO.setDraftCount(draftCount);
         for (ApproveStatusStatisticCountDTO approveStatusStatisticCountDTO : approveStatusStatisticCountDTOS) {
