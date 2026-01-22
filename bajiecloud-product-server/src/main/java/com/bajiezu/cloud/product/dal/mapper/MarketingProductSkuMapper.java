@@ -50,4 +50,6 @@ public interface MarketingProductSkuMapper extends BaseMapper<MarketingProductSk
 
     List<IdAndCountDTO> selectCategoryId2SkuCount(@Param("marketingCategoryIds") Collection<Long> marketingCategoryIds,
                                                   @Param("shelvesStatus") Integer shelvesStatus);
+
+    List<IdAndPriceDTO> selectSpuLowestDailyRentPricesBySpuIds(@Param("spuIds") Collection<Long> spuIds);
 }

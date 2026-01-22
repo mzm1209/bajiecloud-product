@@ -24,4 +24,7 @@ public class SpuRespVO {
 
     @Schema(description = "商品 SPU 属性")
     private List<PropertyVO> properties;
+
+    @Schema(description = "SPU下的SKU的最低日租金")
+    private Long dailyRent;
 }

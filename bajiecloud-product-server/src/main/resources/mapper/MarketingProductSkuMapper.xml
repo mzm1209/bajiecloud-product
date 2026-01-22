@@ -133,6 +133,7 @@
         <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
             #{marketingSpuId}
         </foreach>
+        group by marketing_spu_id
     </select>
 
     <select id="queryMinAndMaxSuggestedRetailPriceByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO">
@@ -147,6 +148,7 @@
         <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
             #{marketingSpuId}
         </foreach>
+        group by marketing_spu_id
     </select>
 
     <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
@@ -263,5 +265,27 @@
             sps.marketing_category_id
         having
             count > 0;
+    </select>
+
+    <select id="selectSpuLowestDailyRentPricesBySpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO">
+        select
+            marketing_spu_id as id,
+            min(daily_rent) as minPrice
+        from
+            marketing_product_sku
+        where
+            is_deleted = 0 and
+            <choose>
+                <when test="spuIds != null and spuIds.size > 0">
+                    marketing_spu_id in
+                    <foreach item="spuId" collection="spuIds" separator="," open="(" close=")">
+                        #{spuId}
+                    </foreach>
+                </when>
+                <otherwise>
+                    false
+                </otherwise>
+            </choose>
+        group by marketing_spu_id
     </select>
 </mapper>
