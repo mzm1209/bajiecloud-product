@@ -1265,6 +1265,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             } else {
                 propertyValueVO.setPropertyValue(spuPropertyValue.getPropertyValue());
             }
+            propertyValueVO.setPropertyPics(Lists.newArrayList(spuPropertyValue.getPicUrl()));
         }
 
         // 对应的商品信息
@@ -1280,7 +1281,6 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         spuRespDto.setBrandName(brandName);
         spuRespDto.setBusinessCategoryName(businessCategoryName);
         spuRespDto.setMarketingCategoryName(marketingCategoryName);
-
         return skuRespDto;
     }
 
