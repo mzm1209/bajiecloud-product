@@ -963,6 +963,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             if (CollectionUtil.isEmpty(marketingProductSpus)) {
                 return Collections.emptyList();
             }
+            // 获取spu下的sku的最低日租金
+            List<IdAndPriceDTO> dailyRentPrices = skuMapper.selectSpuLowestDailyRentPricesBySpuIds(reqVO.getIds());
+            Map<Long, Long> spuId2LowestDailyRentPricesMap = dailyRentPrices.stream()
+                    .filter(dto -> dto.getId() != null && dto.getMinPrice() != null)  // 过滤 null 值
+                    .collect(Collectors.toMap(IdAndPriceDTO::getId, IdAndPriceDTO::getMinPrice));
 
             // 属性
             List<Long> spuIds = marketingProductSpus.stream().map(MarketingProductSpu::getId).toList();
@@ -991,6 +996,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 productDetailRespVO.setCode(marketingProductSpu.getCode());
                 productDetailRespVO.setName(marketingProductSpu.getName());
                 productDetailRespVO.setProductType(marketingProductSpu.getType());
+                productDetailRespVO.setDailyRent(spuId2LowestDailyRentPricesMap.get(marketingProductSpu.getId()));
 
                 List<PropertyVO> properties = Lists.newArrayList();
                 productDetailRespVO.setProperties(properties);
