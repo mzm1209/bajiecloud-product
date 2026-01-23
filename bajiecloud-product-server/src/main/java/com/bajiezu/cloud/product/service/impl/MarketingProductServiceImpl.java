@@ -997,6 +997,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 productDetailRespVO.setName(marketingProductSpu.getName());
                 productDetailRespVO.setProductType(marketingProductSpu.getType());
                 productDetailRespVO.setDailyRent(spuId2LowestDailyRentPricesMap.get(marketingProductSpu.getId()));
+                productDetailRespVO.setMainPics(List.of(StringUtils.split(marketingProductSpu.getMainPicUrls(), ",")));
 
                 List<PropertyVO> properties = Lists.newArrayList();
                 productDetailRespVO.setProperties(properties);
