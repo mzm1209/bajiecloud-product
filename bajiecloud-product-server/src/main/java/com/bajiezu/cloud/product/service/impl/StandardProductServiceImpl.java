@@ -2,7 +2,6 @@ package com.bajiezu.cloud.product.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.constants.CommonStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;

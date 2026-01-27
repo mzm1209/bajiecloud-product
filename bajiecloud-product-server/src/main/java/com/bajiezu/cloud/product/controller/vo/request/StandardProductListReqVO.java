@@ -41,6 +41,9 @@ public class StandardProductListReqVO extends PageParam {
     @Schema(description = "创建时间结束")
     private Date createTimeEnd;
 
+    @Schema(description = "下载来源")
+    private Integer source;
+
     public StandardProductQuery convert2StandardProductQuery() {
         StandardProductQuery standardProductQuery = new StandardProductQuery();
         standardProductQuery.setName(name);

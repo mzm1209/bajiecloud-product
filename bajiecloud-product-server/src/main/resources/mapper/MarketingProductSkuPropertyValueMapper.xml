@@ -56,7 +56,7 @@
     </select>
 
     <select id="selectListBySkuIds" resultMap="BaseResultMap">
-        select * from marketing_product_sku_property_value where is_deleted = 0 and marketing_product_sku_id in
+        select * from marketing_product_sku_property_value where marketing_product_sku_id in
         <foreach collection="skuIds" item="skuId" open="(" separator="," close=")">
             #{skuId}
         </foreach>

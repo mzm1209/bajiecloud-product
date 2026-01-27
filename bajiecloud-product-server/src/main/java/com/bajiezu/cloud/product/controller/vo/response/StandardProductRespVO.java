@@ -1,5 +1,6 @@
 package com.bajiezu.cloud.product.controller.vo.response;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -38,9 +39,11 @@ public class StandardProductRespVO {
     private Integer status;
 
     @Schema(description = "商品成色", example = "1")
+    @ExcelIgnore
     private List<Integer> productConditions;
 
     @Schema(description = "监控属性", example = "1")
+    @ExcelIgnore
     private List<Integer> monitorAttributes;
 
     @Schema(description = "是否草稿 0:否 1:是", example = "1")

@@ -5,8 +5,11 @@ import com.bajiezu.cloud.common.dto.LongIdReqVO;
 import com.bajiezu.cloud.common.dto.LongIdsReqVO;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.framework.security.po.LoginUser;
+import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.StandardProductRespVO;
+import com.bajiezu.cloud.product.service.StandardProductExportService;
 import com.bajiezu.cloud.product.service.StandardProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.bajiezu.cloud.common.web.pojo.CommonResult.success;
+
 @Tag(name = "管理后台 - 标准商品管理")
 @RestController
 @RequestMapping("/product/standard")
@@ -26,6 +31,8 @@ public class StandardProductController {
 
     @Resource
     private StandardProductService standardProductService;
+    @Resource
+    private StandardProductExportService standardProductExportService;
 
     @PostMapping("/page")
     @Operation(summary = "分页查询标准商品")
@@ -71,5 +78,13 @@ public class StandardProductController {
     @Operation(summary = "标准商品简明信息-提供给创建营销商品使用")
     public CommonResult<PageResult<StandardProductRespVO>> simpleList(@Valid @RequestBody StandardProductListReqVO reqVO) {
         return CommonResult.success(standardProductService.page(reqVO));
+    }
+
+    @PostMapping("/export")
+    @Operation(summary = "导出标准商品")
+    public CommonResult<Boolean> export(@Validated @RequestBody StandardProductListReqVO exportReqVO) {
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        standardProductExportService.executeDownload(loginUser.getId(), loginUser.getPartnerId(), exportReqVO, exportReqVO.getSource());
+        return success(true);
     }
 }
