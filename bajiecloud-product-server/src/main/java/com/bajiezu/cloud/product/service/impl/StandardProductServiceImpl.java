@@ -7,6 +7,7 @@ import com.bajiezu.cloud.common.constants.CommonStatusEnum;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
+import com.bajiezu.cloud.framework.security.util.FeginMethodExecuteUtils;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.request.StandardProductAddReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.StandardProductListReqVO;
@@ -307,10 +308,14 @@ public class StandardProductServiceImpl implements StandardProductService {
     }
 
     private Map<Long, String> buildUserId2NameMap(Set<Long> userIds) {
-        CommonResult<List<AdminUserRespDTO>> usersResult = adminUserApi.getUserList(userIds);
         Map<Long, String> userId2NameMap = Maps.newHashMap();
-        if (usersResult.isSuccess() && usersResult.getData() != null) {
-            usersResult.getData().forEach(user -> userId2NameMap.put(user.getId(), user.getName()));
+        try {
+            List<AdminUserRespDTO> userRespDTOS = FeginMethodExecuteUtils.execute(() -> adminUserApi.getUserList(userIds), true);
+            if (CollectionUtil.isNotEmpty(userRespDTOS)) {
+                userRespDTOS.forEach(user -> userId2NameMap.put(user.getId(), user.getName()));
+            }
+        } catch (Exception e) {
+            log.error("查询用户信息失败", e);
         }
         return userId2NameMap;
     }

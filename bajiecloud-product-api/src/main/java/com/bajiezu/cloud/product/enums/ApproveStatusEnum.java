@@ -10,9 +10,9 @@ import java.util.Map;
 @AllArgsConstructor
 public enum ApproveStatusEnum {
 
-    WAIT_APPROVE(0, "待审批"),
-    APPROVE_PASS(1, "审批通过"),
-    APPROVE_REJECT(2, "审批拒绝");
+    WAIT_APPROVE(0, "待审核"),
+    APPROVE_PASS(1, "审核通过"),
+    APPROVE_REJECT(2, "审核失败");
 
     private static final Map<Integer, ApproveStatusEnum> cache;
 

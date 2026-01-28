@@ -171,7 +171,7 @@
         left join marketing_product_spu spu on sku.marketing_spu_id = spu.id
         where sku.is_deleted = 0 and spu.is_deleted = 0 and spu.shelves_status = 1
         <if test="name != null">
-            and (spu.name like concat('%', #{name}, '%') or spu.code like concat('%', #{name}, '%'))
+            and spu.name like concat('%', #{name}, '%')
         </if>
         <if test="marketingSkuIds != null and marketingSkuIds.size>0">
             and sku.id in

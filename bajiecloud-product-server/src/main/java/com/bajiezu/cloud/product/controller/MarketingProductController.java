@@ -4,10 +4,14 @@ import com.bajiezu.cloud.common.dto.LongIdReqVO;
 import com.bajiezu.cloud.common.dto.LongIdsReqVO;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.framework.security.po.LoginUser;
+import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
 import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
+import com.bajiezu.cloud.product.dto.SkuRespDto;
+import com.bajiezu.cloud.product.service.MarketingProductExportService;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.List;
 
+import static com.bajiezu.cloud.common.web.pojo.CommonResult.success;
+
 
 @Tag(name = "管理后台 - 营销商品管理")
 @RestController
@@ -31,6 +37,8 @@ public class MarketingProductController {
 
     @Resource
     private MarketingProductService marketingProductService;
+    @Resource
+    private MarketingProductExportService marketingProductExportService;
 
     @PostMapping("/page")
     @Operation(summary = "列表")
@@ -103,9 +111,24 @@ public class MarketingProductController {
         return CommonResult.success(marketingProductService.skuListForAddCoupon(reqVO));
     }
 
-    @PostMapping("/batchGetProductDetail")
+   /* @PostMapping("/batchGetProductDetail")
     @Operation(summary = "批量获取商品详情")
     public CommonResult<List<ProductDetailRespVO>> batchGetProductDetail(@Valid @RequestBody MarketingProductReqVO reqVO) {
         return CommonResult.success(marketingProductService.batchGetProductDetail(reqVO));
+    }*/
+
+    @PostMapping("/export")
+    @Operation(summary = "导出营销 商品")
+    public CommonResult<Boolean> export(@Valid @RequestBody MarketingProductListReqVO reqVO) {
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        marketingProductExportService.setProductType(reqVO.getProductType());
+        marketingProductExportService.executeDownload(loginUser.getId(), loginUser.getPartnerId(), reqVO, reqVO.getSource());
+        return success(true);
     }
+
+    /*@PostMapping("/test")
+    @Operation(summary = "测试")
+    public CommonResult<SkuRespDto> test(@Valid @RequestBody LongIdReqVO reqVO) {
+        return CommonResult.success(marketingProductService.getSkuInfoById(reqVO.getId()));
+    }*/
 }

@@ -9,6 +9,7 @@ import com.bajiezu.cloud.common.constants.OperateTypeEnum;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
+import com.bajiezu.cloud.framework.security.util.FeginMethodExecuteUtils;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.marketing.api.channel.MarketingChannelApi;
 import com.bajiezu.cloud.marketing.dto.channel.req.MarketingChannelIdsReqDTO;
@@ -1316,10 +1317,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 .collect(Collectors.toMap(StandardProductSpu::getId, standardProductSpu -> standardProductSpu));
 
         // 获取用户
-        CommonResult<List<AdminUserRespDTO>> userResult = adminUserApi.getUserList(userIds);
         Map<Long, String> userId2NameMap = Maps.newHashMap();
-        if (userResult.isSuccess() && userResult.getData() != null) {
-            userId2NameMap = userResult.getData().stream().collect(Collectors.toMap(AdminUserRespDTO::getId, AdminUserRespDTO::getName));
+        List<AdminUserRespDTO> userList = FeginMethodExecuteUtils.execute(() -> adminUserApi.getUserList(userIds), true);
+        if (CollectionUtil.isNotEmpty(userList)) {
+            userId2NameMap = userList.stream().collect(Collectors.toMap(AdminUserRespDTO::getId, AdminUserRespDTO::getName));
         }
 
         // 获取渠道
@@ -1331,13 +1332,6 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             List<IdAndPriceDTO> minDailyRentPrices = skuMapper.queryMinDailyRentPriceByMarketingProductSpuIds(marketingSpuIds);
             minDailyRentPriceMap = minDailyRentPrices.stream().collect(Collectors.toMap(IdAndPriceDTO::getId, idAndPriceDTO -> idAndPriceDTO));
         }
-
-        // 回收价 （回收商品才有）
-        /*Map<Long, IdAndPriceDTO> buybackPriceMap = Maps.newHashMap();
-        if (ProductTypeEnum.RECYCLED_PRODUCT.getValue().equals(productType)) {
-            List<IdAndPriceDTO> buybackPrices = skuMapper.queryMinAndMaxBuybackPriceByMarketingProductSpuIds(marketingSpuIds);
-            buybackPriceMap = buybackPrices.stream().collect(Collectors.toMap(IdAndPriceDTO::getId, idAndPriceDTO -> idAndPriceDTO));
-        }*/
 
         // 获取商品对应的SKU数量
         List<IdAndCountDTO> skuCountLists = skuMapper.querySkuCountByMarketingProductSpuIds(marketingSpuIds);
@@ -1447,12 +1441,6 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             marketingProductRespVO.setCreateTime(marketingProductSpu.getCreateTime());
             marketingProductRespVO.setUpdaterName(userId2NameMap.get(marketingProductSpu.getUpdateBy()));
             marketingProductRespVO.setUpdateTime(marketingProductSpu.getUpdateTime());
-
-            /*if (buybackPriceMap.containsKey(marketingProductSpu.getId())) {
-                marketingProductRespVO.setMinBuybackPrice(buybackPriceMap.get(marketingProductSpu.getId()).getMinPrice());
-                marketingProductRespVO.setMaxBuybackPrice(buybackPriceMap.get(marketingProductSpu.getId()).getMaxPrice());
-            }*/
-
         }
 
         return marketingProductRespVOS;
@@ -1693,9 +1681,9 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
         MarketingChannelIdsReqDTO marketingChannelIdsReqDTO = new MarketingChannelIdsReqDTO();
         marketingChannelIdsReqDTO.setChannelIds(channelIds);
-        CommonResult<List<MarketingChannelRespDTO>> channelResult = marketingChannelApi.getChannelListByIdsApi(marketingChannelIdsReqDTO);
-        if (channelResult.isSuccess() && channelResult.getData() != null) {
-            channelId2ChannelMap = channelResult.getData().stream().collect(Collectors.toMap(MarketingChannelRespDTO::getChannelId
+        List<MarketingChannelRespDTO> channels = FeginMethodExecuteUtils.execute(() -> marketingChannelApi.getChannelListByIdsApi(marketingChannelIdsReqDTO), true);
+        if (CollectionUtil.isNotEmpty(channels)) {
+            channelId2ChannelMap = channels.stream().collect(Collectors.toMap(MarketingChannelRespDTO::getChannelId
                     , marketingChannelRespDTO -> marketingChannelRespDTO));
         }
         return channelId2ChannelMap;

@@ -43,6 +43,9 @@ public class MarketingProductListReqVO extends PageParam {
     @Schema(description = "是否草稿 0:否 1:是")
     private Integer isDraft;
 
+    @Schema(description = "下载来源")
+    private Integer source;
+
     public MarketingProductQuery toQuery() {
         MarketingProductQuery query = new MarketingProductQuery();
         query.setProductType(this.getProductType());
