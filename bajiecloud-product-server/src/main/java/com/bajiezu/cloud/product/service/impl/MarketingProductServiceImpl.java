@@ -6,6 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.constants.OperateTypeEnum;
+import com.bajiezu.cloud.common.web.exception.ServiceException;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
@@ -766,6 +767,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void onOffShelves(OnOffShelvesReqVO reqVO) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
@@ -774,8 +776,40 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             return;
         }
 
-        // 批量更新商品的上下架状态
-        marketingProductSpuMapper.updateShelvesStatusByIds(reqVO.getIds(), reqVO.getShelvesStatus(), loginUser.getId(), new Date());
+        // 查询商品信息
+        List<MarketingProductSpu> marketingProductSpus = marketingProductSpuMapper.selectListByIds(reqVO.getIds());
+        if (CollUtil.isEmpty(marketingProductSpus)) {
+            log.warn("onOffShelves marketingProductSpus is empty,ids:{}", reqVO.getIds());
+            return;
+        }
+
+        Date now = new Date();
+        if (ShelvesStatusEnum.OFF_SHELVES.getValue().equals(reqVO.getShelvesStatus())) {
+            // 批量更新商品的上下架状态为下架
+            marketingProductSpuMapper.updateShelvesStatusByIds(reqVO.getIds(), ShelvesStatusEnum.OFF_SHELVES.getValue(), loginUser.getId(), now);
+        } else {
+            // 状态是待上架的则更新为已上架，状态是已下架的则需要更新审批状态为待审批、上下架状态为待上架
+            List<Long> needOnShelvesIds = Lists.newArrayList();
+            List<Long> needUpdateApproveAndShelvesStatusIds = Lists.newArrayList();
+            for (MarketingProductSpu marketingProductSpu : marketingProductSpus) {
+                if (ShelvesStatusEnum.WAIT_SHELVES.getValue().equals(marketingProductSpu.getShelvesStatus())) {
+                    needOnShelvesIds.add(marketingProductSpu.getId());
+                } else if (ShelvesStatusEnum.OFF_SHELVES.getValue().equals(marketingProductSpu.getShelvesStatus())) {
+                    needUpdateApproveAndShelvesStatusIds.add(marketingProductSpu.getId());
+                }
+            }
+
+            if (CollUtil.isNotEmpty(needOnShelvesIds)) {
+                // 批量更新商品状态为已上架
+                marketingProductSpuMapper.updateShelvesStatusByIds(needOnShelvesIds, ShelvesStatusEnum.ON_SHELVES.getValue(), loginUser.getId(), now);
+            }
+
+            if (CollUtil.isNotEmpty(needUpdateApproveAndShelvesStatusIds)) {
+                // 批量更新商品状态为待审批、上下架状态为待上架
+                marketingProductSpuMapper.updateApproveAndShelvesStatusByIds(needUpdateApproveAndShelvesStatusIds,
+                        ApproveStatusEnum.WAIT_APPROVE.getValue(), ShelvesStatusEnum.WAIT_SHELVES.getValue(), loginUser.getId(), now);
+            }
+        }
     }
 
     @Override

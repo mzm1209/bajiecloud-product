@@ -37,5 +37,6 @@ public interface ErrorCodeConstants {
     ErrorCode MARKETING_PRODUCT_IS_DRAFT = new ErrorCode(1_003_008_003, "当前商品为草稿状态,暂不能进行审核操作");
     ErrorCode MARKETING_PRODUCT_STATUS_NOT_WAIT_APPROVE = new ErrorCode(1_003_008_004, "商品审批状态不为待审批");
     ErrorCode SKU_ID_IS_NULL = new ErrorCode(1_003_008_005, "SKU ID不能为空");
-    ErrorCode SKU_NOT_EXIST = new ErrorCode(1_003_008_006, "SKU不存在");
+    ErrorCode ON_SHELVES_NOT_ALLOWED = new ErrorCode(1_003_008_006, "待上架/已下架的商品才能操作上架");
+    ErrorCode OFF_SHELVES_NOT_ALLOWED = new ErrorCode(1_003_008_007, "已上架的商品才能操作下架");
 }
