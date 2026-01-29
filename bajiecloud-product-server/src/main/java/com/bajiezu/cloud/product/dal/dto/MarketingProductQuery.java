@@ -32,4 +32,5 @@ public class MarketingProductQuery {
     private Integer pageSize;
 
     private List<Long> standardProductSpuIds;
+
 }

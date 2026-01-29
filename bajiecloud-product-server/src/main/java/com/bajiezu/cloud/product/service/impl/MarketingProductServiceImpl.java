@@ -109,6 +109,23 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             query.setStandardProductSpuIds(standardProductSpuIds);
         }
 
+        // 根据颜色、规格搜索
+        if (reqVO.getColor() != null || reqVO.getSpecification() != null) {
+            List<String> propertyValues = Lists.newArrayList();
+            if (reqVO.getColor() != null) {
+                propertyValues.add(reqVO.getColor());
+            }
+            if (reqVO.getSpecification() != null) {
+                propertyValues.add(reqVO.getSpecification());
+            }
+            List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValues(propertyValues, propertyValues.size());
+            if (CollUtil.isEmpty(marketingProductSpuIds)) {
+                log.info("根据color:{},specification:{}未查询到记录", reqVO.getColor(), reqVO.getSpecification());
+                return PageResult.empty();
+            }
+            query.setIds(marketingProductSpuIds);
+        }
+
         // 获取列表
         List<MarketingProductSpu> marketingProductSpus = marketingProductSpuMapper.selectListByQuery(query);
         if (CollUtil.isEmpty(marketingProductSpus)) {
@@ -870,6 +887,24 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 return statusStatisticRespVO;
             }
         }
+
+        // 根据颜色、规格搜索
+        if (reqVO.getColor() != null || reqVO.getSpecification() != null) {
+            List<String> propertyValues = Lists.newArrayList();
+            if (reqVO.getColor() != null) {
+                propertyValues.add(reqVO.getColor());
+            }
+            if (reqVO.getSpecification() != null) {
+                propertyValues.add(reqVO.getSpecification());
+            }
+            List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValues(propertyValues, propertyValues.size());
+            if (CollUtil.isEmpty(marketingProductSpuIds)) {
+                log.info("根据color:{},specification:{}未查询到记录", reqVO.getColor(), reqVO.getSpecification());
+                return statusStatisticRespVO;
+            }
+            query.setIds(marketingProductSpuIds);
+        }
+
         // 获取商品总数
         Integer totalCount = marketingProductSpuMapper.queryCount(query);
 

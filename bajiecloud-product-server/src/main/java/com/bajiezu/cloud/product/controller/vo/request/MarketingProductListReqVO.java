@@ -50,6 +50,12 @@ public class MarketingProductListReqVO extends PageParam {
     @Schema(description = "下载来源")
     private Integer source;
 
+    @Schema(description = "商品颜色")
+    private String color;
+
+    @Schema(description = "商品规格")
+    private String specification;
+
     public MarketingProductQuery toQuery() {
         MarketingProductQuery query = new MarketingProductQuery();
         query.setIds(this.getIds());

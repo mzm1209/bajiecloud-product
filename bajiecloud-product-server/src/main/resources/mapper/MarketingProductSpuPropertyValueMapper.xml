@@ -217,4 +217,15 @@
                 id = #{item.id}
         </foreach>
     </update>
+
+    <select id="selectMarketingSpuIdsByPropertyValues" resultType="java.lang.Long">
+        select marketing_spu_id from marketing_product_spu_property_value
+        where property_value in
+        <foreach item="value" collection="propertyValues" separator="," open="(" close=")" index="">
+            #{value}
+        </foreach>
+        and is_deleted = 0
+        group by marketing_spu_id
+        having count(distinct property_value) = #{propertyValueCount}
+    </select>
 </mapper>
