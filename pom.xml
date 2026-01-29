@@ -16,6 +16,7 @@
   </modules>
   <properties>
     <bajiecloud-common.version>1.0.0-SNAPSHOT</bajiecloud-common.version>
+    <bajiecloud-scheduler.version>1.0.0-SNAPSHOT</bajiecloud-scheduler.version>
   </properties>
 
   <dependencyManagement>

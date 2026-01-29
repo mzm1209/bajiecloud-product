@@ -36,4 +36,9 @@ public interface MarketingProductService {
     PageResult<SkuRespVO> skuListForAddCoupon(ProductListReqVO reqVO);
 
     SkuRespDto getSkuInfoById(Long skuId);
+
+    /**
+     * 定时任务更新商品上架状态
+     */
+    void updateProductShelvesStatus();
 }

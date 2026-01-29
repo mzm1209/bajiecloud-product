@@ -1339,6 +1339,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         return skuRespDto;
     }
 
+    @Override
+    public void updateProductShelvesStatus() {
+        marketingProductSpuMapper.updateProductShelvesStatus();
+    }
+
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {
         List<Long> standardProductSpuIds = Lists.newArrayList();
         Set<Long> userIds = Sets.newHashSet();

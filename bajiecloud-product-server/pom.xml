@@ -56,6 +56,12 @@
 
     <dependency>
       <groupId>com.bajiezu.cloud</groupId>
+      <artifactId>bajiecloud-spring-boot-starter-scheduler</artifactId>
+      <version>${bajiecloud-scheduler.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.bajiezu.cloud</groupId>
       <artifactId>bajiecloud-spring-boot-starter-security</artifactId>
       <version>${bajiecloud-common.version}</version>
     </dependency>

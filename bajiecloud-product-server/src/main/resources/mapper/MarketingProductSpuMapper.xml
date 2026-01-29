@@ -205,4 +205,17 @@
             #{id}
         </foreach>
     </update>
+
+    <update id="updateProductShelvesStatus">
+        update
+            marketing_product_spu
+        set
+            shelves_status = 1
+        where
+            is_deleted = 0
+          and approval_status = 1
+          and shelving_way = 3
+          and shelves_status = 0
+          and shelving_time &lt;= now()
+    </update>
 </mapper>
