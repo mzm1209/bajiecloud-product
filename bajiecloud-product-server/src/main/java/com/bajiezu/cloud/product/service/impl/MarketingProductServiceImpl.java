@@ -110,12 +110,12 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         // 根据颜色、规格搜索
-        if (reqVO.getColor() != null || reqVO.getSpecification() != null) {
+        if (StringUtils.isNotBlank(reqVO.getColor()) || StringUtils.isNotBlank(reqVO.getSpecification())) {
             List<String> propertyValues = Lists.newArrayList();
-            if (reqVO.getColor() != null) {
+            if (StringUtils.isNotBlank(reqVO.getColor())) {
                 propertyValues.add(reqVO.getColor());
             }
-            if (reqVO.getSpecification() != null) {
+            if (StringUtils.isNotBlank(reqVO.getSpecification())) {
                 propertyValues.add(reqVO.getSpecification());
             }
             List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValues(propertyValues, propertyValues.size());
@@ -889,12 +889,12 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         // 根据颜色、规格搜索
-        if (reqVO.getColor() != null || reqVO.getSpecification() != null) {
+        if (StringUtils.isNotBlank(reqVO.getColor()) || StringUtils.isNotBlank(reqVO.getSpecification())) {
             List<String> propertyValues = Lists.newArrayList();
-            if (reqVO.getColor() != null) {
+            if (StringUtils.isNotBlank(reqVO.getColor())) {
                 propertyValues.add(reqVO.getColor());
             }
-            if (reqVO.getSpecification() != null) {
+            if (StringUtils.isNotBlank(reqVO.getSpecification())) {
                 propertyValues.add(reqVO.getSpecification());
             }
             List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValues(propertyValues, propertyValues.size());
