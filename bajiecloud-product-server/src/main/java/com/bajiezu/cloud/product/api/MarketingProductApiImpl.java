@@ -2,12 +2,10 @@ package com.bajiezu.cloud.product.api;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
-import com.bajiezu.cloud.product.dal.entity.MarketingProductSku;
 import com.bajiezu.cloud.product.dto.*;
 import com.bajiezu.cloud.product.enums.ErrorCodeConstants;
 import com.bajiezu.cloud.product.enums.ProductApiConstants;
 import com.bajiezu.cloud.product.service.MarketingProductService;
-import com.bajiezu.cloud.product.service.ProductMarketingCategoryService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
