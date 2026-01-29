@@ -4,10 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Schema(description = "标准产品查询参数")
 @Data
 public class StandardProductQuery {
+
+    private List<Long> ids;
 
     private String name;
 

@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class MarketingProductQuery {
 
+    private List<Long> ids;
 
     private Integer productType;
 

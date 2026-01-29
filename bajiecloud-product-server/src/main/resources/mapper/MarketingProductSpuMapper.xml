@@ -79,6 +79,12 @@
         <if test="query.approvalStatus != null">
             and approval_status = #{query.approvalStatus}
         </if>
+        <if test="query.ids != null and query.ids.size > 0">
+            and id in
+            <foreach item="id" collection="query.ids" separator="," open="(" close=")" index="">
+                #{id}
+            </foreach>
+        </if>
     </sql>
 
     <select id="productTypeStatistic" resultType="com.bajiezu.cloud.product.dal.dto.ProductTypeStatisticCountDTO">

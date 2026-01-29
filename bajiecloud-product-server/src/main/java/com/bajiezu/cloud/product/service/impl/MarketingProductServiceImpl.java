@@ -6,7 +6,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.constants.OperateTypeEnum;
-import com.bajiezu.cloud.common.web.exception.ServiceException;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
@@ -833,6 +832,20 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         if (!Objects.equals(marketingProductSpu.getApprovalStatus(), ApproveStatusEnum.WAIT_APPROVE.getValue())) {
             throw exception(MARKETING_PRODUCT_STATUS_NOT_WAIT_APPROVE);
         }
+
+        // 审批通过
+        if (ApproveStatusEnum.APPROVE_PASS.getValue().equals(reqVO.getApproveStatus())) {
+            if (ShelvingWayEnum.AUTO_SHELVES.getValue().equals(marketingProductSpu.getShelvingWay())) {
+                // 如果是自动上架，那么审批通过后将上架状态改为已上架
+                marketingProductSpu.setShelvesStatus(ShelvesStatusEnum.ON_SHELVES.getValue());
+            } else if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(marketingProductSpu.getShelvingWay())) {
+                // 如果是预约上架，预约时间在当前时间之前，将上架状态改为已上架
+                if (marketingProductSpu.getShelvingTime().before(new Date())) {
+                    marketingProductSpu.setShelvesStatus(ShelvesStatusEnum.ON_SHELVES.getValue());
+                }
+            }
+        }
+
 
         marketingProductSpu.setApproverId(loginUser.getId());
         marketingProductSpu.setApprovalStatus(reqVO.getApproveStatus());

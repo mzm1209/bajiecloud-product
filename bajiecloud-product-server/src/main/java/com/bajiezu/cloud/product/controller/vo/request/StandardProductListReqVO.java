@@ -3,9 +3,6 @@ package com.bajiezu.cloud.product.controller.vo.request;
 import com.bajiezu.cloud.common.web.pojo.PageParam;
 import com.bajiezu.cloud.product.dal.dto.StandardProductQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,6 +13,9 @@ import java.util.List;
 @Schema(description = "标准商品列表查询参数")
 @Data
 public class StandardProductListReqVO extends PageParam {
+
+    @Schema(description = "标准商品ID集合")
+    private List<Long> ids;
 
     @Schema(description = "商品名称")
     private String name;
@@ -46,6 +46,7 @@ public class StandardProductListReqVO extends PageParam {
 
     public StandardProductQuery convert2StandardProductQuery() {
         StandardProductQuery standardProductQuery = new StandardProductQuery();
+        standardProductQuery.setIds(ids);
         standardProductQuery.setName(name);
         standardProductQuery.setMarketingCategoryId(marketingCategoryId);
         standardProductQuery.setBrandId(brandId);

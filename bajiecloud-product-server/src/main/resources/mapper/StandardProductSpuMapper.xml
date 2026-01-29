@@ -48,6 +48,12 @@
         <if test="createTimeEnd != null">
             and create_time &lt;= #{createTimeEnd}
         </if>
+        <if test="ids != null and ids.size > 0">
+            and id in
+            <foreach item="id" collection="ids" separator="," close=")" open="(" index="">
+                #{id}
+            </foreach>
+        </if>
     </sql>
 
     <select id="selectListByQuery" parameterType="com.bajiezu.cloud.product.dal.dto.StandardProductQuery"
