@@ -8,9 +8,6 @@ import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.*;
-import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
-import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
-import com.bajiezu.cloud.product.dto.SkuRespDto;
 import com.bajiezu.cloud.product.service.MarketingProductExportService;
 import com.bajiezu.cloud.product.service.MarketingProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.List;
 
 import static com.bajiezu.cloud.common.web.pojo.CommonResult.success;
 
@@ -111,7 +106,7 @@ public class MarketingProductController {
         return CommonResult.success(marketingProductService.skuListForAddCoupon(reqVO));
     }
 
-   /* @PostMapping("/batchGetProductDetail")
+    /*@PostMapping("/batchGetProductDetail")
     @Operation(summary = "批量获取商品详情")
     public CommonResult<List<ProductDetailRespVO>> batchGetProductDetail(@Valid @RequestBody MarketingProductReqVO reqVO) {
         return CommonResult.success(marketingProductService.batchGetProductDetail(reqVO));
