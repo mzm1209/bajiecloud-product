@@ -35,4 +35,7 @@ public interface ProductPropertyValueMapper extends BaseMapper<ProductPropertyVa
     List<ProductPropertyValue> queryAll();
 
     List<ProductPropertyValue> selectListByIds(@Param("ids") Collection<Long> ids);
+
+    Long selectPropertyValueIdByPropertyNameAndValue(@Param("propertyName") String propertyName,
+                                                     @Param("propertyValue") String propertyValue);
 }

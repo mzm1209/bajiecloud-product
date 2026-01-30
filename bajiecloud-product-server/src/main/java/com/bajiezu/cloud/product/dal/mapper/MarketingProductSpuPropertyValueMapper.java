@@ -49,5 +49,6 @@ public interface MarketingProductSpuPropertyValueMapper extends BaseMapper<Marke
 
     void updateBatch(@Param("list") Collection<MarketingProductSpuPropertyValue> spuPropertyValues);
 
-    List<Long> selectMarketingSpuIdsByPropertyValues(@Param("propertyValues") Collection<String> propertyValues, @Param("propertyValueCount") int propertyValueCount);
+    List<Long> selectMarketingSpuIdsByPropertyValueIds(@Param("propertyValueIds") Collection<Long> propertyValueIds,
+                                                       @Param("propertyValueIdsCount") int propertyValueIdsCount);
 }

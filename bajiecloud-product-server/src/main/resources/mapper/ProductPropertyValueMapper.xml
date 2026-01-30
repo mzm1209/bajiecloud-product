@@ -80,4 +80,11 @@
             </otherwise>
         </choose>
     </select>
+
+    <select id="selectPropertyValueIdByPropertyNameAndValue" resultType="java.lang.Long">
+        select pv.id from product_property_value pv join product_property pp on pv.property_id = pp.id
+        where pp.name = #{propertyName}
+          and pv.is_deleted = 0
+          and pv.property_value = #{propertyValue}
+    </select>
 </mapper>

@@ -111,14 +111,24 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 根据颜色、规格搜索
         if (StringUtils.isNotBlank(reqVO.getColor()) || StringUtils.isNotBlank(reqVO.getSpecification())) {
-            List<String> propertyValues = Lists.newArrayList();
+            List<Long> propertyValueIds = Lists.newArrayList();
             if (StringUtils.isNotBlank(reqVO.getColor())) {
-                propertyValues.add(reqVO.getColor());
+                Long colorPropertyValueId = productPropertyValueMapper.selectPropertyValueIdByPropertyNameAndValue("颜色", reqVO.getColor());
+                if (Objects.isNull(colorPropertyValueId)) {
+                    log.info("根据颜色:{}未查询到记录", reqVO.getColor());
+                    return PageResult.empty();
+                }
+                propertyValueIds.add(colorPropertyValueId);
             }
             if (StringUtils.isNotBlank(reqVO.getSpecification())) {
-                propertyValues.add(reqVO.getSpecification());
+                Long colorPropertyValueId = productPropertyValueMapper.selectPropertyValueIdByPropertyNameAndValue("规格", reqVO.getSpecification());
+                if (Objects.isNull(colorPropertyValueId)) {
+                    log.info("根据规格:{}未查询到记录", reqVO.getColor());
+                    return PageResult.empty();
+                }
+                propertyValueIds.add(colorPropertyValueId);
             }
-            List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValues(propertyValues, propertyValues.size());
+            List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValueIds(propertyValueIds, propertyValueIds.size());
             if (CollUtil.isEmpty(marketingProductSpuIds)) {
                 log.info("根据color:{},specification:{}未查询到记录", reqVO.getColor(), reqVO.getSpecification());
                 return PageResult.empty();
@@ -890,14 +900,24 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 根据颜色、规格搜索
         if (StringUtils.isNotBlank(reqVO.getColor()) || StringUtils.isNotBlank(reqVO.getSpecification())) {
-            List<String> propertyValues = Lists.newArrayList();
+            List<Long> propertyValueIds = Lists.newArrayList();
             if (StringUtils.isNotBlank(reqVO.getColor())) {
-                propertyValues.add(reqVO.getColor());
+                Long colorPropertyValueId = productPropertyValueMapper.selectPropertyValueIdByPropertyNameAndValue("颜色", reqVO.getColor());
+                if (Objects.isNull(colorPropertyValueId)) {
+                    log.info("根据颜色:{}未查询到记录", reqVO.getColor());
+                    return statusStatisticRespVO;
+                }
+                propertyValueIds.add(colorPropertyValueId);
             }
             if (StringUtils.isNotBlank(reqVO.getSpecification())) {
-                propertyValues.add(reqVO.getSpecification());
+                Long colorPropertyValueId = productPropertyValueMapper.selectPropertyValueIdByPropertyNameAndValue("规格", reqVO.getSpecification());
+                if (Objects.isNull(colorPropertyValueId)) {
+                    log.info("根据规格:{}未查询到记录", reqVO.getColor());
+                    return statusStatisticRespVO;
+                }
+                propertyValueIds.add(colorPropertyValueId);
             }
-            List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValues(propertyValues, propertyValues.size());
+            List<Long> marketingProductSpuIds = spuPropertyValueMapper.selectMarketingSpuIdsByPropertyValueIds(propertyValueIds, propertyValueIds.size());
             if (CollUtil.isEmpty(marketingProductSpuIds)) {
                 log.info("根据color:{},specification:{}未查询到记录", reqVO.getColor(), reqVO.getSpecification());
                 return statusStatisticRespVO;
