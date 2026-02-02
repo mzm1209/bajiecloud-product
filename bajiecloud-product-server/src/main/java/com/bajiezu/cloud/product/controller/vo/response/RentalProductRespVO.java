@@ -55,7 +55,7 @@ public class RentalProductRespVO {
     @ColumnWidth(20)
     private String productSpecifications;
 
-    @ExcelProperty(value = "租赁类型", index = 11)
+    @ExcelProperty(value = "租赁套餐", index = 11)
     @ColumnWidth(20)
     private String leaseType;
 
