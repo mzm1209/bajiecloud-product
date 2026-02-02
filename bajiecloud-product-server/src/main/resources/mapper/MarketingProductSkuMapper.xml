@@ -119,6 +119,7 @@
         <foreach item="marketingSpuId" collection="marketingSpuIds" separator="," open="(" close=")">
             #{marketingSpuId}
         </foreach>
+        group by marketing_spu_id
     </select>
 
     <select id="queryMinAndMaxOfficialPriceByMarketingProductSpuIds" resultType="com.bajiezu.cloud.product.dal.dto.IdAndPriceDTO">
