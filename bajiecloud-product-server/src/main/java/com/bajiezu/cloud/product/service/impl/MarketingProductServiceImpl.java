@@ -1393,6 +1393,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         spuRespDto.setBrandName(brandName);
         spuRespDto.setBusinessCategoryName(businessCategoryName);
         spuRespDto.setMarketingCategoryName(marketingCategoryName);
+        spuRespDto.setMainPicUrls(List.of(marketingProductSpu.getMainPicUrls().split(",")));
         return skuRespDto;
     }
 

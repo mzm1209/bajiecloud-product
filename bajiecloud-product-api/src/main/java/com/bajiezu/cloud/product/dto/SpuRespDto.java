@@ -3,6 +3,8 @@ package com.bajiezu.cloud.product.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.List;
+
 @Schema(description = "SPU信息")
 @Data
 public class SpuRespDto {
@@ -32,4 +34,7 @@ public class SpuRespDto {
 
     @Schema(description = "营销类目名称")
     private String marketingCategoryName;
+
+    @Schema(description = "SPU主图")
+    private List<String> mainPicUrls;
 }
