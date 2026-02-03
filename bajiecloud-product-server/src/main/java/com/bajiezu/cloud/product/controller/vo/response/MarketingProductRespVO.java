@@ -25,6 +25,9 @@ public class MarketingProductRespVO {
     @Schema(description = "营销商品名称")
     private String marketingProductName;
 
+    @Schema(description = "商品主图")
+    private List<String> mainPicUrls;
+
     @Schema(description = "SKU数量")
     private Long skuCount;
 

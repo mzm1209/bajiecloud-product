@@ -1400,6 +1400,24 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         marketingProductSpuMapper.updateProductShelvesStatus();
     }
 
+    @Override
+    public void updateSkuStock(List<UpdateSkuStockReqVO> reqVO) {
+        LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
+        log.info("更新SKU库存,reqVO:{},operatorId:{}", reqVO, loginUser.getId());
+
+        Date now = new Date();
+        List<UpdateSkuStockDTO> updateSkuStockDTOS = Lists.newArrayList();
+        reqVO.forEach(updateSkuStockDTO -> {
+            UpdateSkuStockDTO updateSkuStock = new UpdateSkuStockDTO();
+            updateSkuStock.setId(updateSkuStockDTO.getSkuId());
+            updateSkuStock.setStock(updateSkuStockDTO.getStock());
+            updateSkuStock.setUpdateBy(loginUser.getId());
+            updateSkuStock.setUpdateTime(now);
+            updateSkuStockDTOS.add(updateSkuStock);
+        });
+        skuMapper.updateSkuStock(updateSkuStockDTOS);
+    }
+
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {
         List<Long> standardProductSpuIds = Lists.newArrayList();
         Set<Long> userIds = Sets.newHashSet();
@@ -1487,6 +1505,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             marketingProductRespVO.setMarketingProductId(marketingProductSpu.getId());
             marketingProductRespVO.setMarketingProductCode(marketingProductSpu.getCode());
             marketingProductRespVO.setMarketingProductName(marketingProductSpu.getName());
+            marketingProductRespVO.setMainPicUrls(List.of(marketingProductSpu.getMainPicUrls().split(",")));
 
             marketingProductRespVO.setSkuCount(skuCountMap.getOrDefault(marketingProductSpu.getId(), 0L));
             marketingProductRespVO.setStock(stockMap.getOrDefault(marketingProductSpu.getId(), 0L));

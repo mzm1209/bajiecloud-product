@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
+import java.util.List;
+
 import static com.bajiezu.cloud.common.web.pojo.CommonResult.success;
 
 
@@ -106,12 +108,6 @@ public class MarketingProductController {
         return CommonResult.success(marketingProductService.skuListForAddCoupon(reqVO));
     }
 
-    /*@PostMapping("/batchGetProductDetail")
-    @Operation(summary = "批量获取商品详情")
-    public CommonResult<List<ProductDetailRespVO>> batchGetProductDetail(@Valid @RequestBody MarketingProductReqVO reqVO) {
-        return CommonResult.success(marketingProductService.batchGetProductDetail(reqVO));
-    }*/
-
     @PostMapping("/export")
     @Operation(summary = "导出营销 商品")
     public CommonResult<Boolean> export(@Valid @RequestBody MarketingProductListReqVO reqVO) {
@@ -121,9 +117,24 @@ public class MarketingProductController {
         return success(true);
     }
 
+    @PostMapping("/updateSkuStock")
+    @Operation(summary = "更新SKU库存")
+    public CommonResult<Boolean> updateSkuStock(@Valid @RequestBody List<UpdateSkuStockReqVO> reqVO) {
+        marketingProductService.updateSkuStock(reqVO);
+        return success(true);
+    }
+
+    /*@PostMapping("/batchGetProductDetail")
+    @Operation(summary = "批量获取商品详情")
+    public CommonResult<List<ProductDetailRespVO>> batchGetProductDetail(@Valid @RequestBody MarketingProductReqVO reqVO) {
+        return CommonResult.success(marketingProductService.batchGetProductDetail(reqVO));
+    }*/
+
     /*@PostMapping("/test")
     @Operation(summary = "测试")
     public CommonResult<SkuRespDto> test(@Valid @RequestBody LongIdReqVO reqVO) {
         return CommonResult.success(marketingProductService.getSkuInfoById(reqVO.getId()));
     }*/
+
+
 }

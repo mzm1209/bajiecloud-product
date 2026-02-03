@@ -41,4 +41,6 @@ public interface MarketingProductService {
      * 定时任务更新商品上架状态
      */
     void updateProductShelvesStatus();
+
+    void updateSkuStock(List<UpdateSkuStockReqVO> reqVO);
 }

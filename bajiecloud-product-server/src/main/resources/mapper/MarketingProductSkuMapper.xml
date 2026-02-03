@@ -289,4 +289,11 @@
             </choose>
         group by marketing_spu_id
     </select>
+
+    <update id="updateSkuStock">
+        <foreach collection="updateSkuStockDTOS" item="it" separator=";">
+            update marketing_product_sku set stock = #{it.stock}, update_time = #{it.updateTime}, update_by = #{it.updateBy}
+            where id = #{it.id}
+        </foreach>
+    </update>
 </mapper>
