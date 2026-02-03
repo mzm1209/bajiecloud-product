@@ -760,6 +760,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
                 MarketingProductSpuPropertyValue spuPropertyValue = id2SpuPropertyValueMap.get(marketingProductSkuPropertyValue.getMarketingSpuPropertyValueId());
                 skuPropertyValueVO.setPropertyId(spuPropertyValue.getProductPropertyId());
+                skuPropertyValueVO.setPropertyName(propertyIdNameMap.get(spuPropertyValue.getProductPropertyId()));
                 skuPropertyValueVO.setPropertyValueId(spuPropertyValue.getProductPropertyValueId());
                 if (Objects.nonNull(spuPropertyValue.getProductPropertyValueId())) {
                     skuPropertyValueVO.setPropertyValue(productPropertyId2ValueMap.get(spuPropertyValue.getProductPropertyValueId()));

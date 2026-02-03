@@ -10,6 +10,9 @@ public class SkuPropertyValueVO {
     @Schema(description = "属性id")
     private Long propertyId;
 
+    @Schema(description = "属性名")
+    private String propertyName;
+
     @Schema(description = "属性值id")
     private Long propertyValueId;
 
