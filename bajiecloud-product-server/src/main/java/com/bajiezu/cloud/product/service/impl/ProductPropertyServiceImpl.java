@@ -87,6 +87,7 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
         Date now = new Date();
         property.setName(reqVO.getName());
         property.setSort(reqVO.getSort());
+        property.setIsSkuProperty(defaultSkuProperty(reqVO.getIsSkuProperty()));
         property.setUpdateBy(loginUser.getId());
         property.setUpdateTime(now);
         propertyMapper.updateById(property);
@@ -164,6 +165,7 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
             respVO.setCreatorName(userId2NameMap.get(property.getCreateBy()));
             respVO.setPropertyValues(propertyId2ValuesMap.get(property.getId()));
             respVO.setSort(property.getSort());
+            respVO.setIsSkuProperty(defaultSkuProperty(property.getIsSkuProperty()));
             respVO.setCreateTime(property.getCreateTime());
         }
 
@@ -190,6 +192,7 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
             resultList.add(respVO);
             respVO.setId(property.getId());
             respVO.setName(property.getName());
+            respVO.setIsSkuProperty(defaultSkuProperty(property.getIsSkuProperty()));
 
             List<ProductPropertyValue> propertyValues = propertyId2ValuesMap.get(property.getId());
             List<PropertyValueSimpleInfoVO> propertyValueSimpleInfoVOList = propertyValues.stream()
@@ -221,6 +224,7 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
         ProductProperty property = new ProductProperty();
         property.setName(reqVO.getName());
         property.setSort(reqVO.getSort());
+        property.setIsSkuProperty(defaultSkuProperty(reqVO.getIsSkuProperty()));
         property.setPartnerId(partnerId);
         property.setCreateBy(userId);
         property.setUpdateBy(userId);
@@ -241,5 +245,9 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
         propertyValue.setUpdateTime(new Date());
         propertyValue.setIsDeleted(0);
         return propertyValue;
+    }
+
+    private Integer defaultSkuProperty(Integer isSkuProperty) {
+        return isSkuProperty == null ? 0 : isSkuProperty;
     }
 }

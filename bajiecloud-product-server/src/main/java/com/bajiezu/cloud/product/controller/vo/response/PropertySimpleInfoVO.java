@@ -15,6 +15,9 @@ public class PropertySimpleInfoVO {
     @Schema(description = "属性名称")
     private String name;
 
+    @Schema(description = "是否为SKU属性 0否1是")
+    private Integer isSkuProperty;
+
     @Schema(description = "属性值信息")
     private List<PropertyValueSimpleInfoVO> propertyValues;
 }

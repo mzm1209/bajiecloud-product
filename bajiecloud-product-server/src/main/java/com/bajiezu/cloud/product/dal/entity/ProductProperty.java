@@ -32,6 +32,10 @@ public class ProductProperty extends BaseDO {
     @TableField("partner_id")
     private Long partnerId;
 
+    /** 是否为SKU属性 0否1是 */
+    @TableField("is_sku_property")
+    private Integer isSkuProperty;
+
     // 注意：BaseDO中已经包含了createBy, updateBy, createTime, updateTime, isDeleted字段
     // 因此不需要在子类中重复定义这些字段
 

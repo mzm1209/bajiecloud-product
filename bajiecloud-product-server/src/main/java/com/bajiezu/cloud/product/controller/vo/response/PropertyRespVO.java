@@ -22,6 +22,9 @@ public class PropertyRespVO {
     @Schema(description = "排序")
     private Integer sort;
 
+    @Schema(description = "是否为SKU属性 0否1是")
+    private Integer isSkuProperty;
+
     @Schema(description = "创建者名称")
     private String creatorName;
 
