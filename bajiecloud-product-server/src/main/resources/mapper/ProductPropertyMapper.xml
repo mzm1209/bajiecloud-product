@@ -7,6 +7,7 @@
         <result column="name" property="name"/>
         <result column="sort" property="sort"/>
         <result column="partner_id" property="partnerId"/>
+        <result column="is_sku_property" property="isSkuProperty"/>
         <result column="create_by" property="createBy"/>
         <result column="update_by" property="updateBy"/>
         <result column="create_time" property="createTime"/>
@@ -43,7 +44,7 @@
     </update>
 
     <select id="queryAll" resultMap="BaseResultMap">
-        select id, name from product_property where is_deleted = 0 order by sort
+        select id, name, is_sku_property from product_property where is_deleted = 0 order by sort
     </select>
 
     <select id="selectListByIds" resultMap="BaseResultMap">
