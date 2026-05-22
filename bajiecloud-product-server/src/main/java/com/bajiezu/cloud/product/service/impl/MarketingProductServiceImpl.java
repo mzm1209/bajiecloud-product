@@ -261,6 +261,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             existSpuProperty.setSort(reqProperty.getSort());
             existSpuProperty.setIsAddPropertyPic(defaultSwitch(reqProperty.getIsAddPropertyPic()));
             existSpuProperty.setIsAddMarketingCorner(defaultSwitch(reqProperty.getIsAddMarketingCorner()));
+            existSpuProperty.setIsSkuProperty(defaultSwitch(reqProperty.getIsSkuProperty()));
             existSpuProperty.setUpdateBy(loginUser.getId());
             existSpuProperty.setUpdateTime(now);
             needUpdateSpuProperties.add(existSpuProperty);
@@ -748,6 +749,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             spuPropertyVO.setSort(spuProperty.getSort());
             spuPropertyVO.setIsAddPropertyPic(spuProperty.getIsAddPropertyPic());
             spuPropertyVO.setIsAddMarketingCorner(spuProperty.getIsAddMarketingCorner());
+            spuPropertyVO.setIsSkuProperty(spuProperty.getIsSkuProperty());
 
             List<MarketingProductPropertyValueVO> spuPropertyValueVOS = Lists.newArrayList();
             spuPropertyVO.setPropertyValues(spuPropertyValueVOS);
@@ -1705,6 +1707,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             spuProperty.setSort(spuPropertyVO.getSort());
             spuProperty.setIsAddPropertyPic(defaultSwitch(spuPropertyVO.getIsAddPropertyPic()));
             spuProperty.setIsAddMarketingCorner(defaultSwitch(spuPropertyVO.getIsAddMarketingCorner()));
+            spuProperty.setIsSkuProperty(defaultSwitch(spuPropertyVO.getIsSkuProperty()));
             spuProperty.setPartnerId(loginUser.getPartnerId());
             spuProperty.setCreateBy(loginUser.getId());
             spuProperty.setUpdateBy(loginUser.getId());

@@ -44,4 +44,9 @@ public class MarketingProductSpuProperty extends BaseDO {
      * 是否添加营销角标：0否1是
      */
     private Integer isAddMarketingCorner;
+
+    /**
+     * 是否SKU销售属性：0否1是
+     */
+    private Integer isSkuProperty;
 }
