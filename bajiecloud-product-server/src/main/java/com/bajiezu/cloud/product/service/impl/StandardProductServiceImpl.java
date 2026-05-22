@@ -9,6 +9,7 @@ import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.FeginMethodExecuteUtils;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
+import com.bajiezu.cloud.product.controller.vo.*;
 import com.bajiezu.cloud.product.controller.vo.request.StandardProductAddReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.StandardProductListReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.StandardProductModReqVO;
@@ -18,11 +19,11 @@ import com.bajiezu.cloud.product.dal.dto.StandardProductQuery;
 import com.bajiezu.cloud.product.dal.entity.ProductBrand;
 import com.bajiezu.cloud.product.dal.entity.ProductBusinessCategory;
 import com.bajiezu.cloud.product.dal.entity.ProductMarketingCategory;
-import com.bajiezu.cloud.product.dal.entity.StandardProductSpu;
+import com.bajiezu.cloud.product.dal.entity.*;
 import com.bajiezu.cloud.product.dal.mapper.ProductBrandMapper;
 import com.bajiezu.cloud.product.dal.mapper.ProductBusinessCategoryMapper;
 import com.bajiezu.cloud.product.dal.mapper.ProductMarketingCategoryMapper;
-import com.bajiezu.cloud.product.dal.mapper.StandardProductSpuMapper;
+import com.bajiezu.cloud.product.dal.mapper.*;
 import com.bajiezu.cloud.product.service.StandardProductService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
 import com.bajiezu.cloud.system.api.user.AdminUserApi;
@@ -36,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,6 +62,14 @@ public class StandardProductServiceImpl implements StandardProductService {
     private ProductBrandMapper productBrandMapper;
     @Resource
     private AdminUserApi adminUserApi;
+    @Resource
+    private StandardProductSpuPropertyMapper spuPropertyMapper;
+    @Resource
+    private StandardProductSpuPropertyValueMapper spuPropertyValueMapper;
+    @Resource
+    private StandardProductSkuMapper skuMapper;
+    @Resource
+    private StandardProductSkuPropertyValueMapper skuPropertyValueMapper;
 
     @Override
     public PageResult<StandardProductRespVO> page(StandardProductListReqVO reqVO) {
@@ -162,6 +172,7 @@ public class StandardProductServiceImpl implements StandardProductService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void add(StandardProductAddReqVO reqVO) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         log.info("add standard product reqVO:{},operatorId:{}", reqVO, loginUser.getId());
@@ -170,9 +181,11 @@ public class StandardProductServiceImpl implements StandardProductService {
         Date now = new Date();
         StandardProductSpu spu = buildSpu(reqVO, loginUser, now);
         spuMapper.insert(spu);
+        saveSpuPropertyAndSku(spu.getId(), reqVO, loginUser, now);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void mod(StandardProductModReqVO reqVO) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         log.info("mod standard product reqVO:{},operatorId:{}", reqVO, loginUser.getId());
@@ -201,7 +214,14 @@ public class StandardProductServiceImpl implements StandardProductService {
         spu.setMonitorAttribute(Strings.join(",", reqVO.getMonitorAttribute()));
         spu.setUpdateTime(new Date());
         spu.setUpdateBy(loginUser.getId());
+        Date now = new Date();
+        spu.setUpdateTime(now);
         spuMapper.updateById(spu);
+        spuPropertyMapper.logicDelByStandardSpuId(spu.getId(), loginUser.getId(), now);
+        spuPropertyValueMapper.logicDelByStandardSpuId(spu.getId(), loginUser.getId(), now);
+        skuPropertyValueMapper.logicDelByStandardSpuId(spu.getId(), loginUser.getId(), now);
+        skuMapper.logicDelByStandardSpuId(spu.getId(), loginUser.getId(), now);
+        saveSpuPropertyAndSku(spu.getId(), reqVO, loginUser, now);
     }
 
     @Override
@@ -256,6 +276,7 @@ public class StandardProductServiceImpl implements StandardProductService {
         respVO.setUpdaterName(userId2NameMap.get(spu.getUpdateBy()));
         respVO.setCreateTime(spu.getCreateTime());
         respVO.setUpdateTime(spu.getUpdateTime());
+        fillPropertyAndSku(respVO, spu.getId());
         return respVO;
     }
 
@@ -305,6 +326,76 @@ public class StandardProductServiceImpl implements StandardProductService {
         spu.setUpdateBy(loginUser.getId());
         spu.setIsDeleted(NumberUtils.INTEGER_ZERO);
         return spu;
+    }
+
+
+
+    private void saveSpuPropertyAndSku(Long spuId, StandardProductAddReqVO reqVO, LoginUser<?> loginUser, Date now) {
+        if (CollectionUtil.isEmpty(reqVO.getSpuProperties())) { return; }
+        List<StandardProductSpuProperty> properties = new ArrayList<>();
+        Map<Long, StandardProductPropertyVO> propertyVOMap = new HashMap<>();
+        for (StandardProductPropertyVO vo : reqVO.getSpuProperties()) {
+            StandardProductSpuProperty p = new StandardProductSpuProperty();
+            p.setStandardSpuId(spuId); p.setProductPropertyId(vo.getPropertyId()); p.setSort(vo.getSort()); p.setIsAddPropertyPic(vo.getIsAddPropertyPic()); p.setIsAddMarketingCorner(vo.getIsAddMarketingCorner()); p.setIsSkuProperty(vo.getIsSkuProperty()); p.setCreateBy(loginUser.getId()); p.setUpdateBy(loginUser.getId()); p.setCreateTime(now); p.setUpdateTime(now); p.setIsDeleted(0);
+            properties.add(p); propertyVOMap.put(vo.getPropertyId(), vo);
+        }
+        spuPropertyMapper.insertBatch(properties);
+        List<StandardProductSpuProperty> dbProps = spuPropertyMapper.selectListByStandardSpuId(spuId);
+        Map<Long, Long> propertyId2SpuPropertyId = dbProps.stream().collect(Collectors.toMap(StandardProductSpuProperty::getProductPropertyId, StandardProductSpuProperty::getId));
+        List<StandardProductSpuPropertyValue> values = new ArrayList<>();
+        List<List<StandardProductSpuPropertyValue>> skuDims = new ArrayList<>();
+        for (StandardProductPropertyVO pvo: reqVO.getSpuProperties()) {
+            List<StandardProductSpuPropertyValue> dim = new ArrayList<>();
+            if (CollectionUtil.isEmpty(pvo.getPropertyValues())) { continue; }
+            for (StandardProductPropertyValueVO v: pvo.getPropertyValues()) {
+                StandardProductSpuPropertyValue pv = new StandardProductSpuPropertyValue();
+                pv.setStandardSpuId(spuId); pv.setSpuPropertyId(propertyId2SpuPropertyId.get(pvo.getPropertyId())); pv.setProductPropertyValueId(v.getProductPropertyValueId()); pv.setPropertyValue(v.getValue()); pv.setPicUrl(pvo.getIsAddPropertyPic()!=null&&pvo.getIsAddPropertyPic()==1?v.getPicUrl():null); pv.setMarketingCornerText(pvo.getIsAddMarketingCorner()!=null&&pvo.getIsAddMarketingCorner()==1?v.getMarketingCornerText():null); pv.setSort(v.getSort()); pv.setCreateBy(loginUser.getId()); pv.setUpdateBy(loginUser.getId()); pv.setCreateTime(now); pv.setUpdateTime(now); pv.setIsDeleted(0);
+                values.add(pv);
+                if (Integer.valueOf(1).equals(pvo.getIsSkuProperty())) dim.add(pv);
+            }
+            if (!dim.isEmpty()) skuDims.add(dim);
+        }
+        if (!values.isEmpty()) spuPropertyValueMapper.insertBatch(values);
+        List<StandardProductSpuPropertyValue> dbVals = spuPropertyValueMapper.selectListByStandardSpuId(spuId);
+        Map<String, StandardProductSpuPropertyValue> keyMap = dbVals.stream().collect(Collectors.toMap(v -> v.getSpuPropertyId()+"_"+v.getProductPropertyValueId()+"_"+v.getPropertyValue(), v->v,(a,b)->a));
+        List<List<StandardProductSpuPropertyValue>> dbSkuDims = new ArrayList<>();
+        for (List<StandardProductSpuPropertyValue> dim: skuDims){ List<StandardProductSpuPropertyValue> nd = new ArrayList<>(); for (StandardProductSpuPropertyValue v:dim){ String k=v.getSpuPropertyId()+"_"+v.getProductPropertyValueId()+"_"+v.getPropertyValue(); if(keyMap.get(k)!=null) nd.add(keyMap.get(k)); } if(!nd.isEmpty()) dbSkuDims.add(nd);}
+        List<List<StandardProductSpuPropertyValue>> combos = cartesian(dbSkuDims);
+        List<StandardProductSku> skus = new ArrayList<>();
+        for (int i=0;i<combos.size();i++){ StandardProductSku sku=new StandardProductSku(); sku.setStandardSpuId(spuId); sku.setStock(0); sku.setCreateBy(loginUser.getId()); sku.setUpdateBy(loginUser.getId()); sku.setCreateTime(now); sku.setUpdateTime(now); sku.setIsDeleted(0); skus.add(sku);}
+        if (!skus.isEmpty()) skuMapper.insertBatch(skus);
+        List<StandardProductSku> dbSkus = skuMapper.selectListByStandardSpuId(spuId);
+        List<StandardProductSkuPropertyValue> refs = new ArrayList<>();
+        for(int i=0;i<Math.min(dbSkus.size(),combos.size());i++){ for(StandardProductSpuPropertyValue v:combos.get(i)){ StandardProductSkuPropertyValue r=new StandardProductSkuPropertyValue(); r.setStandardProductSkuId(dbSkus.get(i).getId()); r.setStandardSpuId(spuId); r.setStandardSpuPropertyValueId(v.getId()); r.setCreateBy(loginUser.getId()); r.setUpdateBy(loginUser.getId()); r.setCreateTime(now); r.setUpdateTime(now); r.setIsDeleted(0); refs.add(r);} }
+        if(!refs.isEmpty()) skuPropertyValueMapper.insertBatch(refs);
+    }
+
+    private List<List<StandardProductSpuPropertyValue>> cartesian(List<List<StandardProductSpuPropertyValue>> dims){
+        List<List<StandardProductSpuPropertyValue>> r = new ArrayList<>();
+        r.add(new ArrayList<>());
+        for (List<StandardProductSpuPropertyValue> dim: dims){ List<List<StandardProductSpuPropertyValue>> nr = new ArrayList<>(); for (List<StandardProductSpuPropertyValue> pre: r){ for(StandardProductSpuPropertyValue v: dim){ List<StandardProductSpuPropertyValue> c = new ArrayList<>(pre); c.add(v); nr.add(c);} } r=nr; }
+        return dims.isEmpty()?new ArrayList<>():r;
+    }
+
+    private void fillPropertyAndSku(StandardProductRespVO respVO, Long spuId){
+        List<StandardProductSpuProperty> props = spuPropertyMapper.selectListByStandardSpuId(spuId);
+        List<StandardProductSpuPropertyValue> vals = spuPropertyValueMapper.selectListByStandardSpuId(spuId);
+        Map<Long, List<StandardProductSpuPropertyValue>> valMap = vals.stream().collect(Collectors.groupingBy(StandardProductSpuPropertyValue::getSpuPropertyId));
+        List<StandardProductPropertyVO> pvos = new ArrayList<>();
+        for (StandardProductSpuProperty p: props){
+            StandardProductPropertyVO vo = new StandardProductPropertyVO();
+            vo.setPropertyId(p.getProductPropertyId()); vo.setSort(p.getSort()); vo.setIsAddPropertyPic(p.getIsAddPropertyPic()); vo.setIsAddMarketingCorner(p.getIsAddMarketingCorner()); vo.setIsSkuProperty(p.getIsSkuProperty());
+            List<StandardProductPropertyValueVO> pv = new ArrayList<>();
+            for (StandardProductSpuPropertyValue v: valMap.getOrDefault(p.getId(), Collections.emptyList())){ StandardProductPropertyValueVO vvo = new StandardProductPropertyValueVO(); vvo.setProductPropertyValueId(v.getProductPropertyValueId()); vvo.setValue(v.getPropertyValue()); vvo.setSort(v.getSort()); vvo.setPicUrl(v.getPicUrl()); vvo.setMarketingCornerText(v.getMarketingCornerText()); pv.add(vvo);} vo.setPropertyValues(pv); pvos.add(vo);
+        }
+        respVO.setSpuProperties(pvos);
+        List<StandardProductSku> skus = skuMapper.selectListByStandardSpuId(spuId);
+        List<StandardProductSkuPropertyValue> rels = skuPropertyValueMapper.selectListByStandardSpuId(spuId);
+        Map<Long, StandardProductSpuPropertyValue> valById = vals.stream().collect(Collectors.toMap(StandardProductSpuPropertyValue::getId, a->a,(a,b)->a));
+        Map<Long, List<StandardProductSkuPropertyValue>> relMap = rels.stream().collect(Collectors.groupingBy(StandardProductSkuPropertyValue::getStandardProductSkuId));
+        List<StandardProductSkuVO> skuVOS = new ArrayList<>();
+        for (StandardProductSku sku: skus){ StandardProductSkuVO svo = new StandardProductSkuVO(); svo.setId(sku.getId()); svo.setStock(sku.getStock()); List<SkuPropertyValueVO> pvs = new ArrayList<>(); for (StandardProductSkuPropertyValue rel: relMap.getOrDefault(sku.getId(), Collections.emptyList())){ StandardProductSpuPropertyValue v = valById.get(rel.getStandardSpuPropertyValueId()); if(v==null) continue; SkuPropertyValueVO t = new SkuPropertyValueVO(); t.setPropertyId(v.getSpuPropertyId()); t.setPropertyValueId(v.getProductPropertyValueId()); t.setPropertyValue(v.getPropertyValue()); pvs.add(t);} svo.setPropertyValues(pvs); skuVOS.add(svo);}        
+        respVO.setSkus(skuVOS);
     }
 
     private Map<Long, String> buildUserId2NameMap(Set<Long> userIds) {

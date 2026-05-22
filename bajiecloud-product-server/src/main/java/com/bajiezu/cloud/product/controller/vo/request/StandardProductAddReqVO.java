@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import com.bajiezu.cloud.product.controller.vo.StandardProductPropertyVO;
+import com.bajiezu.cloud.product.controller.vo.StandardProductSkuVO;
 import lombok.Data;
 
 import java.util.List;
@@ -39,4 +41,9 @@ public class StandardProductAddReqVO {
     @Schema(description = "操作类型：1-保存（草稿），2-提交")
     @NotNull(message = "操作类型不能为空")
     private Integer operationType;
+
+    private List<StandardProductPropertyVO> spuProperties;
+
+    private List<StandardProductSkuVO> skus;
 }
+
