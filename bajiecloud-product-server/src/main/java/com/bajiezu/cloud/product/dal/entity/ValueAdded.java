@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -66,4 +65,22 @@ public class ValueAdded extends BaseDO {
      * 详情图URL
      */
     private String picUrl;
+
+    private String serviceTypes;
+    private String effectiveChannels;
+    private Integer compensationStandard;
+    private Integer compensationLevel;
+    private String compensationLevelLimits;
+    private Integer slightCompensationRatio;
+    private Integer mediumCompensationRatio;
+    private Integer severeCompensationRatio;
+    private Integer scrapCompensationRatio;
+    private String saleLimits;
+    private Integer annualLimitPurchaseCount;
+    private Integer monthlyLimitPurchaseCount;
+    private Integer dailyLimitPurchaseCount;
+    private Integer accessCondition;
+    private String accessConditionLimits;
+    private Long accessConditionBreachAmount;
+    private Integer accessConditionBreachCount;
 }

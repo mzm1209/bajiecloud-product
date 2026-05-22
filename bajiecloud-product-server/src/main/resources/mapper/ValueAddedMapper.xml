@@ -14,6 +14,23 @@
         <result column="service_overview" property="serviceOverview" />
         <result column="service_content" property="serviceContent" />
         <result column="pic_url" property="picUrl" />
+        <result column="service_types" property="serviceTypes" />
+        <result column="effective_channels" property="effectiveChannels" />
+        <result column="compensation_standard" property="compensationStandard" />
+        <result column="compensation_level" property="compensationLevel" />
+        <result column="compensation_level_limits" property="compensationLevelLimits" />
+        <result column="slight_compensation_ratio" property="slightCompensationRatio" />
+        <result column="medium_compensation_ratio" property="mediumCompensationRatio" />
+        <result column="severe_compensation_ratio" property="severeCompensationRatio" />
+        <result column="scrap_compensation_ratio" property="scrapCompensationRatio" />
+        <result column="sale_limits" property="saleLimits" />
+        <result column="annual_limit_purchase_count" property="annualLimitPurchaseCount" />
+        <result column="monthly_limit_purchase_count" property="monthlyLimitPurchaseCount" />
+        <result column="daily_limit_purchase_count" property="dailyLimitPurchaseCount" />
+        <result column="access_condition" property="accessCondition" />
+        <result column="access_condition_limits" property="accessConditionLimits" />
+        <result column="access_condition_breach_amount" property="accessConditionBreachAmount" />
+        <result column="access_condition_breach_count" property="accessConditionBreachCount" />
         <result column="partner_id" property="partnerId" />
         <result column="create_by" property="createBy" />
         <result column="update_by" property="updateBy" />

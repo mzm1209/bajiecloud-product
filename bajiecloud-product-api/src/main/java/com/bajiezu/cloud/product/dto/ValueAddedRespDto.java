@@ -33,4 +33,22 @@ public class ValueAddedRespDto {
 
     @Schema(description = "合作商ID")
     private Long partnerId;
+
+    private String serviceTypes;
+    private String effectiveChannels;
+    private Integer compensationStandard;
+    private Integer compensationLevel;
+    private String compensationLevelLimits;
+    private Integer slightCompensationRatio;
+    private Integer mediumCompensationRatio;
+    private Integer severeCompensationRatio;
+    private Integer scrapCompensationRatio;
+    private String saleLimits;
+    private Integer annualLimitPurchaseCount;
+    private Integer monthlyLimitPurchaseCount;
+    private Integer dailyLimitPurchaseCount;
+    private Integer accessCondition;
+    private String accessConditionLimits;
+    private Long accessConditionBreachAmount;
+    private Integer accessConditionBreachCount;
 }
