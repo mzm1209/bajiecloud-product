@@ -66,6 +66,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     @Resource
     private StandardProductSpuMapper standardProductSpuMapper;
     @Resource
+    private StandardProductSpuPropertyMapper standardProductSpuPropertyMapper;
+    @Resource
+    private StandardProductSpuPropertyValueMapper standardProductSpuPropertyValueMapper;
+    @Resource
     private ProductPropertyMapper productPropertyMapper;
     @Resource
     private ProductPropertyValueMapper productPropertyValueMapper;
@@ -197,6 +201,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         if (Objects.equals(standardProductSpu.getIsDeleted(), NumberUtils.INTEGER_ONE)) {
             throw exception(STANDARD_PRODUCT_DELETED);
         }
+        validateSpuPropertiesInStandardScope(reqVO.getStandardProductSpuId(), reqVO.getSpuProperties());
 
         // 构建并保存营销商品spu
         Date now = new Date();
@@ -243,6 +248,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         if (NumberUtils.INTEGER_ONE.equals(marketingProductSpu.getIsDeleted())) {
             throw exception(MARKETING_PRODUCT_DELETED);
         }
+        validateSpuPropertiesInStandardScope(reqVO.getStandardProductSpuId(), reqVO.getSpuProperties());
 
         Date now = new Date();
         // 编辑保存商品SPU
@@ -1465,6 +1471,15 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         skuMapper.updateSkuStock(updateSkuStockDTOS);
     }
 
+    @Override
+    public List<MarketingAvailablePropertyVO> availablePropertiesByStandardSpuId(Long standardProductSpuId) {
+        List<MarketingAvailablePropertyVO> properties = queryAvailablePropertiesByStandardSpuId(standardProductSpuId);
+        if (CollectionUtil.isEmpty(properties)) {
+            throw exception(STANDARD_PRODUCT_PROPERTY_SCOPE_EMPTY);
+        }
+        return properties;
+    }
+
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {
         List<Long> standardProductSpuIds = Lists.newArrayList();
         Set<Long> userIds = Sets.newHashSet();
@@ -1836,6 +1851,75 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         return skuPropertyValueList;
+    }
+
+    private void validateSpuPropertiesInStandardScope(Long standardProductSpuId, List<MarketingProductPropertyVO> incomingSpuProperties) {
+        if (CollectionUtil.isEmpty(incomingSpuProperties)) {
+            return;
+        }
+        List<MarketingAvailablePropertyVO> availableProperties = queryAvailablePropertiesByStandardSpuId(standardProductSpuId);
+        if (CollectionUtil.isEmpty(availableProperties)) {
+            throw exception(STANDARD_PRODUCT_PROPERTY_SCOPE_EMPTY);
+        }
+        Map<Long, MarketingAvailablePropertyVO> propertyId2ScopeMap = availableProperties.stream()
+                .collect(Collectors.toMap(MarketingAvailablePropertyVO::getPropertyId, Function.identity(), (a, b) -> a));
+        for (MarketingProductPropertyVO incomingProperty : incomingSpuProperties.stream().filter(Objects::nonNull).toList()) {
+            MarketingAvailablePropertyVO propertyScope = propertyId2ScopeMap.get(incomingProperty.getPropertyId());
+            if (propertyScope == null) {
+                throw exception(MARKETING_PROPERTY_OUT_OF_STANDARD_SCOPE);
+            }
+            Set<Long> valueIds = propertyScope.getPropertyValues().stream()
+                    .map(MarketingAvailablePropertyValueVO::getPropertyValueId)
+                    .filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<String> values = propertyScope.getPropertyValues().stream()
+                    .map(MarketingAvailablePropertyValueVO::getPropertyValue)
+                    .filter(StrUtil::isNotBlank).collect(Collectors.toSet());
+            List<MarketingProductPropertyValueVO> incomingValues = Optional.ofNullable(incomingProperty.getPropertyValues()).orElse(Collections.emptyList());
+            for (MarketingProductPropertyValueVO incomingValue : incomingValues.stream().filter(Objects::nonNull).toList()) {
+                if (incomingValue.getProductPropertyValueId() != null) {
+                    if (!valueIds.contains(incomingValue.getProductPropertyValueId())) {
+                        throw exception(MARKETING_PROPERTY_VALUE_OUT_OF_STANDARD_SCOPE);
+                    }
+                    continue;
+                }
+                if (StrUtil.isBlank(incomingValue.getValue()) || !values.contains(incomingValue.getValue())) {
+                    throw exception(MARKETING_PROPERTY_VALUE_OUT_OF_STANDARD_SCOPE);
+                }
+            }
+        }
+    }
+
+    private List<MarketingAvailablePropertyVO> queryAvailablePropertiesByStandardSpuId(Long standardProductSpuId) {
+        List<StandardProductSpuProperty> scopeProperties = standardProductSpuPropertyMapper.selectListByStandardSpuId(standardProductSpuId);
+        if (CollectionUtil.isEmpty(scopeProperties)) {
+            return Collections.emptyList();
+        }
+        Map<Long, Long> propertyId2SpuPropertyIdMap = scopeProperties.stream().collect(Collectors.toMap(StandardProductSpuProperty::getProductPropertyId,
+                StandardProductSpuProperty::getId, (a, b) -> a));
+        List<StandardProductSpuPropertyValue> scopeValues = standardProductSpuPropertyValueMapper.selectListByStandardSpuId(standardProductSpuId);
+        Map<Long, List<StandardProductSpuPropertyValue>> spuPropertyId2ValuesMap = scopeValues.stream()
+                .collect(Collectors.groupingBy(StandardProductSpuPropertyValue::getSpuPropertyId));
+        List<Long> propertyIds = scopeProperties.stream().map(StandardProductSpuProperty::getProductPropertyId).distinct().toList();
+        Map<Long, String> propertyId2NameMap = productPropertyMapper.selectListByIds(propertyIds).stream()
+                .collect(Collectors.toMap(ProductProperty::getId, ProductProperty::getName, (a, b) -> a));
+        List<MarketingAvailablePropertyVO> result = Lists.newArrayList();
+        for (StandardProductSpuProperty scopeProperty : scopeProperties) {
+            MarketingAvailablePropertyVO propertyVO = new MarketingAvailablePropertyVO();
+            propertyVO.setPropertyId(scopeProperty.getProductPropertyId());
+            propertyVO.setPropertyName(propertyId2NameMap.get(scopeProperty.getProductPropertyId()));
+            List<MarketingAvailablePropertyValueVO> valueVOS = Lists.newArrayList();
+            for (StandardProductSpuPropertyValue scopeValue : spuPropertyId2ValuesMap.getOrDefault(propertyId2SpuPropertyIdMap.get(scopeProperty.getProductPropertyId()), Collections.emptyList())) {
+                MarketingAvailablePropertyValueVO valueVO = new MarketingAvailablePropertyValueVO();
+                valueVO.setPropertyValueId(scopeValue.getProductPropertyValueId());
+                valueVO.setPropertyValue(scopeValue.getPropertyValue());
+                valueVOS.add(valueVO);
+            }
+            propertyVO.setPropertyValues(valueVOS.stream().collect(Collectors.collectingAndThen(
+                    Collectors.toMap(v -> String.valueOf(v.getPropertyValueId()) + "_" + v.getPropertyValue(), Function.identity(), (a, b) -> a),
+                    m -> new ArrayList<>(m.values()))));
+            result.add(propertyVO);
+        }
+        return result;
     }
 
     private String joinLongList(List<Long> list) {

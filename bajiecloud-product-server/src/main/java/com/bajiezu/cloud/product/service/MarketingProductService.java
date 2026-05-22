@@ -1,6 +1,7 @@
 package com.bajiezu.cloud.product.service;
 
 import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.product.controller.vo.MarketingAvailablePropertyVO;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
@@ -43,4 +44,6 @@ public interface MarketingProductService {
     void updateProductShelvesStatus();
 
     void updateSkuStock(List<UpdateSkuStockReqVO> reqVO);
+
+    List<MarketingAvailablePropertyVO> availablePropertiesByStandardSpuId(Long standardProductSpuId);
 }
