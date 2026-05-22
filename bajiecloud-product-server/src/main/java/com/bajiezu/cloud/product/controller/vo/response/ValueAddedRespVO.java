@@ -56,4 +56,22 @@ public class ValueAddedRespVO {
 
     @Schema(description = "增值服务SKU信息")
     private List<ValueAddedSkuRespVO> skuRespVOList;
+
+    private List<Integer> serviceTypes;
+    private List<Integer> effectiveChannels;
+    private Integer compensationStandard;
+    private Integer compensationLevel;
+    private List<Integer> compensationLevelLimits;
+    private Integer slightCompensationRatio;
+    private Integer mediumCompensationRatio;
+    private Integer severeCompensationRatio;
+    private Integer scrapCompensationRatio;
+    private List<Integer> saleLimits;
+    private Integer annualLimitPurchaseCount;
+    private Integer monthlyLimitPurchaseCount;
+    private Integer dailyLimitPurchaseCount;
+    private Integer accessCondition;
+    private List<Integer> accessConditionLimits;
+    private Long accessConditionBreachAmount;
+    private Integer accessConditionBreachCount;
 }

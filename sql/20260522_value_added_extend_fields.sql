@@ -1,0 +1,39 @@
+-- value_added 增值服务扩展字段（方案A：多选字段CSV存储）
+ALTER TABLE `value_added`
+    ADD COLUMN `service_types` varchar(64) NOT NULL DEFAULT '' COMMENT '服务类型，多选CSV：1租期内维保 2租期结束免赔' AFTER `pic_url`,
+    ADD COLUMN `effective_channels` varchar(64) NOT NULL DEFAULT '' COMMENT '生效渠道，多选CSV：1支付宝 2芝麻 3微信 4京东' AFTER `service_types`,
+    ADD COLUMN `compensation_standard` tinyint NOT NULL DEFAULT 0 COMMENT '赔付标准：1等级 2金额' AFTER `effective_channels`,
+    ADD COLUMN `compensation_level` tinyint NOT NULL DEFAULT 0 COMMENT '赔付等级：1不限制 2限制' AFTER `compensation_standard`,
+    ADD COLUMN `compensation_level_limits` varchar(64) NOT NULL DEFAULT '' COMMENT '赔付等级限制，多选CSV：1轻度 2中度 3重度 4报废' AFTER `compensation_level`,
+    ADD COLUMN `slight_compensation_ratio` int NULL DEFAULT NULL COMMENT '轻度平台赔付比例(0~100)' AFTER `compensation_level_limits`,
+    ADD COLUMN `medium_compensation_ratio` int NULL DEFAULT NULL COMMENT '中度平台赔付比例(0~100)' AFTER `slight_compensation_ratio`,
+    ADD COLUMN `severe_compensation_ratio` int NULL DEFAULT NULL COMMENT '重度平台赔付比例(0~100)' AFTER `medium_compensation_ratio`,
+    ADD COLUMN `scrap_compensation_ratio` int NULL DEFAULT NULL COMMENT '报废平台赔付比例(0~100)' AFTER `severe_compensation_ratio`,
+    ADD COLUMN `sale_limits` varchar(64) NOT NULL DEFAULT '' COMMENT '售卖限制，多选CSV：1黑名单 2欺诈用户 3当前违约' AFTER `scrap_compensation_ratio`,
+    ADD COLUMN `annual_limit_purchase_count` int NULL DEFAULT NULL COMMENT '单人限购数（年）' AFTER `sale_limits`,
+    ADD COLUMN `monthly_limit_purchase_count` int NULL DEFAULT NULL COMMENT '单人限购数（月）' AFTER `annual_limit_purchase_count`,
+    ADD COLUMN `daily_limit_purchase_count` int NULL DEFAULT NULL COMMENT '单人限购数（天）' AFTER `monthly_limit_purchase_count`,
+    ADD COLUMN `access_condition` tinyint NOT NULL DEFAULT 0 COMMENT '准入条件：1不限制 2限制' AFTER `daily_limit_purchase_count`,
+    ADD COLUMN `access_condition_limits` varchar(64) NOT NULL DEFAULT '' COMMENT '准入条件限制，多选CSV：1违约金额 2违约次数' AFTER `access_condition`,
+    ADD COLUMN `access_condition_breach_amount` bigint NULL DEFAULT NULL COMMENT '准入条件-违约金额' AFTER `access_condition_limits`,
+    ADD COLUMN `access_condition_breach_count` int NULL DEFAULT NULL COMMENT '准入条件-违约次数' AFTER `access_condition_breach_amount`;
+
+-- rollback
+-- ALTER TABLE `value_added`
+--     DROP COLUMN `access_condition_breach_count`,
+--     DROP COLUMN `access_condition_breach_amount`,
+--     DROP COLUMN `access_condition_limits`,
+--     DROP COLUMN `access_condition`,
+--     DROP COLUMN `daily_limit_purchase_count`,
+--     DROP COLUMN `monthly_limit_purchase_count`,
+--     DROP COLUMN `annual_limit_purchase_count`,
+--     DROP COLUMN `sale_limits`,
+--     DROP COLUMN `scrap_compensation_ratio`,
+--     DROP COLUMN `severe_compensation_ratio`,
+--     DROP COLUMN `medium_compensation_ratio`,
+--     DROP COLUMN `slight_compensation_ratio`,
+--     DROP COLUMN `compensation_level_limits`,
+--     DROP COLUMN `compensation_level`,
+--     DROP COLUMN `compensation_standard`,
+--     DROP COLUMN `effective_channels`,
+--     DROP COLUMN `service_types`;

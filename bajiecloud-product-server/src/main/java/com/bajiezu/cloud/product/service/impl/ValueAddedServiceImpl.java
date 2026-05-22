@@ -39,8 +39,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
-import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.VALUE_ADDED_DELETED;
-import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.VALUE_ADDED_NOT_EXIST;
+import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.*;
 
 @Slf4j
 @Service
@@ -118,6 +117,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
                 valueAddedRespVO.setSkuCount(0);
             }
             valueAddedRespVO.setStatus(valueAdded.getStatus());
+            fillExtendFields(valueAddedRespVO, valueAdded);
             valueAddedRespVO.setCreateTime(valueAdded.getCreateTime());
             valueAddedRespVO.setCreatorName(userId2NameMap.get(valueAdded.getCreateBy()));
             valueAddedRespVO.setUpdateTime(valueAdded.getUpdateTime());
@@ -134,6 +134,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         log.info("valueAdded add dto: {},operatorId:{}", reqVO, loginUser.getId());
 
         Date now = new Date();
+        normalizeAndValidate(reqVO);
         ValueAdded valueAdded = buildValueAdded(reqVO, loginUser, now);
         valueAddedMapper.insert(valueAdded);
 
@@ -158,6 +159,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         }
 
         // 更新增值服务
+        normalizeAndValidate(reqVO);
         Date now = new Date();
         valueAdded.setName(reqVO.getName());
         valueAdded.setStatus(reqVO.getStatus());
@@ -166,6 +168,23 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAdded.setStrikethroughPrice(reqVO.getStrikethroughPrice());
         valueAdded.setServiceOverview(reqVO.getServiceOverview());
         valueAdded.setServiceContent(reqVO.getServiceContent());
+        valueAdded.setServiceTypes(joinMultiSelect(reqVO.getServiceTypes()));
+        valueAdded.setEffectiveChannels(joinMultiSelect(reqVO.getEffectiveChannels()));
+        valueAdded.setCompensationStandard(reqVO.getCompensationStandard());
+        valueAdded.setCompensationLevel(reqVO.getCompensationLevel());
+        valueAdded.setCompensationLevelLimits(joinMultiSelect(reqVO.getCompensationLevelLimits()));
+        valueAdded.setSlightCompensationRatio(reqVO.getSlightCompensationRatio());
+        valueAdded.setMediumCompensationRatio(reqVO.getMediumCompensationRatio());
+        valueAdded.setSevereCompensationRatio(reqVO.getSevereCompensationRatio());
+        valueAdded.setScrapCompensationRatio(reqVO.getScrapCompensationRatio());
+        valueAdded.setSaleLimits(joinMultiSelect(reqVO.getSaleLimits()));
+        valueAdded.setAnnualLimitPurchaseCount(reqVO.getAnnualLimitPurchaseCount());
+        valueAdded.setMonthlyLimitPurchaseCount(reqVO.getMonthlyLimitPurchaseCount());
+        valueAdded.setDailyLimitPurchaseCount(reqVO.getDailyLimitPurchaseCount());
+        valueAdded.setAccessCondition(reqVO.getAccessCondition());
+        valueAdded.setAccessConditionLimits(joinMultiSelect(reqVO.getAccessConditionLimits()));
+        valueAdded.setAccessConditionBreachAmount(reqVO.getAccessConditionBreachAmount());
+        valueAdded.setAccessConditionBreachCount(reqVO.getAccessConditionBreachCount());
         if (CollUtil.isNotEmpty(reqVO.getPicUrls())) {
             valueAdded.setPicUrl(StringUtils.join(reqVO.getPicUrls(), ","));
         } else {
@@ -213,6 +232,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAddedRespVO.setServiceContent(valueAdded.getServiceContent());
         valueAddedRespVO.setPicUrls(List.of(StringUtils.split(valueAdded.getPicUrl(), ",")));
         valueAddedRespVO.setStatus(valueAdded.getStatus());
+        fillExtendFields(valueAddedRespVO, valueAdded);
 
         List<ValueAddedSkuRespVO> valueAddedSkus = buildValueAddedSkus(id);
         valueAddedRespVO.setSkuRespVOList(valueAddedSkus);
@@ -372,6 +392,23 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         respDto.setStrikethroughPrice(valueAdded.getStrikethroughPrice());
         respDto.setIsDeleted(valueAdded.getIsDeleted());
         respDto.setPartnerId(valueAdded.getPartnerId());
+        respDto.setServiceTypes(valueAdded.getServiceTypes());
+        respDto.setEffectiveChannels(valueAdded.getEffectiveChannels());
+        respDto.setCompensationStandard(valueAdded.getCompensationStandard());
+        respDto.setCompensationLevel(valueAdded.getCompensationLevel());
+        respDto.setCompensationLevelLimits(valueAdded.getCompensationLevelLimits());
+        respDto.setSlightCompensationRatio(valueAdded.getSlightCompensationRatio());
+        respDto.setMediumCompensationRatio(valueAdded.getMediumCompensationRatio());
+        respDto.setSevereCompensationRatio(valueAdded.getSevereCompensationRatio());
+        respDto.setScrapCompensationRatio(valueAdded.getScrapCompensationRatio());
+        respDto.setSaleLimits(valueAdded.getSaleLimits());
+        respDto.setAnnualLimitPurchaseCount(valueAdded.getAnnualLimitPurchaseCount());
+        respDto.setMonthlyLimitPurchaseCount(valueAdded.getMonthlyLimitPurchaseCount());
+        respDto.setDailyLimitPurchaseCount(valueAdded.getDailyLimitPurchaseCount());
+        respDto.setAccessCondition(valueAdded.getAccessCondition());
+        respDto.setAccessConditionLimits(valueAdded.getAccessConditionLimits());
+        respDto.setAccessConditionBreachAmount(valueAdded.getAccessConditionBreachAmount());
+        respDto.setAccessConditionBreachCount(valueAdded.getAccessConditionBreachCount());
         return respDto;
     }
 
@@ -385,6 +422,23 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAdded.setStrikethroughPrice(reqVO.getStrikethroughPrice());
         valueAdded.setServiceOverview(reqVO.getServiceOverview());
         valueAdded.setServiceContent(reqVO.getServiceContent());
+        valueAdded.setServiceTypes(joinMultiSelect(reqVO.getServiceTypes()));
+        valueAdded.setEffectiveChannels(joinMultiSelect(reqVO.getEffectiveChannels()));
+        valueAdded.setCompensationStandard(reqVO.getCompensationStandard());
+        valueAdded.setCompensationLevel(reqVO.getCompensationLevel());
+        valueAdded.setCompensationLevelLimits(joinMultiSelect(reqVO.getCompensationLevelLimits()));
+        valueAdded.setSlightCompensationRatio(reqVO.getSlightCompensationRatio());
+        valueAdded.setMediumCompensationRatio(reqVO.getMediumCompensationRatio());
+        valueAdded.setSevereCompensationRatio(reqVO.getSevereCompensationRatio());
+        valueAdded.setScrapCompensationRatio(reqVO.getScrapCompensationRatio());
+        valueAdded.setSaleLimits(joinMultiSelect(reqVO.getSaleLimits()));
+        valueAdded.setAnnualLimitPurchaseCount(reqVO.getAnnualLimitPurchaseCount());
+        valueAdded.setMonthlyLimitPurchaseCount(reqVO.getMonthlyLimitPurchaseCount());
+        valueAdded.setDailyLimitPurchaseCount(reqVO.getDailyLimitPurchaseCount());
+        valueAdded.setAccessCondition(reqVO.getAccessCondition());
+        valueAdded.setAccessConditionLimits(joinMultiSelect(reqVO.getAccessConditionLimits()));
+        valueAdded.setAccessConditionBreachAmount(reqVO.getAccessConditionBreachAmount());
+        valueAdded.setAccessConditionBreachCount(reqVO.getAccessConditionBreachCount());
         if (CollUtil.isNotEmpty(reqVO.getPicUrls())) {
             valueAdded.setPicUrl(StringUtils.join(reqVO.getPicUrls(), ","));
         } else {
@@ -397,6 +451,87 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAdded.setUpdateBy(loginUser.getId());
         valueAdded.setIsDeleted(0);
         return valueAdded;
+    }
+
+
+    private void fillExtendFields(ValueAddedRespVO respVO, ValueAdded valueAdded) {
+        respVO.setServiceTypes(splitMultiSelect(valueAdded.getServiceTypes()));
+        respVO.setEffectiveChannels(splitMultiSelect(valueAdded.getEffectiveChannels()));
+        respVO.setCompensationStandard(valueAdded.getCompensationStandard());
+        respVO.setCompensationLevel(valueAdded.getCompensationLevel());
+        respVO.setCompensationLevelLimits(splitMultiSelect(valueAdded.getCompensationLevelLimits()));
+        respVO.setSlightCompensationRatio(valueAdded.getSlightCompensationRatio());
+        respVO.setMediumCompensationRatio(valueAdded.getMediumCompensationRatio());
+        respVO.setSevereCompensationRatio(valueAdded.getSevereCompensationRatio());
+        respVO.setScrapCompensationRatio(valueAdded.getScrapCompensationRatio());
+        respVO.setSaleLimits(splitMultiSelect(valueAdded.getSaleLimits()));
+        respVO.setAnnualLimitPurchaseCount(valueAdded.getAnnualLimitPurchaseCount());
+        respVO.setMonthlyLimitPurchaseCount(valueAdded.getMonthlyLimitPurchaseCount());
+        respVO.setDailyLimitPurchaseCount(valueAdded.getDailyLimitPurchaseCount());
+        respVO.setAccessCondition(valueAdded.getAccessCondition());
+        respVO.setAccessConditionLimits(splitMultiSelect(valueAdded.getAccessConditionLimits()));
+        respVO.setAccessConditionBreachAmount(valueAdded.getAccessConditionBreachAmount());
+        respVO.setAccessConditionBreachCount(valueAdded.getAccessConditionBreachCount());
+    }
+
+    private void normalizeAndValidate(ValueAddedAddReqVO reqVO) {
+        reqVO.setServiceTypes(deduplicate(reqVO.getServiceTypes()));
+        reqVO.setEffectiveChannels(deduplicate(reqVO.getEffectiveChannels()));
+        reqVO.setCompensationLevelLimits(deduplicate(reqVO.getCompensationLevelLimits()));
+        reqVO.setSaleLimits(deduplicate(reqVO.getSaleLimits()));
+        reqVO.setAccessConditionLimits(deduplicate(reqVO.getAccessConditionLimits()));
+
+        validateNonNegative(reqVO.getAnnualLimitPurchaseCount());
+        validateNonNegative(reqVO.getMonthlyLimitPurchaseCount());
+        validateNonNegative(reqVO.getDailyLimitPurchaseCount());
+        validateNonNegative(reqVO.getAccessConditionBreachAmount());
+        validateNonNegative(reqVO.getAccessConditionBreachCount());
+
+        if (Objects.equals(reqVO.getCompensationLevel(), 2)) {
+            if (CollUtil.isEmpty(reqVO.getCompensationLevelLimits())) { throw exception(VALUE_ADDED_COMPENSATION_LEVEL_LIMIT_REQUIRED); }
+            if (reqVO.getCompensationLevelLimits().contains(1)) validateRatio(reqVO.getSlightCompensationRatio());
+            if (reqVO.getCompensationLevelLimits().contains(2)) validateRatio(reqVO.getMediumCompensationRatio());
+            if (reqVO.getCompensationLevelLimits().contains(3)) validateRatio(reqVO.getSevereCompensationRatio());
+            if (reqVO.getCompensationLevelLimits().contains(4)) validateRatio(reqVO.getScrapCompensationRatio());
+        } else if (Objects.equals(reqVO.getCompensationLevel(), 1)) {
+            reqVO.setCompensationLevelLimits(Collections.emptyList());
+            reqVO.setSlightCompensationRatio(null);
+            reqVO.setMediumCompensationRatio(null);
+            reqVO.setSevereCompensationRatio(null);
+            reqVO.setScrapCompensationRatio(null);
+        }
+
+        if (Objects.equals(reqVO.getAccessCondition(), 2)) {
+            if (CollUtil.isEmpty(reqVO.getAccessConditionLimits())) { throw exception(VALUE_ADDED_ACCESS_CONDITION_LIMIT_REQUIRED); }
+            if (reqVO.getAccessConditionLimits().contains(1) && reqVO.getAccessConditionBreachAmount() == null) throw exception(VALUE_ADDED_ACCESS_BREACH_AMOUNT_REQUIRED);
+            if (reqVO.getAccessConditionLimits().contains(2) && reqVO.getAccessConditionBreachCount() == null) throw exception(VALUE_ADDED_ACCESS_BREACH_COUNT_REQUIRED);
+        } else if (Objects.equals(reqVO.getAccessCondition(), 1)) {
+            reqVO.setAccessConditionLimits(Collections.emptyList());
+            reqVO.setAccessConditionBreachAmount(null);
+            reqVO.setAccessConditionBreachCount(null);
+        }
+    }
+
+    private void validateRatio(Integer ratio) {
+        if (ratio == null || ratio < 0 || ratio > 100) { throw exception(VALUE_ADDED_COMPENSATION_RATIO_INVALID); }
+    }
+
+    private void validateNonNegative(Number number) {
+        if (number != null && number.longValue() < 0) { throw exception(VALUE_ADDED_NUMBER_INVALID); }
+    }
+
+    private List<Integer> splitMultiSelect(String value) {
+        if (StringUtils.isBlank(value)) { return Collections.emptyList(); }
+        return Arrays.stream(value.split(",")).filter(StringUtils::isNotBlank).map(Integer::valueOf).distinct().toList();
+    }
+
+    private String joinMultiSelect(List<Integer> values) {
+        List<Integer> dedupValues = deduplicate(values);
+        return CollUtil.isEmpty(dedupValues) ? "" : dedupValues.stream().map(String::valueOf).collect(Collectors.joining(","));
+    }
+
+    private List<Integer> deduplicate(List<Integer> values) {
+        return CollUtil.isEmpty(values) ? Collections.emptyList() : values.stream().filter(Objects::nonNull).distinct().toList();
     }
 
     private List<ValueAddedProduct> buildValueAddedProducts(List<Long> marketingProductSkuIds, Long valueAddedId,

@@ -41,4 +41,22 @@ public class ValueAddedAddReqVO {
 
     @Schema(description = "关联的SKU ID集合")
     private List<Long> marketingProductSkuIds;
+
+    private List<Integer> serviceTypes;
+    private List<Integer> effectiveChannels;
+    private Integer compensationStandard;
+    private Integer compensationLevel;
+    private List<Integer> compensationLevelLimits;
+    private Integer slightCompensationRatio;
+    private Integer mediumCompensationRatio;
+    private Integer severeCompensationRatio;
+    private Integer scrapCompensationRatio;
+    private List<Integer> saleLimits;
+    private Integer annualLimitPurchaseCount;
+    private Integer monthlyLimitPurchaseCount;
+    private Integer dailyLimitPurchaseCount;
+    private Integer accessCondition;
+    private List<Integer> accessConditionLimits;
+    private Long accessConditionBreachAmount;
+    private Integer accessConditionBreachCount;
 }

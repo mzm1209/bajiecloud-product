@@ -30,6 +30,12 @@ public interface ErrorCodeConstants {
     // ========== 增值服务 1-003-007-000 ==========
     ErrorCode VALUE_ADDED_NOT_EXIST = new ErrorCode(1_003_007_001, "增值服务不存在");
     ErrorCode VALUE_ADDED_DELETED = new ErrorCode(1_003_007_002, "增值服务已删除");
+    ErrorCode VALUE_ADDED_COMPENSATION_LEVEL_LIMIT_REQUIRED = new ErrorCode(1_003_007_003, "赔付等级为限制时，赔付等级限制不能为空");
+    ErrorCode VALUE_ADDED_COMPENSATION_RATIO_INVALID = new ErrorCode(1_003_007_004, "平台赔付比例需在0~100之间");
+    ErrorCode VALUE_ADDED_NUMBER_INVALID = new ErrorCode(1_003_007_005, "数值字段不能为负数");
+    ErrorCode VALUE_ADDED_ACCESS_CONDITION_LIMIT_REQUIRED = new ErrorCode(1_003_007_006, "准入条件为限制时，准入条件限制不能为空");
+    ErrorCode VALUE_ADDED_ACCESS_BREACH_AMOUNT_REQUIRED = new ErrorCode(1_003_007_007, "选择违约金额时，违约金额不能为空");
+    ErrorCode VALUE_ADDED_ACCESS_BREACH_COUNT_REQUIRED = new ErrorCode(1_003_007_008, "选择违约次数时，违约次数不能为空");
 
     // ========== 营销商品 1-003-008-000 ==========
     ErrorCode MARKETING_PRODUCT_NOT_EXIST = new ErrorCode(1_003_008_001, "营销商品不存在");
