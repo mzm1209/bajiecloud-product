@@ -41,6 +41,11 @@ public class MarketingProductSpuPropertyValue extends BaseDO {
     private String picUrl;
 
     /**
+     * 营销角标文案
+     */
+    private String marketingCornerText;
+
+    /**
      * 顺序
      */
     private Integer sort;

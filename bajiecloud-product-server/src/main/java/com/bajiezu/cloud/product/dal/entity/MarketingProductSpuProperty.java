@@ -34,4 +34,14 @@ public class MarketingProductSpuProperty extends BaseDO {
      * 顺序
      */
     private Integer sort;
+
+    /**
+     * 是否添加属性图：0否1是
+     */
+    private Integer isAddPropertyPic;
+
+    /**
+     * 是否添加营销角标：0否1是
+     */
+    private Integer isAddMarketingCorner;
 }

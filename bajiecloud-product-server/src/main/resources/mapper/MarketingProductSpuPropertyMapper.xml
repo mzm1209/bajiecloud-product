@@ -8,6 +8,8 @@
         <result column="marketing_spu_id" property="marketingSpuId" />
         <result column="product_property_id" property="productPropertyId" />
         <result column="sort" property="sort" />
+        <result column="is_add_property_pic" property="isAddPropertyPic" />
+        <result column="is_add_marketing_corner" property="isAddMarketingCorner" />
         <result column="partner_id" property="partnerId" />
         <result column="create_by" property="createBy" />
         <result column="update_by" property="updateBy" />
@@ -31,12 +33,12 @@
     </update>
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
-        insert into marketing_product_spu_property (marketing_spu_id, product_property_id, sort, partner_id,
+        insert into marketing_product_spu_property (marketing_spu_id, product_property_id, sort, is_add_property_pic, is_add_marketing_corner, partner_id,
             create_by, update_by, create_time, update_time, is_deleted)
         values
         <foreach item="item" index="index" collection="list" separator=",">
             (
-             #{item.marketingSpuId}, #{item.productPropertyId}, #{item.sort}, #{item.partnerId}, #{item.createBy},
+             #{item.marketingSpuId}, #{item.productPropertyId}, #{item.sort}, #{item.isAddPropertyPic}, #{item.isAddMarketingCorner}, #{item.partnerId}, #{item.createBy},
              #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted}
             )
         </foreach>
@@ -44,7 +46,7 @@
 
     <select id="selectListByMarketingProductSpuIds" resultMap="BaseResultMap">
         select
-            id, marketing_spu_id, product_property_id, sort
+            id, marketing_spu_id, product_property_id, sort, is_add_property_pic, is_add_marketing_corner
         from
             marketing_product_spu_property
         where
@@ -57,7 +59,7 @@
 
     <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
         select
-            id, marketing_spu_id, product_property_id, sort
+            id, marketing_spu_id, product_property_id, sort, is_add_property_pic, is_add_marketing_corner
         from
             marketing_product_spu_property
         where
@@ -67,7 +69,7 @@
 
     <select id="selectListBySpuIds" resultMap="BaseResultMap">
         select
-            id, marketing_spu_id, product_property_id, sort
+            id, marketing_spu_id, product_property_id, sort, is_add_property_pic, is_add_marketing_corner
         from
             marketing_product_spu_property
         where
@@ -100,6 +102,19 @@
         and product_property_id in
         <foreach item="id" collection="productPropertyIds" separator="," open="(" close=")">
             #{id}
+        </foreach>
+    </update>
+
+    <update id="updateBatch">
+        <foreach item="item" collection="list" separator=";">
+            update marketing_product_spu_property
+            set
+                sort = #{item.sort},
+                is_add_property_pic = #{item.isAddPropertyPic},
+                is_add_marketing_corner = #{item.isAddMarketingCorner},
+                update_by = #{item.updateBy},
+                update_time = #{item.updateTime}
+            where id = #{item.id}
         </foreach>
     </update>
 </mapper>

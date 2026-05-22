@@ -49,6 +49,7 @@ import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.*;
 @Service
 @Slf4j
 public class MarketingProductServiceImpl implements MarketingProductService {
+    private static final int MARKETING_CORNER_TEXT_MAX_LENGTH = 64;
 
     @Resource
     private SequenceGenerator sequenceGenerator;
@@ -249,6 +250,24 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 处理spu属性
         List<MarketingProductSpuProperty> existSpuPropertyList = spuPropertyMapper.selectListByMarketingSpuId(reqVO.getId());
+        Map<Long, MarketingProductPropertyVO> reqPropertyMap = reqVO.getSpuProperties().stream()
+                .collect(Collectors.toMap(MarketingProductPropertyVO::getPropertyId, Function.identity()));
+        List<MarketingProductSpuProperty> needUpdateSpuProperties = Lists.newArrayList();
+        for (MarketingProductSpuProperty existSpuProperty : existSpuPropertyList) {
+            MarketingProductPropertyVO reqProperty = reqPropertyMap.get(existSpuProperty.getProductPropertyId());
+            if (reqProperty == null) {
+                continue;
+            }
+            existSpuProperty.setSort(reqProperty.getSort());
+            existSpuProperty.setIsAddPropertyPic(defaultSwitch(reqProperty.getIsAddPropertyPic()));
+            existSpuProperty.setIsAddMarketingCorner(defaultSwitch(reqProperty.getIsAddMarketingCorner()));
+            existSpuProperty.setUpdateBy(loginUser.getId());
+            existSpuProperty.setUpdateTime(now);
+            needUpdateSpuProperties.add(existSpuProperty);
+        }
+        if (CollectionUtil.isNotEmpty(needUpdateSpuProperties)) {
+            spuPropertyMapper.updateBatch(needUpdateSpuProperties);
+        }
         Map<Long, Long> productPropertyId2SpuPropertyIdMap = existSpuPropertyList.stream().collect(Collectors.toMap(MarketingProductSpuProperty::getProductPropertyId,
                 MarketingProductSpuProperty::getId));
         List<Long> existProductPropertyIds = existSpuPropertyList.stream().map(MarketingProductSpuProperty::getProductPropertyId).toList();
@@ -292,7 +311,16 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                     spuPropertyValue.setSpuPropertyId(addProductPropertyId2SpuPropertyIdMap.get(productPropertyId));
                     spuPropertyValue.setProductPropertyValueId(propertyValue.getProductPropertyValueId());
                     spuPropertyValue.setPropertyValue(propertyValue.getValue());
-                    spuPropertyValue.setPicUrl(propertyValue.getPicUrl());
+                    spuPropertyValue.setPicUrl(normalizePicUrl(propertyValue.getPicUrl(), addProductProperties.stream()
+                            .filter(property -> Objects.equals(property.getPropertyId(), productPropertyId))
+                            .findFirst()
+                            .map(MarketingProductPropertyVO::getIsAddPropertyPic)
+                            .orElse(NumberUtils.INTEGER_ZERO)));
+                    spuPropertyValue.setMarketingCornerText(normalizeMarketingCornerText(propertyValue.getMarketingCornerText(), addProductProperties.stream()
+                            .filter(property -> Objects.equals(property.getPropertyId(), productPropertyId))
+                            .findFirst()
+                            .map(MarketingProductPropertyVO::getIsAddMarketingCorner)
+                            .orElse(NumberUtils.INTEGER_ZERO)));
                     spuPropertyValue.setSort(propertyValue.getSort());
                     spuPropertyValue.setPartnerId(marketingProductSpu.getPartnerId());
                     spuPropertyValue.setCreateBy(loginUser.getId());
@@ -350,7 +378,17 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                         deleteSpuPropertyValueIds.add(existSpuPropertyValue.getId());
                     } else {
                         if (!Objects.equals(existSpuPropertyValue.getPicUrl(), unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl())) {
-                            existSpuPropertyValue.setPicUrl(unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl());
+                            existSpuPropertyValue.setPicUrl(normalizePicUrl(unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl(),
+                                    reqPropertyMap.get(productPropertyId).getIsAddPropertyPic()));
+                            existSpuPropertyValue.setUpdateTime(now);
+                            existSpuPropertyValue.setUpdateBy(loginUser.getId());
+                            needUpdateSpuPropertyValues.add(existSpuPropertyValue);
+                        }
+                        String normalizedMarketingCornerText = normalizeMarketingCornerText(
+                                unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getMarketingCornerText(),
+                                reqPropertyMap.get(productPropertyId).getIsAddMarketingCorner());
+                        if (!Objects.equals(existSpuPropertyValue.getMarketingCornerText(), normalizedMarketingCornerText)) {
+                            existSpuPropertyValue.setMarketingCornerText(normalizedMarketingCornerText);
                             existSpuPropertyValue.setUpdateTime(now);
                             existSpuPropertyValue.setUpdateBy(loginUser.getId());
                             needUpdateSpuPropertyValues.add(existSpuPropertyValue);
@@ -366,7 +404,9 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                         spuPropertyValue.setSpuPropertyId(updateSpuPropertyId);
                         spuPropertyValue.setProductPropertyValueId(newPropertyValue.getProductPropertyValueId());
                         spuPropertyValue.setPropertyValue(newPropertyValue.getValue());
-                        spuPropertyValue.setPicUrl(newPropertyValue.getPicUrl());
+                        spuPropertyValue.setPicUrl(normalizePicUrl(newPropertyValue.getPicUrl(), reqPropertyMap.get(productPropertyId).getIsAddPropertyPic()));
+                        spuPropertyValue.setMarketingCornerText(normalizeMarketingCornerText(newPropertyValue.getMarketingCornerText(),
+                                reqPropertyMap.get(productPropertyId).getIsAddMarketingCorner()));
                         spuPropertyValue.setSort(newPropertyValue.getSort());
                         spuPropertyValue.setPartnerId(marketingProductSpu.getPartnerId());
                         spuPropertyValue.setCreateBy(loginUser.getId());
@@ -706,6 +746,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             spuPropertyVO.setPropertyId(spuProperty.getProductPropertyId());
             spuPropertyVO.setPropertyName(propertyIdNameMap.get(spuProperty.getProductPropertyId()));
             spuPropertyVO.setSort(spuProperty.getSort());
+            spuPropertyVO.setIsAddPropertyPic(spuProperty.getIsAddPropertyPic());
+            spuPropertyVO.setIsAddMarketingCorner(spuProperty.getIsAddMarketingCorner());
 
             List<MarketingProductPropertyValueVO> spuPropertyValueVOS = Lists.newArrayList();
             spuPropertyVO.setPropertyValues(spuPropertyValueVOS);
@@ -720,6 +762,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 }
                 spuPropertyValueVO.setSort(spuPropertyValue.getSort());
                 spuPropertyValueVO.setPicUrl(spuPropertyValue.getPicUrl());
+                spuPropertyValueVO.setMarketingCornerText(spuPropertyValue.getMarketingCornerText());
             }
         }
         detailRespVO.setSpuProperties(spuPropertyVOS);
@@ -1660,6 +1703,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             spuProperty.setMarketingSpuId(marketingSpuId);
             spuProperty.setProductPropertyId(spuPropertyVO.getPropertyId());
             spuProperty.setSort(spuPropertyVO.getSort());
+            spuProperty.setIsAddPropertyPic(defaultSwitch(spuPropertyVO.getIsAddPropertyPic()));
+            spuProperty.setIsAddMarketingCorner(defaultSwitch(spuPropertyVO.getIsAddMarketingCorner()));
             spuProperty.setPartnerId(loginUser.getPartnerId());
             spuProperty.setCreateBy(loginUser.getId());
             spuProperty.setUpdateBy(loginUser.getId());
@@ -1684,7 +1729,9 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 spuPropertyValue.setSpuPropertyId(spuPropertyIdMap.get(spuPropertyVO.getPropertyId()));
                 spuPropertyValue.setProductPropertyValueId(spuPropertyValueVO.getProductPropertyValueId());
                 spuPropertyValue.setPropertyValue(spuPropertyValueVO.getValue());
-                spuPropertyValue.setPicUrl(spuPropertyValueVO.getPicUrl());
+                spuPropertyValue.setPicUrl(normalizePicUrl(spuPropertyValueVO.getPicUrl(), spuPropertyVO.getIsAddPropertyPic()));
+                spuPropertyValue.setMarketingCornerText(normalizeMarketingCornerText(spuPropertyValueVO.getMarketingCornerText(),
+                        spuPropertyVO.getIsAddMarketingCorner()));
                 spuPropertyValue.setSort(spuPropertyValueVO.getSort());
                 spuPropertyValue.setPartnerId(loginUser.getPartnerId());
                 spuPropertyValue.setCreateBy(loginUser.getId());
@@ -1696,6 +1743,27 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         }
         return spuPropertyValueList;
+    }
+
+    private Integer defaultSwitch(Integer switchValue) {
+        return NumberUtils.INTEGER_ONE.equals(switchValue) ? NumberUtils.INTEGER_ONE : NumberUtils.INTEGER_ZERO;
+    }
+
+    private String normalizePicUrl(String picUrl, Integer isAddPropertyPic) {
+        if (!NumberUtils.INTEGER_ONE.equals(defaultSwitch(isAddPropertyPic))) {
+            return StringUtils.EMPTY;
+        }
+        return picUrl;
+    }
+
+    private String normalizeMarketingCornerText(String marketingCornerText, Integer isAddMarketingCorner) {
+        if (!NumberUtils.INTEGER_ONE.equals(defaultSwitch(isAddMarketingCorner))) {
+            return StringUtils.EMPTY;
+        }
+        if (StringUtils.length(marketingCornerText) > MARKETING_CORNER_TEXT_MAX_LENGTH) {
+            throw new IllegalArgumentException("marketingCornerText length must <= 64");
+        }
+        return marketingCornerText;
     }
 
     private List<MarketingProductSku> buildMarketingProductSkus(List<MarketingProductSkuVO> skus, LoginUser<?> loginUser,

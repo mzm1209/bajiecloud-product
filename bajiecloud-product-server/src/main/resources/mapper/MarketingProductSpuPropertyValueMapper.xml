@@ -10,6 +10,7 @@
         <result column="product_property_value_id" property="productPropertyValueId" />
         <result column="property_value" property="propertyValue" />
         <result column="pic_url" property="picUrl" />
+        <result column="marketing_corner_text" property="marketingCornerText" />
         <result column="sort" property="sort" />
         <result column="partner_id" property="partnerId" />
         <result column="create_by" property="createBy" />
@@ -37,12 +38,12 @@
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into marketing_product_spu_property_value (marketing_spu_id, spu_property_id, product_property_value_id,
-                                                          property_value, pic_url, sort, partner_id, create_by, update_by, create_time,
+                                                          property_value, pic_url, marketing_corner_text, sort, partner_id, create_by, update_by, create_time,
                                                           update_time, is_deleted)
         values
         <foreach item="item" collection="list" separator=",">
             (
-             #{item.marketingSpuId}, #{item.spuPropertyId}, #{item.productPropertyValueId}, #{item.propertyValue}, #{item.picUrl},
+             #{item.marketingSpuId}, #{item.spuPropertyId}, #{item.productPropertyValueId}, #{item.propertyValue}, #{item.picUrl}, #{item.marketingCornerText},
              #{item.sort}, #{item.partnerId}, #{item.createBy},
              #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted}
             )
@@ -56,6 +57,8 @@
             sp.product_property_id,
             pv.product_property_value_id,
             pv.property_value,
+            pv.pic_url,
+            pv.marketing_corner_text,
             pv.sort
         from
             marketing_product_spu_property_value pv left join marketing_product_spu_property sp on pv.spu_property_id = sp.id
@@ -76,7 +79,8 @@
             pv.product_property_value_id,
             pv.property_value,
             pv.sort,
-            pv.pic_url
+            pv.pic_url,
+            pv.marketing_corner_text
         from
             marketing_product_spu_property_value pv
         join
@@ -88,7 +92,7 @@
 
     <select id="selectListByIds" resultMap="BaseResultMap">
         select
-            pv.id, pv.product_property_value_id, pv.property_value, sp.product_property_id, pv.pic_url
+            pv.id, pv.product_property_value_id, pv.property_value, sp.product_property_id, pv.pic_url, pv.marketing_corner_text
         from
             marketing_product_spu_property_value pv left join marketing_product_spu_property sp on pv.spu_property_id = sp.id
         where
@@ -105,6 +109,8 @@
             spu_property_id,
             product_property_value_id,
             property_value,
+            pic_url,
+            marketing_corner_text,
             sort
         from
             marketing_product_spu_property_value
@@ -183,7 +189,8 @@
             pv.product_property_value_id,
             pv.property_value,
             pv.sort,
-            pv.pic_url
+            pv.pic_url,
+            pv.marketing_corner_text
         from marketing_product_spu_property_value pv left join marketing_product_spu_property sp on pv.spu_property_id = sp.id
         where pv.marketing_spu_id = #{marketingSpuId} and pv.spu_property_id in
         <foreach item="id" collection="spuPropertyIds" separator="," open="(" close=")">
@@ -211,6 +218,7 @@
                 marketing_product_spu_property_value
             set
                 pic_url = #{item.picUrl},
+                marketing_corner_text = #{item.marketingCornerText},
                 update_by = #{item.updateBy},
                 update_time = #{item.updateTime}
             where
