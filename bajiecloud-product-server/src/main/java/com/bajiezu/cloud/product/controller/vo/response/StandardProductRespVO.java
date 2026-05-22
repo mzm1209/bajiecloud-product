@@ -6,6 +6,8 @@ import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.bajiezu.cloud.excel.excel.core.annotations.DictFormat;
 import com.bajiezu.cloud.excel.excel.core.convert.DictConvert;
 import com.bajiezu.cloud.system.enums.DictTypeConstants;
+import com.bajiezu.cloud.product.controller.vo.StandardProductPropertyVO;
+import com.bajiezu.cloud.product.controller.vo.StandardProductSkuVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -100,4 +102,9 @@ public class StandardProductRespVO {
     @ExcelProperty(value = "更新时间", index = 12)
     @ColumnWidth(25)
     private Date updateTime;
+
+    private List<StandardProductPropertyVO> spuProperties;
+
+    private List<StandardProductSkuVO> skus;
 }
+

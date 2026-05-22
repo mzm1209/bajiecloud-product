@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bajiezu.cloud.product.dal.mapper.StandardProductSkuPropertyValueMapper">
+    <insert id="insertBatch">insert into standard_product_sku_property_value (standard_product_sku_id,standard_spu_property_value_id,standard_spu_id,create_by,update_by,create_time,update_time,is_deleted) values
+        <foreach collection="list" item="item" separator=",">(#{item.standardProductSkuId},#{item.standardSpuPropertyValueId},#{item.standardSpuId},#{item.createBy},#{item.updateBy},#{item.createTime},#{item.updateTime},#{item.isDeleted})</foreach>
+    </insert>
+    <select id="selectListByStandardSpuId" resultType="com.bajiezu.cloud.product.dal.entity.StandardProductSkuPropertyValue">select * from standard_product_sku_property_value where standard_spu_id=#{standardSpuId} and is_deleted=0</select>
+    <update id="logicDelByStandardSpuId">update standard_product_sku_property_value set is_deleted=1,update_by=#{updateBy},update_time=#{updateTime} where standard_spu_id=#{standardSpuId} and is_deleted=0</update>
+</mapper>
