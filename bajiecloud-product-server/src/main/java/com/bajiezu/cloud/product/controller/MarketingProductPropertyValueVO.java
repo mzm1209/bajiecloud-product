@@ -19,5 +19,8 @@ public class MarketingProductPropertyValueVO {
     @Schema(description = "图片")
     private String picUrl;
 
+    @Schema(description = "营销角标文案")
+    private String marketingCornerText;
+
     private String unqKey;
 }

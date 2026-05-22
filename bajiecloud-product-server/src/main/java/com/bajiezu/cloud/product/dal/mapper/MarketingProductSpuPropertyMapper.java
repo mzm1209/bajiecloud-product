@@ -34,4 +34,6 @@ public interface MarketingProductSpuPropertyMapper extends BaseMapper<MarketingP
                                                    @Param("productPropertyIds") Collection<Long> productPropertyIds,
                                                    @Param("updateBy") Long updateBy,
                                                    @Param("updateTime") Date updateTime);
+
+    void updateBatch(@Param("list") Collection<MarketingProductSpuProperty> spuProperties);
 }
