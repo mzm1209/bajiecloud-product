@@ -225,13 +225,16 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 loginUser, spuPropertyIdMap, marketingProductSpuId, now);
         spuPropertyValueMapper.insertBatch(spuPropertyValues);
 
+        List<MarketingProductPropertyVO> skuProperties = filterSkuProperties(reqVO.getSpuProperties());
+        List<MarketingProductSkuVO> normalizedSkus = buildSkuCombinationsBySkuProperties(skuProperties, reqVO.getSkus());
+
         // 保存商品SKU
-        List<MarketingProductSku> skus = buildMarketingProductSkus(reqVO.getSkus(), loginUser, marketingProductSpuId, now);
+        List<MarketingProductSku> skus = buildMarketingProductSkus(normalizedSkus, loginUser, marketingProductSpuId, now);
         skuMapper.insertBatch(skus);
 
         // 保存商品SKU属性值
         Map<String, Long> skuCode2IdMap = skus.stream().collect(Collectors.toMap(MarketingProductSku::getSkuCode, MarketingProductSku::getId));
-        List<MarketingProductSkuPropertyValue> skuPropertyValues = buildMarketingProductSkuPropertyValues(reqVO.getSkus(),
+        List<MarketingProductSkuPropertyValue> skuPropertyValues = buildMarketingProductSkuPropertyValues(normalizedSkus,
                 skuCode2IdMap, spuPropertyValues, loginUser, marketingProductSpuId, now);
         skuPropertyValueMapper.insertBatch(skuPropertyValues);
     }
@@ -440,10 +443,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         // 处理SKU
+        List<MarketingProductPropertyVO> skuProperties = filterSkuProperties(reqVO.getSpuProperties());
+        List<MarketingProductSkuVO> incomingSkus = buildSkuCombinationsBySkuProperties(skuProperties, reqVO.getSkus());
         List<MarketingProductSku> existingSkus = skuMapper.selectListByMarketingSpuId(reqVO.getId());
         Map<Long, MarketingProductSku> existingSkuMap = existingSkus.stream()
                 .collect(Collectors.toMap(MarketingProductSku::getId, sku -> sku));
-        List<MarketingProductSkuVO> incomingSkus = reqVO.getSkus();
 
         List<Long> updateSkuIds = Lists.newArrayList();
         List<MarketingProductSku> addSkus = Lists.newArrayList();
@@ -1851,6 +1855,87 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         }
 
         return skuPropertyValueList;
+    }
+
+    private List<MarketingProductPropertyVO> filterSkuProperties(List<MarketingProductPropertyVO> spuProperties) {
+        return Optional.ofNullable(spuProperties).orElse(Collections.emptyList()).stream()
+                .filter(Objects::nonNull)
+                .filter(property -> NumberUtils.INTEGER_ONE.equals(defaultSwitch(property.getIsSkuProperty())))
+                .toList();
+    }
+
+    private List<MarketingProductSkuVO> buildSkuCombinationsBySkuProperties(List<MarketingProductPropertyVO> skuProperties,
+                                                                            List<MarketingProductSkuVO> incomingSkus) {
+        List<List<SkuPropertyValueVO>> expectedCombinations = buildExpectedSkuCombinations(skuProperties);
+        Set<Long> skuPropertyIds = Optional.ofNullable(skuProperties).orElse(Collections.emptyList())
+                .stream().map(MarketingProductPropertyVO::getPropertyId).collect(Collectors.toSet());
+        Map<String, MarketingProductSkuVO> normalizedIncomingSkuMap = Optional.ofNullable(incomingSkus).orElse(Collections.emptyList())
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(skuVO -> buildSkuCombinationKeyFromSkuVO(skuVO, skuPropertyIds), Function.identity(), (first, duplicate) -> {
+                    log.warn("duplicate incoming marketing sku combination detected, keep first. key:{}", buildSkuCombinationKeyFromSkuVO(first, skuPropertyIds));
+                    return first;
+                }));
+
+        List<String> expectedKeys = expectedCombinations.stream().map(this::buildSkuCombinationKey).toList();
+        if (!normalizedIncomingSkuMap.keySet().equals(new HashSet<>(expectedKeys))) {
+            log.warn("incoming marketing skus mismatch with generated sku combinations by isSkuProperty. expected:{}, actual:{}",
+                    expectedKeys, normalizedIncomingSkuMap.keySet());
+            throw new IllegalArgumentException("营销SKU与SKU属性组合不一致，请按SKU属性组合重新提交");
+        }
+
+        List<MarketingProductSkuVO> result = Lists.newArrayList();
+        for (List<SkuPropertyValueVO> combination : expectedCombinations) {
+            String key = buildSkuCombinationKey(combination);
+            MarketingProductSkuVO targetSku = normalizedIncomingSkuMap.get(key);
+            targetSku.setPropertyValues(combination);
+            result.add(targetSku);
+        }
+        return result;
+    }
+
+    private List<List<SkuPropertyValueVO>> buildExpectedSkuCombinations(List<MarketingProductPropertyVO> skuProperties) {
+        List<List<SkuPropertyValueVO>> combinations = Lists.newArrayList();
+        combinations.add(Lists.newArrayList());
+        for (MarketingProductPropertyVO property : Optional.ofNullable(skuProperties).orElse(Collections.emptyList())) {
+            List<SkuPropertyValueVO> values = Optional.ofNullable(property.getPropertyValues()).orElse(Collections.emptyList()).stream()
+                    .filter(Objects::nonNull)
+                    .map(propertyValue -> {
+                        SkuPropertyValueVO skuPropertyValueVO = new SkuPropertyValueVO();
+                        skuPropertyValueVO.setPropertyId(property.getPropertyId());
+                        skuPropertyValueVO.setPropertyValueId(propertyValue.getProductPropertyValueId());
+                        skuPropertyValueVO.setPropertyValue(propertyValue.getValue());
+                        return skuPropertyValueVO;
+                    }).toList();
+            List<List<SkuPropertyValueVO>> newCombinations = Lists.newArrayList();
+            for (List<SkuPropertyValueVO> combination : combinations) {
+                for (SkuPropertyValueVO value : values) {
+                    List<SkuPropertyValueVO> newCombination = Lists.newArrayList(combination);
+                    newCombination.add(value);
+                    newCombinations.add(newCombination);
+                }
+            }
+            combinations = newCombinations;
+        }
+        return combinations;
+    }
+
+    private String buildSkuCombinationKeyFromSkuVO(MarketingProductSkuVO skuVO, Set<Long> skuPropertyIds) {
+        List<SkuPropertyValueVO> filteredPropertyValues = Optional.ofNullable(skuVO.getPropertyValues()).orElse(Collections.emptyList())
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(propertyValue -> skuPropertyIds.contains(propertyValue.getPropertyId()))
+                .toList();
+        return buildSkuCombinationKey(filteredPropertyValues);
+    }
+
+    private String buildSkuCombinationKey(List<SkuPropertyValueVO> propertyValues) {
+        return propertyValues.stream()
+                .sorted(Comparator.comparing(SkuPropertyValueVO::getPropertyId)
+                        .thenComparing(SkuPropertyValueVO::getPropertyValueId, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(SkuPropertyValueVO::getPropertyValue, Comparator.nullsLast(String::compareTo)))
+                .map(propertyValue -> propertyValue.getPropertyId() + "_" + propertyValue.getPropertyValueId() + "_" + propertyValue.getPropertyValue())
+                .collect(Collectors.joining("|"));
     }
 
     private void validateSpuPropertiesInStandardScope(Long standardProductSpuId, List<MarketingProductPropertyVO> incomingSpuProperties) {
