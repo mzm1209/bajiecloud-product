@@ -6,6 +6,7 @@ import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
+import com.bajiezu.cloud.product.controller.vo.MarketingAvailablePropertyVO;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.*;
 import com.bajiezu.cloud.product.service.MarketingProductExportService;
@@ -61,6 +62,12 @@ public class MarketingProductController {
     public CommonResult<Boolean> mod(@Valid @RequestBody MarketingProductModReqVO reqVO) {
         marketingProductService.mod(reqVO);
         return CommonResult.success(true);
+    }
+
+    @PostMapping("/availablePropertiesByStandardSpu")
+    @Operation(summary = "查询标准商品可选属性范围-提供给创建营销商品使用")
+    public CommonResult<List<MarketingAvailablePropertyVO>> availablePropertiesByStandardSpu(@Valid @RequestBody MarketingAvailablePropertiesReqVO reqVO) {
+        return CommonResult.success(marketingProductService.availablePropertiesByStandardSpuId(reqVO.getStandardProductSpuId()));
     }
 
     @PostMapping("/detail")

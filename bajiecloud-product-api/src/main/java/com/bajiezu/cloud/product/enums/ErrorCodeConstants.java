@@ -39,4 +39,7 @@ public interface ErrorCodeConstants {
     ErrorCode SKU_ID_IS_NULL = new ErrorCode(1_003_008_005, "SKU ID不能为空");
     ErrorCode ON_SHELVES_NOT_ALLOWED = new ErrorCode(1_003_008_006, "待上架/已下架的商品才能操作上架");
     ErrorCode OFF_SHELVES_NOT_ALLOWED = new ErrorCode(1_003_008_007, "已上架的商品才能操作下架");
+    ErrorCode MARKETING_PROPERTY_OUT_OF_STANDARD_SCOPE = new ErrorCode(1_003_008_008, "营销商品属性超出标准商品范围");
+    ErrorCode MARKETING_PROPERTY_VALUE_OUT_OF_STANDARD_SCOPE = new ErrorCode(1_003_008_009, "营销商品属性值超出标准商品范围");
+    ErrorCode STANDARD_PRODUCT_PROPERTY_SCOPE_EMPTY = new ErrorCode(1_003_008_010, "标准商品属性范围为空");
 }
