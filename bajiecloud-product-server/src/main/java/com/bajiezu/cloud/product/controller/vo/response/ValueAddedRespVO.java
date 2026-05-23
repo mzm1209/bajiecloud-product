@@ -66,6 +66,8 @@ public class ValueAddedRespVO {
     private Integer mediumCompensationRatio;
     private Integer severeCompensationRatio;
     private Integer scrapCompensationRatio;
+    private Long compensationAmount;
+    private Integer compensationAmountRatio;
     private List<Integer> saleLimits;
     private Integer annualLimitPurchaseCount;
     private Integer monthlyLimitPurchaseCount;

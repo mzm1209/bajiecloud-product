@@ -43,6 +43,8 @@ public class ValueAddedRespDto {
     private Integer mediumCompensationRatio;
     private Integer severeCompensationRatio;
     private Integer scrapCompensationRatio;
+    private Long compensationAmount;
+    private Integer compensationAmountRatio;
     private String saleLimits;
     private Integer annualLimitPurchaseCount;
     private Integer monthlyLimitPurchaseCount;

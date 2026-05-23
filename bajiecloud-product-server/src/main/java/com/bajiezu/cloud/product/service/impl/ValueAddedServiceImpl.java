@@ -177,6 +177,8 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAdded.setMediumCompensationRatio(reqVO.getMediumCompensationRatio());
         valueAdded.setSevereCompensationRatio(reqVO.getSevereCompensationRatio());
         valueAdded.setScrapCompensationRatio(reqVO.getScrapCompensationRatio());
+        valueAdded.setCompensationAmount(reqVO.getCompensationAmount());
+        valueAdded.setCompensationAmountRatio(reqVO.getCompensationAmountRatio());
         valueAdded.setSaleLimits(joinMultiSelect(reqVO.getSaleLimits()));
         valueAdded.setAnnualLimitPurchaseCount(reqVO.getAnnualLimitPurchaseCount());
         valueAdded.setMonthlyLimitPurchaseCount(reqVO.getMonthlyLimitPurchaseCount());
@@ -401,6 +403,8 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         respDto.setMediumCompensationRatio(valueAdded.getMediumCompensationRatio());
         respDto.setSevereCompensationRatio(valueAdded.getSevereCompensationRatio());
         respDto.setScrapCompensationRatio(valueAdded.getScrapCompensationRatio());
+        respDto.setCompensationAmount(valueAdded.getCompensationAmount());
+        respDto.setCompensationAmountRatio(valueAdded.getCompensationAmountRatio());
         respDto.setSaleLimits(valueAdded.getSaleLimits());
         respDto.setAnnualLimitPurchaseCount(valueAdded.getAnnualLimitPurchaseCount());
         respDto.setMonthlyLimitPurchaseCount(valueAdded.getMonthlyLimitPurchaseCount());
@@ -431,6 +435,8 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAdded.setMediumCompensationRatio(reqVO.getMediumCompensationRatio());
         valueAdded.setSevereCompensationRatio(reqVO.getSevereCompensationRatio());
         valueAdded.setScrapCompensationRatio(reqVO.getScrapCompensationRatio());
+        valueAdded.setCompensationAmount(reqVO.getCompensationAmount());
+        valueAdded.setCompensationAmountRatio(reqVO.getCompensationAmountRatio());
         valueAdded.setSaleLimits(joinMultiSelect(reqVO.getSaleLimits()));
         valueAdded.setAnnualLimitPurchaseCount(reqVO.getAnnualLimitPurchaseCount());
         valueAdded.setMonthlyLimitPurchaseCount(reqVO.getMonthlyLimitPurchaseCount());
@@ -464,6 +470,8 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         respVO.setMediumCompensationRatio(valueAdded.getMediumCompensationRatio());
         respVO.setSevereCompensationRatio(valueAdded.getSevereCompensationRatio());
         respVO.setScrapCompensationRatio(valueAdded.getScrapCompensationRatio());
+        respVO.setCompensationAmount(valueAdded.getCompensationAmount());
+        respVO.setCompensationAmountRatio(valueAdded.getCompensationAmountRatio());
         respVO.setSaleLimits(splitMultiSelect(valueAdded.getSaleLimits()));
         respVO.setAnnualLimitPurchaseCount(valueAdded.getAnnualLimitPurchaseCount());
         respVO.setMonthlyLimitPurchaseCount(valueAdded.getMonthlyLimitPurchaseCount());
@@ -486,14 +494,30 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         validateNonNegative(reqVO.getDailyLimitPurchaseCount());
         validateNonNegative(reqVO.getAccessConditionBreachAmount());
         validateNonNegative(reqVO.getAccessConditionBreachCount());
+        validateNonNegative(reqVO.getCompensationAmount());
 
-        if (Objects.equals(reqVO.getCompensationLevel(), 2)) {
+        if (Objects.equals(reqVO.getCompensationStandard(), 1) && Objects.equals(reqVO.getCompensationLevel(), 2)) {
             if (CollUtil.isEmpty(reqVO.getCompensationLevelLimits())) { throw exception(VALUE_ADDED_COMPENSATION_LEVEL_LIMIT_REQUIRED); }
             if (reqVO.getCompensationLevelLimits().contains(1)) validateRatio(reqVO.getSlightCompensationRatio());
             if (reqVO.getCompensationLevelLimits().contains(2)) validateRatio(reqVO.getMediumCompensationRatio());
             if (reqVO.getCompensationLevelLimits().contains(3)) validateRatio(reqVO.getSevereCompensationRatio());
             if (reqVO.getCompensationLevelLimits().contains(4)) validateRatio(reqVO.getScrapCompensationRatio());
-        } else if (Objects.equals(reqVO.getCompensationLevel(), 1)) {
+        } else if (Objects.equals(reqVO.getCompensationStandard(), 1) && Objects.equals(reqVO.getCompensationLevel(), 1)) {
+            reqVO.setCompensationLevelLimits(Collections.emptyList());
+            reqVO.setSlightCompensationRatio(null);
+            reqVO.setMediumCompensationRatio(null);
+            reqVO.setSevereCompensationRatio(null);
+            reqVO.setScrapCompensationRatio(null);
+        }
+
+        if (Objects.equals(reqVO.getCompensationStandard(), 1)) {
+            reqVO.setCompensationAmount(null);
+            reqVO.setCompensationAmountRatio(null);
+        } else if (Objects.equals(reqVO.getCompensationStandard(), 2)) {
+            if (reqVO.getCompensationAmount() == null) { throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_REQUIRED); }
+            if (reqVO.getCompensationAmountRatio() == null) { throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_RATIO_REQUIRED); }
+            validateRatio(reqVO.getCompensationAmountRatio());
+            reqVO.setCompensationLevel(null);
             reqVO.setCompensationLevelLimits(Collections.emptyList());
             reqVO.setSlightCompensationRatio(null);
             reqVO.setMediumCompensationRatio(null);
