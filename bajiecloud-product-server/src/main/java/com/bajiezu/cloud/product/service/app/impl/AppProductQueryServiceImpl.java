@@ -132,6 +132,23 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
                 item.setName(v.getName());
                 item.setPrice(v.getSalePrice());
                 item.setIsDefault(Objects.equals(spu.getDefaultSelectedValueAddedId(), v.getId()) ? 1 : 0);
+                item.setServiceTypes(v.getServiceTypes());
+                item.setEffectiveChannels(v.getEffectiveChannels());
+                item.setCompensationStandard(v.getCompensationStandard());
+                item.setCompensationLevel(v.getCompensationLevel());
+                item.setCompensationLevelLimits(v.getCompensationLevelLimits());
+                item.setSlightCompensationRatio(v.getSlightCompensationRatio());
+                item.setMediumCompensationRatio(v.getMediumCompensationRatio());
+                item.setSevereCompensationRatio(v.getSevereCompensationRatio());
+                item.setScrapCompensationRatio(v.getScrapCompensationRatio());
+                item.setSaleLimits(v.getSaleLimits());
+                item.setAnnualLimitPurchaseCount(v.getAnnualLimitPurchaseCount());
+                item.setMonthlyLimitPurchaseCount(v.getMonthlyLimitPurchaseCount());
+                item.setDailyLimitPurchaseCount(v.getDailyLimitPurchaseCount());
+                item.setAccessCondition(v.getAccessCondition());
+                item.setAccessConditionLimits(v.getAccessConditionLimits());
+                item.setAccessConditionBreachAmount(v.getAccessConditionBreachAmount());
+                item.setAccessConditionBreachCount(v.getAccessConditionBreachCount());
                 return item;
             }).toList());
         }

@@ -22,11 +22,28 @@ public class AppProductSpuDetailRespVO {
     private List<AppProductSkuRespVO.PropertyValueItem> properties;
     private List<ValueAddedItem> valueAddedList;
 
-    @Data
+        @Data
     public static class ValueAddedItem {
         private Long id;
         private String name;
         private Long price;
         private Integer isDefault;
+        private String serviceTypes;
+        private String effectiveChannels;
+        private Integer compensationStandard;
+        private Integer compensationLevel;
+        private String compensationLevelLimits;
+        private Integer slightCompensationRatio;
+        private Integer mediumCompensationRatio;
+        private Integer severeCompensationRatio;
+        private Integer scrapCompensationRatio;
+        private String saleLimits;
+        private Integer annualLimitPurchaseCount;
+        private Integer monthlyLimitPurchaseCount;
+        private Integer dailyLimitPurchaseCount;
+        private Integer accessCondition;
+        private String accessConditionLimits;
+        private Long accessConditionBreachAmount;
+        private Integer accessConditionBreachCount;
     }
 }
