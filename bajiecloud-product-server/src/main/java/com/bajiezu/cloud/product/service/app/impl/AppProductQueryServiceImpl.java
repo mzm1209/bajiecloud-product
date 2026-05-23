@@ -204,7 +204,7 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
 
         Map<Long, String> propertyNameMap = productPropertyMapper.selectListByIds(propertyIds).stream()
                 .collect(Collectors.toMap(ProductProperty::getId, ProductProperty::getName));
-        Map<Long, String> propertyValueMap = productPropertyValueIds.isEmpty() ? Collections.emptyMap() :
+        Map<Long, String> propertyValueMap = propertyValueIds.isEmpty() ? Collections.emptyMap() :
                 productPropertyValueMapper.selectListByIds(propertyValueIds).stream()
                         .collect(Collectors.toMap(ProductPropertyValue::getId, ProductPropertyValue::getPropertyValue));
 
