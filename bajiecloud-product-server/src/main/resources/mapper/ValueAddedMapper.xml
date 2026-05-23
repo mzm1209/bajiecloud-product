@@ -23,6 +23,8 @@
         <result column="medium_compensation_ratio" property="mediumCompensationRatio" />
         <result column="severe_compensation_ratio" property="severeCompensationRatio" />
         <result column="scrap_compensation_ratio" property="scrapCompensationRatio" />
+        <result column="compensation_amount" property="compensationAmount" />
+        <result column="compensation_amount_ratio" property="compensationAmountRatio" />
         <result column="sale_limits" property="saleLimits" />
         <result column="annual_limit_purchase_count" property="annualLimitPurchaseCount" />
         <result column="monthly_limit_purchase_count" property="monthlyLimitPurchaseCount" />
