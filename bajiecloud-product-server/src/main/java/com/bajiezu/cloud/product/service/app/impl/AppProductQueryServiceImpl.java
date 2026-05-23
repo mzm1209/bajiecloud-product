@@ -141,6 +141,8 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
                 item.setMediumCompensationRatio(v.getMediumCompensationRatio());
                 item.setSevereCompensationRatio(v.getSevereCompensationRatio());
                 item.setScrapCompensationRatio(v.getScrapCompensationRatio());
+                item.setCompensationAmount(v.getCompensationAmount());
+                item.setCompensationAmountRatio(v.getCompensationAmountRatio());
                 item.setSaleLimits(v.getSaleLimits());
                 item.setAnnualLimitPurchaseCount(v.getAnnualLimitPurchaseCount());
                 item.setMonthlyLimitPurchaseCount(v.getMonthlyLimitPurchaseCount());
