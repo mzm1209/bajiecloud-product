@@ -22,5 +22,7 @@ public class AppProductSkuRespVO {
         private Long propertyId;
         private String propertyName;
         private String propertyValue;
+        private String picUrl;
+        private String marketingCornerText;
     }
 }

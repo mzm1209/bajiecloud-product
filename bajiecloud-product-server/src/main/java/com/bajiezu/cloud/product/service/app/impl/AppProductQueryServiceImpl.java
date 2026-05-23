@@ -170,18 +170,12 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
         List<AppProductSkuRespVO.PropertyValueItem> properties = buildSkuProps(sku.getId());
         vo.setPropertyValues(properties);
 
-        List<MarketingProductSkuPropertyValue> skuPropertyLinks = skuPropertyValueMapper.selectListBySkuIds(List.of(sku.getId()));
-        if (CollectionUtil.isNotEmpty(skuPropertyLinks)) {
-            List<Long> spuPropertyValueIds = skuPropertyLinks.stream()
-                    .map(MarketingProductSkuPropertyValue::getMarketingSpuPropertyValueId)
-                    .toList();
-            String picUrl = spuPropertyValueMapper.selectListByIds(spuPropertyValueIds).stream()
-                    .map(MarketingProductSpuPropertyValue::getPicUrl)
-                    .filter(StringUtils::isNotBlank)
-                    .findFirst()
-                    .orElse(null);
-            vo.setPicUrl(picUrl);
-        }
+        String skuPicUrl = properties.stream()
+                .map(AppProductSkuRespVO.PropertyValueItem::getPicUrl)
+                .filter(StringUtils::isNotBlank)
+                .findFirst()
+                .orElse(null);
+        vo.setPicUrl(skuPicUrl);
         return vo;
     }
 
@@ -219,6 +213,8 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
             item.setPropertyName(propertyNameMap.get(spuValue.getProductPropertyId()));
             item.setPropertyValue(spuValue.getProductPropertyValueId() == null ? spuValue.getPropertyValue() :
                     propertyValueMap.get(spuValue.getProductPropertyValueId()));
+            item.setPicUrl(spuValue.getPicUrl());
+            item.setMarketingCornerText(spuValue.getMarketingCornerText());
             result.add(item);
         }
         return result;
