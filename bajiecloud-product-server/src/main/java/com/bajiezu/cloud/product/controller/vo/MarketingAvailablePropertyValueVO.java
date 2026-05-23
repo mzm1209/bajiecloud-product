@@ -12,4 +12,10 @@ public class MarketingAvailablePropertyValueVO {
 
     @Schema(description = "属性值")
     private String propertyValue;
+
+    @Schema(description = "属性图片")
+    private String picUrl;
+
+    @Schema(description = "营销角标文案")
+    private String marketingCornerText;
 }

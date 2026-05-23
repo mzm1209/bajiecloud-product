@@ -1997,6 +1997,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                 MarketingAvailablePropertyValueVO valueVO = new MarketingAvailablePropertyValueVO();
                 valueVO.setPropertyValueId(scopeValue.getProductPropertyValueId());
                 valueVO.setPropertyValue(scopeValue.getPropertyValue());
+                valueVO.setPicUrl(scopeValue.getPicUrl());
+                valueVO.setMarketingCornerText(scopeValue.getMarketingCornerText());
                 valueVOS.add(valueVO);
             }
             propertyVO.setPropertyValues(valueVOS.stream().collect(Collectors.collectingAndThen(
