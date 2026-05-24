@@ -349,7 +349,7 @@ public class StandardProductServiceImpl implements StandardProductService {
             if (CollectionUtil.isEmpty(pvo.getPropertyValues())) { continue; }
             for (StandardProductPropertyValueVO v: pvo.getPropertyValues()) {
                 StandardProductSpuPropertyValue pv = new StandardProductSpuPropertyValue();
-                pv.setStandardSpuId(spuId); pv.setSpuPropertyId(propertyId2SpuPropertyId.get(pvo.getPropertyId())); pv.setProductPropertyValueId(v.getProductPropertyValueId()); pv.setPropertyValue(v.getValue()); pv.setPicUrl(pvo.getIsAddPropertyPic()!=null&&pvo.getIsAddPropertyPic()==1?v.getPicUrl():null); pv.setMarketingCornerText(pvo.getIsAddMarketingCorner()!=null&&pvo.getIsAddMarketingCorner()==1?v.getMarketingCornerText():null); pv.setSort(v.getSort()); pv.setCreateBy(loginUser.getId()); pv.setUpdateBy(loginUser.getId()); pv.setCreateTime(now); pv.setUpdateTime(now); pv.setIsDeleted(0);
+                pv.setStandardSpuId(spuId); pv.setSpuPropertyId(propertyId2SpuPropertyId.get(pvo.getPropertyId())); pv.setProductPropertyValueId(v.getProductPropertyValueId()); pv.setPropertyValue(v.getValue()); pv.setPicUrl(pvo.getIsAddPropertyPic()!=null&&pvo.getIsAddPropertyPic()==1?v.getPicUrl():null); pv.setMarketingCornerText(pvo.getIsAddMarketingCorner()!=null&&pvo.getIsAddMarketingCorner()==1?StringUtils.defaultString(v.getMarketingCornerText()):""); pv.setSort(v.getSort()); pv.setCreateBy(loginUser.getId()); pv.setUpdateBy(loginUser.getId()); pv.setCreateTime(now); pv.setUpdateTime(now); pv.setIsDeleted(0);
                 values.add(pv);
                 if (Integer.valueOf(1).equals(pvo.getIsSkuProperty())) dim.add(pv);
             }
