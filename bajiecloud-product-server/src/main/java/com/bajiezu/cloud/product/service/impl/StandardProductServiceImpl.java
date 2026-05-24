@@ -336,7 +336,7 @@ public class StandardProductServiceImpl implements StandardProductService {
         Map<Long, StandardProductPropertyVO> propertyVOMap = new HashMap<>();
         for (StandardProductPropertyVO vo : reqVO.getSpuProperties()) {
             StandardProductSpuProperty p = new StandardProductSpuProperty();
-            p.setStandardSpuId(spuId); p.setProductPropertyId(vo.getPropertyId()); p.setSort(vo.getSort()); p.setIsAddPropertyPic(vo.getIsAddPropertyPic()); p.setIsAddMarketingCorner(vo.getIsAddMarketingCorner()); p.setIsSkuProperty(vo.getIsSkuProperty()); p.setCreateBy(loginUser.getId()); p.setUpdateBy(loginUser.getId()); p.setCreateTime(now); p.setUpdateTime(now); p.setIsDeleted(0);
+            p.setStandardSpuId(spuId); p.setProductPropertyId(vo.getPropertyId()); p.setSort(vo.getSort()); p.setIsAddPropertyPic(vo.getIsAddPropertyPic()); p.setIsAddMarketingCorner(vo.getIsAddMarketingCorner()); p.setIsSkuProperty(vo.getIsSkuProperty()); p.setPartnerId(loginUser.getPartnerId()); p.setCreateBy(loginUser.getId()); p.setUpdateBy(loginUser.getId()); p.setCreateTime(now); p.setUpdateTime(now); p.setIsDeleted(0);
             properties.add(p); propertyVOMap.put(vo.getPropertyId(), vo);
         }
         spuPropertyMapper.insertBatch(properties);
