@@ -18,6 +18,7 @@ public class StandardProductSpuPropertyValue extends BaseDO {
     private String picUrl;
     private String marketingCornerText;
     private Integer sort;
+    private Long partnerId;
     @TableField(exist = false)
     private Long productPropertyId;
 }
