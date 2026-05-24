@@ -1992,6 +1992,9 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             MarketingAvailablePropertyVO propertyVO = new MarketingAvailablePropertyVO();
             propertyVO.setPropertyId(scopeProperty.getProductPropertyId());
             propertyVO.setPropertyName(propertyId2NameMap.get(scopeProperty.getProductPropertyId()));
+            propertyVO.setIsSkuProperty(scopeProperty.getIsSkuProperty());
+            propertyVO.setIsAddPropertyPic(scopeProperty.getIsAddPropertyPic());
+            propertyVO.setIsAddMarketingCorner(scopeProperty.getIsAddMarketingCorner());
             List<MarketingAvailablePropertyValueVO> valueVOS = Lists.newArrayList();
             for (StandardProductSpuPropertyValue scopeValue : spuPropertyId2ValuesMap.getOrDefault(propertyId2SpuPropertyIdMap.get(scopeProperty.getProductPropertyId()), Collections.emptyList())) {
                 MarketingAvailablePropertyValueVO valueVO = new MarketingAvailablePropertyValueVO();
