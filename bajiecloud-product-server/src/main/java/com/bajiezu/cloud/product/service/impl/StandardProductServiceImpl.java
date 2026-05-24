@@ -175,7 +175,7 @@ public class StandardProductServiceImpl implements StandardProductService {
     @Transactional(rollbackFor = Exception.class)
     public void add(StandardProductAddReqVO reqVO) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
-        log.info("add standard product reqVO:{},operatorId:{}", reqVO, loginUser.getId());
+        log.info("add standard product reqVO:{},operatorId:{},partnerId:{}", reqVO, loginUser.getId(),loginUser.getPartnerId());
 
         // 保存spu
         Date now = new Date();
