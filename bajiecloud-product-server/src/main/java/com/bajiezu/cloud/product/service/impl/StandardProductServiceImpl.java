@@ -362,11 +362,11 @@ public class StandardProductServiceImpl implements StandardProductService {
         for (List<StandardProductSpuPropertyValue> dim: skuDims){ List<StandardProductSpuPropertyValue> nd = new ArrayList<>(); for (StandardProductSpuPropertyValue v:dim){ String k=v.getSpuPropertyId()+"_"+v.getProductPropertyValueId()+"_"+v.getPropertyValue(); if(keyMap.get(k)!=null) nd.add(keyMap.get(k)); } if(!nd.isEmpty()) dbSkuDims.add(nd);}
         List<List<StandardProductSpuPropertyValue>> combos = cartesian(dbSkuDims);
         List<StandardProductSku> skus = new ArrayList<>();
-        for (int i=0;i<combos.size();i++){ StandardProductSku sku=new StandardProductSku(); sku.setStandardSpuId(spuId); sku.setStock(0); sku.setCreateBy(loginUser.getId()); sku.setUpdateBy(loginUser.getId()); sku.setCreateTime(now); sku.setUpdateTime(now); sku.setIsDeleted(0); skus.add(sku);}
+        for (int i=0;i<combos.size();i++){ StandardProductSku sku=new StandardProductSku(); sku.setStandardSpuId(spuId); sku.setPartnerId(loginUser.getPartnerId()); sku.setStock(0); sku.setCreateBy(loginUser.getId()); sku.setUpdateBy(loginUser.getId()); sku.setCreateTime(now); sku.setUpdateTime(now); sku.setIsDeleted(0); skus.add(sku);}
         if (!skus.isEmpty()) skuMapper.insertBatch(skus);
         List<StandardProductSku> dbSkus = skuMapper.selectListByStandardSpuId(spuId);
         List<StandardProductSkuPropertyValue> refs = new ArrayList<>();
-        for(int i=0;i<Math.min(dbSkus.size(),combos.size());i++){ for(StandardProductSpuPropertyValue v:combos.get(i)){ StandardProductSkuPropertyValue r=new StandardProductSkuPropertyValue(); r.setStandardProductSkuId(dbSkus.get(i).getId()); r.setStandardSpuId(spuId); r.setStandardSpuPropertyValueId(v.getId()); r.setCreateBy(loginUser.getId()); r.setUpdateBy(loginUser.getId()); r.setCreateTime(now); r.setUpdateTime(now); r.setIsDeleted(0); refs.add(r);} }
+        for(int i=0;i<Math.min(dbSkus.size(),combos.size());i++){ for(StandardProductSpuPropertyValue v:combos.get(i)){ StandardProductSkuPropertyValue r=new StandardProductSkuPropertyValue(); r.setStandardProductSkuId(dbSkus.get(i).getId()); r.setStandardSpuId(spuId); r.setStandardSpuPropertyValueId(v.getId()); r.setPartnerId(loginUser.getPartnerId()); r.setCreateBy(loginUser.getId()); r.setUpdateBy(loginUser.getId()); r.setCreateTime(now); r.setUpdateTime(now); r.setIsDeleted(0); refs.add(r);} }
         if(!refs.isEmpty()) skuPropertyValueMapper.insertBatch(refs);
     }
 

@@ -12,8 +12,7 @@ public class StandardProductSku extends BaseDO {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long standardSpuId;
-    @TableField(exist = false)
+    private Long partnerId;
     private Integer stock;
-    @TableField(exist = false)
     private String skuCode;
 }

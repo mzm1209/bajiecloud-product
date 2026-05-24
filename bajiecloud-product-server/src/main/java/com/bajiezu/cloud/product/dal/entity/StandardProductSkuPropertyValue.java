@@ -14,4 +14,5 @@ public class StandardProductSkuPropertyValue extends BaseDO {
     private Long standardProductSkuId;
     private Long standardSpuId;
     private Long standardSpuPropertyValueId;
+    private Long partnerId;
 }
