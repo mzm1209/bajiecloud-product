@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bajiezu.cloud.product.dal.mapper.StandardProductSpuPropertyMapper">
-    <insert id="insertBatch">insert into standard_product_spu_property (standard_spu_id,product_property_id,sort,is_add_property_pic,is_add_marketing_corner,is_sku_property,create_by,update_by,create_time,update_time,is_deleted) values
-        <foreach collection="list" item="item" separator=",">(#{item.standardSpuId},#{item.productPropertyId},#{item.sort},#{item.isAddPropertyPic},#{item.isAddMarketingCorner},#{item.isSkuProperty},#{item.createBy},#{item.updateBy},#{item.createTime},#{item.updateTime},#{item.isDeleted})</foreach>
+    <insert id="insertBatch">insert into standard_product_spu_property (standard_spu_id,product_property_id,sort,is_add_property_pic,is_add_marketing_corner,is_sku_property,partner_id,create_by,update_by,create_time,update_time,is_deleted) values
+        <foreach collection="list" item="item" separator=",">(#{item.standardSpuId},#{item.productPropertyId},#{item.sort},#{item.isAddPropertyPic},#{item.isAddMarketingCorner},#{item.isSkuProperty},#{item.partnerId},#{item.createBy},#{item.updateBy},#{item.createTime},#{item.updateTime},#{item.isDeleted})</foreach>
     </insert>
     <select id="selectListByStandardSpuId" resultType="com.bajiezu.cloud.product.dal.entity.StandardProductSpuProperty">select * from standard_product_spu_property where standard_spu_id=#{standardSpuId} and is_deleted=0</select>
     <update id="logicDelByStandardSpuId">update standard_product_spu_property set is_deleted=1,update_by=#{updateBy},update_time=#{updateTime} where standard_spu_id=#{standardSpuId} and is_deleted=0</update>
