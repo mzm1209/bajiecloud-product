@@ -1,4 +1,39 @@
 package com.bajiezu.cloud.product.controller;
-import com.bajiezu.cloud.common.web.pojo.CommonResult;import com.bajiezu.cloud.product.controller.vo.request.*;import com.bajiezu.cloud.product.controller.vo.response.AssetResidualConfigDetailRespVO;import com.bajiezu.cloud.product.service.AssetResidualConfigService;import io.swagger.v3.oas.annotations.Operation;import io.swagger.v3.oas.annotations.tags.Tag;import jakarta.annotation.Resource;import jakarta.validation.Valid;import org.springframework.validation.annotation.Validated;import org.springframework.web.bind.annotation.*;
-@Tag(name = "管理后台 - 资产残值配置") @RestController @RequestMapping("/product/assetResidual") @Validated
-public class AssetResidualConfigController { @Resource private AssetResidualConfigService assetResidualConfigService; @PostMapping("/detail") @Operation(summary="资产残值配置详情") public CommonResult<AssetResidualConfigDetailRespVO> detail(@Valid @RequestBody AssetResidualConfigQueryReqVO reqVO){ return CommonResult.success(assetResidualConfigService.detail(reqVO)); } @PostMapping("/save") @Operation(summary="保存资产残值配置") public CommonResult<Boolean> save(@Valid @RequestBody AssetResidualConfigSaveReqVO reqVO){ assetResidualConfigService.save(reqVO); return CommonResult.success(true);} }
+
+import com.bajiezu.cloud.common.web.pojo.CommonResult;
+import com.bajiezu.cloud.product.controller.vo.request.AssetResidualConfigQueryReqVO;
+import com.bajiezu.cloud.product.controller.vo.request.AssetResidualConfigSaveReqVO;
+import com.bajiezu.cloud.product.controller.vo.response.AssetResidualConfigDetailRespVO;
+import com.bajiezu.cloud.product.service.AssetResidualConfigService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Tag(name = "管理后台 - 资产残值配置")
+@RestController
+@RequestMapping("/product/assetResidual")
+@Validated
+public class AssetResidualConfigController {
+
+    @Resource
+    private AssetResidualConfigService assetResidualConfigService;
+
+    @PostMapping("/detail")
+    @Operation(summary = "资产残值配置详情")
+    public CommonResult<AssetResidualConfigDetailRespVO> detail(@Valid @RequestBody AssetResidualConfigQueryReqVO reqVO) {
+        return CommonResult.success(assetResidualConfigService.detail(reqVO));
+    }
+
+    @PostMapping("/save")
+    @Operation(summary = "保存资产残值配置")
+    public CommonResult<Boolean> save(@Valid @RequestBody AssetResidualConfigSaveReqVO reqVO) {
+        assetResidualConfigService.save(reqVO);
+        return CommonResult.success(true);
+    }
+}
