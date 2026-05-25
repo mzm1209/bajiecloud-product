@@ -1,0 +1,1 @@
+package com.bajiezu.cloud.product.service; import com.bajiezu.cloud.product.controller.vo.request.*; import com.bajiezu.cloud.product.controller.vo.response.AssetResidualConfigDetailRespVO; public interface AssetResidualConfigService { AssetResidualConfigDetailRespVO detail(AssetResidualConfigQueryReqVO reqVO); void save(AssetResidualConfigSaveReqVO reqVO); }
