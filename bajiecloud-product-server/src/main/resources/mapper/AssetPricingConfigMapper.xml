@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bajiezu.cloud.product.dal.mapper.AssetPricingConfigMapper">
+    <select id="selectBySkuId" resultType="com.bajiezu.cloud.product.dal.entity.AssetPricingConfig">
+        select * from asset_pricing_config where standard_product_sku_id=#{skuId} and partner_id=#{partnerId} and is_deleted=0 order by lease_mode,use_year
+    </select>
+    <update id="logicDelBySkuAndKeys">
+        update asset_pricing_config set is_deleted=1,update_by=#{updateBy},update_time=#{updateTime}
+        where standard_product_sku_id=#{skuId} and partner_id=#{partnerId} and lease_mode=#{leaseMode} and use_year=#{useYear} and is_deleted=0
+    </update>
+</mapper>
