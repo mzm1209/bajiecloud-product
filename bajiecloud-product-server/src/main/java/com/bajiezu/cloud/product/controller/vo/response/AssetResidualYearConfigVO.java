@@ -8,11 +8,11 @@ import java.math.BigDecimal;
 public class AssetResidualYearConfigVO {
 
     private Integer useYear;
-    private BigDecimal upperCoefficient;
-    private BigDecimal lowerCoefficient;
-    private BigDecimal yearBeginValue;
-    private BigDecimal yearDepreciationAmount;
-    private BigDecimal yearEndResidualValue;
-    private BigDecimal totalPriceUpperLimit;
-    private BigDecimal totalPriceLowerLimit;
+    private BigDecimal totalPriceUpperCoefficient;
+    private BigDecimal totalPriceLowerCoefficient;
+    private Long yearBeginValue;
+    private Long yearDepreciationAmount;
+    private Long yearEndResidualValue;
+    private Long totalPriceUpperLimit;
+    private Long totalPriceLowerLimit;
 }
