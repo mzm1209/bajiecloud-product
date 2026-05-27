@@ -18,17 +18,17 @@ public class AssetResidualYearConfig extends BaseDO {
     private Long id;
 
     @TableField("asset_residual_config_id")
-    private Long residualConfigId;
+    private Long assetResidualConfigId;
 
     private Long partnerId;
 
     private Integer useYear;
 
     @TableField("total_price_upper_coefficient")
-    private BigDecimal upperCoefficient;
+    private BigDecimal totalPriceUpperCoefficient;
 
     @TableField("total_price_lower_coefficient")
-    private BigDecimal lowerCoefficient;
+    private BigDecimal totalPriceLowerCoefficient;
 
     private BigDecimal yearBeginValue;
 

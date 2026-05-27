@@ -4,8 +4,8 @@
 
     <select id="selectByConfigId" resultType="com.bajiezu.cloud.product.dal.entity.AssetResidualMonthConfig">
         select id,
-               asset_residual_config_id as residual_config_id,
-               asset_residual_year_config_id as residual_year_config_id,
+               asset_residual_config_id as asset_residual_config_id,
+               asset_residual_year_config_id as asset_residual_year_config_id,
                partner_id,
                use_year,
                use_month,
@@ -51,8 +51,8 @@
         values
         <foreach collection="list" item="item" separator=",">
             (
-                #{item.residualConfigId},
-                #{item.residualYearConfigId},
+                #{item.assetResidualConfigId},
+                #{item.assetResidualYearConfigId},
                 #{item.partnerId},
                 #{item.useYear},
                 #{item.useMonth},

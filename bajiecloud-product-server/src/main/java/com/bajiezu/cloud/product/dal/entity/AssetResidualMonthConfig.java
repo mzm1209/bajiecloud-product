@@ -18,10 +18,10 @@ public class AssetResidualMonthConfig extends BaseDO {
     private Long id;
 
     @TableField("asset_residual_config_id")
-    private Long residualConfigId;
+    private Long assetResidualConfigId;
 
     @TableField("asset_residual_year_config_id")
-    private Long residualYearConfigId;
+    private Long assetResidualYearConfigId;
 
     private Long partnerId;
 

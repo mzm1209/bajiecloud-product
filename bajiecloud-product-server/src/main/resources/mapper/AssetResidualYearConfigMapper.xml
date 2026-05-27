@@ -4,11 +4,11 @@
 
     <select id="selectByConfigId" resultType="com.bajiezu.cloud.product.dal.entity.AssetResidualYearConfig">
         select id,
-               asset_residual_config_id as residual_config_id,
+               asset_residual_config_id as asset_residual_config_id,
                partner_id,
                use_year,
-               total_price_upper_coefficient as upper_coefficient,
-               total_price_lower_coefficient as lower_coefficient,
+               total_price_upper_coefficient as total_price_upper_coefficient,
+               total_price_lower_coefficient as total_price_lower_coefficient,
                year_begin_value,
                year_depreciation_amount,
                year_end_residual_value,
@@ -47,11 +47,11 @@
         values
         <foreach collection="list" item="item" separator=",">
             (
-                #{item.residualConfigId},
+                #{item.assetResidualConfigId},
                 #{item.partnerId},
                 #{item.useYear},
-                #{item.upperCoefficient},
-                #{item.lowerCoefficient},
+                #{item.totalPriceUpperCoefficient},
+                #{item.totalPriceLowerCoefficient},
                 #{item.yearBeginValue},
                 #{item.yearDepreciationAmount},
                 #{item.yearEndResidualValue},
