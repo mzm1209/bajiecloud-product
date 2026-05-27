@@ -58,6 +58,9 @@ public class SkuRespDto {
     @Schema(description = "是否允许下单 0:否 1:是")
     private Integer isAllowOrder;
 
+    @Schema(description = "库存数量")
+    private Integer stock;
+
     @Schema(description = "属性信息")
     private List<PropertyVO> properties;
 

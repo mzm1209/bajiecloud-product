@@ -37,4 +37,10 @@ public class SpuRespDto {
 
     @Schema(description = "SPU主图")
     private List<String> mainPicUrls;
+
+    @Schema(description = "上架状态 0:待上架 1:已上架 2:已下架", oneOf = com.bajiezu.cloud.product.enums.ShelvesStatusEnum.class)
+    private Integer shelvesStatus;
+
+    @Schema(description = "审批状态 0:待审核 1:审核通过 2:审核失败", oneOf = com.bajiezu.cloud.product.enums.ApproveStatusEnum.class)
+    private Integer approvalStatus;
 }

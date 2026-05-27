@@ -1413,6 +1413,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         skuRespDto.setCashPrice(marketingProductSku.getCashPrice());
         skuRespDto.setIsAllowOrder(marketingProductSku.getIsAllowOrder());
         skuRespDto.setPartnerId(marketingProductSku.getPartnerId());
+        skuRespDto.setStock(marketingProductSku.getStock());
 
         // 属性信息
         List<PropertyVO> propertyVOS = Lists.newArrayList();
@@ -1449,6 +1450,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         spuRespDto.setBusinessCategoryName(businessCategoryName);
         spuRespDto.setMarketingCategoryName(marketingCategoryName);
         spuRespDto.setMainPicUrls(List.of(marketingProductSpu.getMainPicUrls().split(",")));
+        spuRespDto.setShelvesStatus(marketingProductSpu.getShelvesStatus());
+        spuRespDto.setApprovalStatus(marketingProductSpu.getApprovalStatus());
         return skuRespDto;
     }
 
