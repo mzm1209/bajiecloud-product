@@ -2,7 +2,6 @@ package com.bajiezu.cloud.product.controller.vo.request;
 
 import com.bajiezu.cloud.product.controller.vo.response.AssetResidualMonthConfigVO;
 import com.bajiezu.cloud.product.controller.vo.response.AssetResidualYearConfigVO;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -20,8 +19,7 @@ public class AssetResidualConfigSaveReqVO {
     private Long standardProductSkuId;
 
     @NotNull
-    @DecimalMin("0.01")
-    private BigDecimal officialPrice;
+        private Long officialPrice;
 
     @NotNull
     private Integer depreciationRuleType;

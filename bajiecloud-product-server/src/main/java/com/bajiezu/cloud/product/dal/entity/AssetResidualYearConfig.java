@@ -30,13 +30,13 @@ public class AssetResidualYearConfig extends BaseDO {
     @TableField("total_price_lower_coefficient")
     private BigDecimal totalPriceLowerCoefficient;
 
-    private BigDecimal yearBeginValue;
+    private Long yearBeginValue;
 
-    private BigDecimal yearDepreciationAmount;
+    private Long yearDepreciationAmount;
 
-    private BigDecimal yearEndResidualValue;
+    private Long yearEndResidualValue;
 
-    private BigDecimal totalPriceUpperLimit;
+    private Long totalPriceUpperLimit;
 
-    private BigDecimal totalPriceLowerLimit;
+    private Long totalPriceLowerLimit;
 }

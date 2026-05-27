@@ -36,7 +36,17 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
         resp.setPartnerId(reqVO.getPartnerId()); resp.setStandardSpuId(reqVO.getStandardSpuId()); resp.setStandardProductSkuId(reqVO.getStandardProductSkuId());
         resp.setLeaseModeConfigs(Arrays.asList(buildLeaseModeVO(1, confMap, residualConfig, yearMap), buildLeaseModeVO(2, confMap, residualConfig, yearMap)));
         return resp;
+    
+    private static final BigDecimal AMOUNT_SCALE = BigDecimal.valueOf(10000);
+
+    private BigDecimal toAmountDecimal(Long v){
+        return v == null ? null : BigDecimal.valueOf(v).divide(AMOUNT_SCALE, 4, RoundingMode.HALF_UP);
     }
+
+    private Long toAmountLong(BigDecimal v){
+        return v == null ? null : v.multiply(AMOUNT_SCALE).setScale(0, RoundingMode.HALF_UP).longValue();
+    }
+}
 
     private AssetPricingConfigDetailRespVO.LeaseModeConfigVO buildLeaseModeVO(Integer leaseMode, Map<String, AssetPricingConfig> confMap, AssetResidualConfig residualConfig, Map<Integer, AssetResidualYearConfig> yearMap) {
         AssetPricingConfigDetailRespVO.LeaseModeConfigVO vo = new AssetPricingConfigDetailRespVO.LeaseModeConfigVO(); vo.setLeaseMode(leaseMode);
@@ -55,7 +65,7 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
     }
     private void applyRisk(AssetPricingYearConfigVO v, AssetResidualYearConfig y){
         if(y==null||v.getMonthlyRent()==null||v.getExpirationPurchaseAmount()==null) return;
-        boolean risk=v.getMonthlyRent().multiply(BigDecimal.valueOf(12)).add(v.getExpirationPurchaseAmount()).compareTo(y.getYearEndResidualValue())<0;
+        boolean risk=v.getMonthlyRent() * 12 + v.getExpirationPurchaseAmount() < y.getYearEndResidualValue();
         v.setRiskWarning(risk); if(risk) v.setRiskWarningMsg("当前定价低于设备残值，存在亏损风险，请确认");
     }
 
@@ -76,24 +86,27 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
 
     private AssetPricingConfig buildAndValidate(AssetPricingConfigSaveReqVO reqVO, AssetPricingItemSaveReqVO item, AssetResidualConfig residualConfig, Map<Integer, AssetResidualYearConfig> yearMap, LoginUser<?> u, Date now) {
         AssetResidualYearConfig y = yearMap.get(item.getUseYear());
-        BigDecimal deviceValue = item.getUseYear() == 1 ? (residualConfig == null ? null : residualConfig.getOfficialPrice()) : (y == null ? null : y.getYearBeginValue());
-        if (deviceValue == null || (item.getUseYear() > 1 && y == null)) throw exception(ASSET_PRICING_RESIDUAL_VALUE_REQUIRED);
+        Long deviceValue = item.getUseYear() == 1 ? (residualConfig == null ? null : residualConfig.getOfficialPrice()) : (y == null ? null : y.getYearBeginValue());
+        BigDecimal deviceValueDecimal = toAmountDecimal(deviceValue);
+        if (deviceValue == null || deviceValueDecimal == null || (item.getUseYear() > 1 && y == null)) throw exception(ASSET_PRICING_RESIDUAL_VALUE_REQUIRED);
         if (item.getDeviceTotalPriceCoefficient().compareTo(BigDecimal.ZERO) <= 0) throw exception(ASSET_PRICING_TOTAL_PRICE_COEFFICIENT_INVALID);
-        BigDecimal deviceTotalPrice = deviceValue.multiply(item.getDeviceTotalPriceCoefficient()).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal deviceTotalPrice = deviceValueDecimal.multiply(item.getDeviceTotalPriceCoefficient()).setScale(4, RoundingMode.HALF_UP);
+        Long deviceTotalPriceLong = toAmountLong(deviceTotalPrice);
         if (deviceTotalPrice.compareTo(BigDecimal.ZERO) <= 0) throw exception(ASSET_PRICING_TOTAL_PRICE_INVALID);
-        if (y != null && y.getTotalPriceLowerLimit() != null && deviceTotalPrice.compareTo(y.getTotalPriceLowerLimit()) < 0) throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_LOW);
-        if (y != null && y.getTotalPriceUpperLimit() != null && deviceTotalPrice.compareTo(y.getTotalPriceUpperLimit()) > 0) throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_HIGH);
+        if (y != null && y.getTotalPriceLowerLimit() != null && deviceTotalPriceLong < y.getTotalPriceLowerLimit()) throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_LOW);
+        if (y != null && y.getTotalPriceUpperLimit() != null && deviceTotalPriceLong > y.getTotalPriceUpperLimit()) throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_HIGH);
         if (item.getTotalRentCoefficient().compareTo(BigDecimal.ZERO) < 0) throw exception(ASSET_PRICING_TOTAL_RENT_COEFFICIENT_INVALID);
-        BigDecimal totalRent = deviceTotalPrice.multiply(item.getTotalRentCoefficient()).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalRent = deviceTotalPrice.multiply(item.getTotalRentCoefficient()).setScale(4, RoundingMode.HALF_UP);
+        Long totalRentLong = toAmountLong(totalRent);
         if (totalRent.compareTo(BigDecimal.ZERO) < 0) throw exception(ASSET_PRICING_TOTAL_RENT_INVALID);
-        BigDecimal monthlyRent = totalRent.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP);
-        BigDecimal dailyRent = totalRent.divide(BigDecimal.valueOf(365), 2, RoundingMode.HALF_UP);
+        Long monthlyRent = toAmountLong(totalRent.divide(BigDecimal.valueOf(12), 4, RoundingMode.HALF_UP));
+        Long dailyRent = toAmountLong(totalRent.divide(BigDecimal.valueOf(365), 4, RoundingMode.HALF_UP));
         if (monthlyRent.compareTo(BigDecimal.ZERO) < 0 || dailyRent.compareTo(BigDecimal.ZERO) < 0) throw exception(ASSET_PRICING_MONTHLY_OR_DAILY_RENT_INVALID);
-        BigDecimal annualDep = y == null ? BigDecimal.ZERO : y.getYearDepreciationAmount();
-        BigDecimal expiration = deviceTotalPrice.subtract(annualDep).setScale(2, RoundingMode.HALF_UP);
-        if (expiration.compareTo(BigDecimal.ZERO) < 0) throw exception(ASSET_PRICING_EXPIRATION_PURCHASE_INVALID);
+        Long annualDep = y == null ? 0L : y.getYearDepreciationAmount();
+        Long expiration = deviceTotalPriceLong - annualDep;
+        if (expiration < 0) throw exception(ASSET_PRICING_EXPIRATION_PURCHASE_INVALID);
         AssetPricingConfig po = new AssetPricingConfig();
-        po.setPartnerId(reqVO.getPartnerId()); po.setStandardSpuId(reqVO.getStandardSpuId()); po.setStandardProductSkuId(reqVO.getStandardProductSkuId()); po.setUseYear(item.getUseYear()); po.setLeaseMode(item.getLeaseMode()); po.setDeviceValue(deviceValue.setScale(2, RoundingMode.HALF_UP)); po.setDeviceTotalPriceCoefficient(item.getDeviceTotalPriceCoefficient().setScale(4, RoundingMode.HALF_UP)); po.setDeviceTotalPrice(deviceTotalPrice); po.setTotalRentCoefficient(item.getTotalRentCoefficient().setScale(4, RoundingMode.HALF_UP)); po.setTotalRent(totalRent); po.setMonthlyRent(monthlyRent); po.setDailyRent(dailyRent); po.setAnnualDepreciationAmount(annualDep.setScale(2, RoundingMode.HALF_UP)); po.setExpirationPurchaseAmount(expiration); po.setResidualValueConfigId(residualConfig == null ? null : residualConfig.getId()); po.setPricingSource(1); po.setStatus(1); po.setRemark(item.getRemark()); po.setCreateBy(u.getId()); po.setUpdateBy(u.getId()); po.setCreateTime(now); po.setUpdateTime(now); po.setIsDeleted(0);
+        po.setPartnerId(reqVO.getPartnerId()); po.setStandardSpuId(reqVO.getStandardSpuId()); po.setStandardProductSkuId(reqVO.getStandardProductSkuId()); po.setUseYear(item.getUseYear()); po.setLeaseMode(item.getLeaseMode()); po.setDeviceValue(deviceValue); po.setDeviceTotalPriceCoefficient(item.getDeviceTotalPriceCoefficient().setScale(4, RoundingMode.HALF_UP)); po.setDeviceTotalPrice(deviceTotalPriceLong); po.setTotalRentCoefficient(item.getTotalRentCoefficient().setScale(4, RoundingMode.HALF_UP)); po.setTotalRent(totalRentLong); po.setMonthlyRent(monthlyRent); po.setDailyRent(dailyRent); po.setAnnualDepreciationAmount(annualDep); po.setExpirationPurchaseAmount(expiration); po.setResidualValueConfigId(residualConfig == null ? null : residualConfig.getId()); po.setPricingSource(1); po.setStatus(1); po.setRemark(item.getRemark()); po.setCreateBy(u.getId()); po.setUpdateBy(u.getId()); po.setCreateTime(now); po.setUpdateTime(now); po.setIsDeleted(0);
         return po;
     }
 }

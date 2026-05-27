@@ -33,13 +33,13 @@ public class AssetResidualMonthConfig extends BaseDO {
 
     private BigDecimal depreciationRuleValue;
 
-    private BigDecimal beginValue;
+    private Long beginValue;
 
-    private BigDecimal depreciationAmount;
+    private Long depreciationAmount;
 
-    private BigDecimal residualValue;
+    private Long residualValue;
 
-    private BigDecimal accumulatedDepreciationAmount;
+    private Long accumulatedDepreciationAmount;
 
-    private BigDecimal currentPurchaseAmount;
+    private Long currentPurchaseAmount;
 }
