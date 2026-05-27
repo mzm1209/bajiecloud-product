@@ -20,7 +20,6 @@ public class ValueAddedAddReqVO {
     private Integer status;
 
     @Schema(description = "增值服务销售价格")
-    @NotNull(message = "增值服务销售价格不能为空")
     private Long salePrice;
 
     @Schema(description = "增值服务续租售价")
@@ -33,7 +32,6 @@ public class ValueAddedAddReqVO {
     private String serviceOverview;
 
     @Schema(description = "服务内容")
-    @NotBlank(message = "服务内容不能为空")
     private String serviceContent;
 
     @Schema(description = "详情图URL,多个英文逗号分隔")
