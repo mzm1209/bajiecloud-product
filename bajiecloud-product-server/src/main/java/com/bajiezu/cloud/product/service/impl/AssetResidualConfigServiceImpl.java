@@ -81,7 +81,22 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
     private BigDecimal toAmountDecimal(Long v){ return v==null?null:BigDecimal.valueOf(v).divide(AMOUNT_SCALE,4,RoundingMode.HALF_UP); }
     private Long toAmountLong(BigDecimal v){ return v==null?null:v.multiply(AMOUNT_SCALE).setScale(0,RoundingMode.HALF_UP).longValue(); }
 
-    private void validate(AssetResidualConfigSaveReqVO r){ if(r.getYearConfigs().size()!=3||r.getMonthConfigs().size()!=36) throw exception(ASSET_RESIDUAL_PARAM_INVALID); }
+    private void validate(AssetResidualConfigSaveReqVO r){
+        if(r.getYearConfigs().size()!=3||r.getMonthConfigs().size()!=36) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
+        boolean yearCoefficientMissing = r.getYearConfigs().stream().anyMatch(y -> y == null
+                || y.getUseYear() == null
+                || y.getTotalPriceUpperCoefficient() == null
+                || y.getTotalPriceLowerCoefficient() == null);
+        if (yearCoefficientMissing) {
+            throw exception(ASSET_RESIDUAL_YEAR_COEFFICIENT_REQUIRED);
+        }
+        boolean monthRuleValueMissing = r.getMonthConfigs().stream().anyMatch(m -> m == null
+                || m.getGlobalMonth() == null
+                || m.getDepreciationRuleValue() == null);
+        if (monthRuleValueMissing) {
+            throw exception(ASSET_RESIDUAL_MONTH_RULE_VALUE_REQUIRED);
+        }
+    }
     private BigDecimal calcDep(Integer t,BigDecimal begin,BigDecimal v){ return AssetResidualCalculator.depreciationAmount(t, begin, v); }
     private List<AssetResidualYearConfigVO> emptyYears(){ List<AssetResidualYearConfigVO> l=new ArrayList<>(); for(int i=1;i<=3;i++){AssetResidualYearConfigVO v=new AssetResidualYearConfigVO();v.setUseYear(i);l.add(v);} return l; }
     private List<AssetResidualMonthConfigVO> emptyMonths(){ List<AssetResidualMonthConfigVO> l=new ArrayList<>(); for(int g=1;g<=36;g++){AssetResidualMonthConfigVO v=new AssetResidualMonthConfigVO();v.setGlobalMonth(g);v.setUseYear((g-1)/12+1);v.setUseMonth((g-1)%12+1);l.add(v);} return l; }
