@@ -40,7 +40,7 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
         resp.setStandardProductSkuId(skuId);
         AssetResidualConfig c=configMapper.selectBySkuId(skuId,u.getPartnerId());
         if(c==null){ resp.setYearConfigs(emptyYears()); resp.setMonthConfigs(emptyMonths()); return resp; }
-        resp.setOfficialPrice(c.getOfficialPrice()); resp.setDepreciationRuleType(c.getDepreciationRuleType()); resp.setDepreciationRuleSubType(c.getDepreciationRuleSubType()); resp.setRemark(c.getRemark()); resp.setStatus(c.getStatus());
+        resp.setOfficialPrice(toDisplayLong(c.getOfficialPrice())); resp.setDepreciationRuleType(c.getDepreciationRuleType()); resp.setDepreciationRuleSubType(c.getDepreciationRuleSubType()); resp.setRemark(c.getRemark()); resp.setStatus(c.getStatus());
         resp.setYearConfigs(yearMapper.selectByConfigId(c.getId(),u.getPartnerId()).stream().map(this::toYearVO).toList());
         resp.setMonthConfigs(monthMapper.selectByConfigId(c.getId(),u.getPartnerId()).stream().map(this::toMonthVO).toList());
         return resp;
@@ -55,13 +55,14 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
         Date now=new Date();
         AssetResidualConfig old=configMapper.selectBySkuId(reqVO.getStandardProductSkuId(),u.getPartnerId());
         if(old!=null){ monthMapper.logicDelByConfigId(old.getId(),u.getPartnerId(),u.getId(),now); yearMapper.logicDelByConfigId(old.getId(),u.getPartnerId(),u.getId(),now); configMapper.logicDelBySkuId(reqVO.getStandardProductSkuId(),u.getPartnerId(),u.getId(),now);}        
-        AssetResidualConfig c=new AssetResidualConfig(); c.setPartnerId(u.getPartnerId()); c.setStandardSpuId(reqVO.getStandardSpuId()); c.setStandardProductSkuId(reqVO.getStandardProductSkuId()); c.setOfficialPrice(reqVO.getOfficialPrice()); c.setDepreciationRuleType(reqVO.getDepreciationRuleType()); c.setDepreciationRuleSubType(reqVO.getDepreciationRuleSubType()); c.setRemark(reqVO.getRemark()); c.setStatus(1); c.setCreateBy(u.getId()); c.setUpdateBy(u.getId()); c.setCreateTime(now); c.setUpdateTime(now); c.setIsDeleted(0); configMapper.insert(c);
+        BigDecimal officialPriceAmount = toYuanDecimal(reqVO.getOfficialPrice());
+        AssetResidualConfig c=new AssetResidualConfig(); c.setPartnerId(u.getPartnerId()); c.setStandardSpuId(reqVO.getStandardSpuId()); c.setStandardProductSkuId(reqVO.getStandardProductSkuId()); c.setOfficialPrice(toAmountLong(officialPriceAmount)); c.setDepreciationRuleType(reqVO.getDepreciationRuleType()); c.setDepreciationRuleSubType(reqVO.getDepreciationRuleSubType()); c.setRemark(reqVO.getRemark()); c.setStatus(1); c.setCreateBy(u.getId()); c.setUpdateBy(u.getId()); c.setCreateTime(now); c.setUpdateTime(now); c.setIsDeleted(0); configMapper.insert(c);
         Map<Integer,AssetResidualYearConfigVO> years=reqVO.getYearConfigs().stream().collect(Collectors.toMap(AssetResidualYearConfigVO::getUseYear,y->y));
         Map<Integer,AssetResidualMonthConfigVO> months=reqVO.getMonthConfigs().stream().collect(Collectors.toMap(AssetResidualMonthConfigVO::getGlobalMonth,m->m));
-        BigDecimal accum=BigDecimal.ZERO; BigDecimal lastYearEnd=toAmountDecimal(reqVO.getOfficialPrice());
+        BigDecimal accum=BigDecimal.ZERO; BigDecimal lastYearEnd=officialPriceAmount;
         List<AssetResidualMonthConfig> ml=new ArrayList<>();
         for(int y=1;y<=3;y++){
-            BigDecimal yearBegin=(y==1)?toAmountDecimal(reqVO.getOfficialPrice()):lastYearEnd; BigDecimal yearDep=BigDecimal.ZERO;
+            BigDecimal yearBegin=(y==1)?officialPriceAmount:lastYearEnd; BigDecimal yearDep=BigDecimal.ZERO;
             for(int m=1;m<=12;m++){
                 int g=(y-1)*12+m; AssetResidualMonthConfigVO in=months.get(g); BigDecimal begin=(m==1)?yearBegin:toAmountDecimal(ml.get(ml.size()-1).getResidualValue());
                 BigDecimal dep=calcDep(reqVO.getDepreciationRuleType(),begin,in.getDepreciationRuleValue()); BigDecimal residual=begin.subtract(dep).setScale(2,RoundingMode.HALF_UP); if(residual.compareTo(BigDecimal.ZERO)<0) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
@@ -79,10 +80,13 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
     }
     private static final BigDecimal AMOUNT_SCALE = BigDecimal.valueOf(10000);
     private BigDecimal toAmountDecimal(Long v){ return v==null?null:BigDecimal.valueOf(v).divide(AMOUNT_SCALE,4,RoundingMode.HALF_UP); }
+    private BigDecimal toYuanDecimal(Long v){ return v==null?null:BigDecimal.valueOf(v).setScale(4,RoundingMode.HALF_UP); }
     private Long toAmountLong(BigDecimal v){ return v==null?null:v.multiply(AMOUNT_SCALE).setScale(0,RoundingMode.HALF_UP).longValue(); }
+    private Long toDisplayLong(Long storedValue){ return toAmountDecimal(storedValue).setScale(0,RoundingMode.HALF_UP).longValue(); }
 
     private void validate(AssetResidualConfigSaveReqVO r){
         if(r.getYearConfigs().size()!=3||r.getMonthConfigs().size()!=36) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
+        if (r.getOfficialPrice() == null || r.getOfficialPrice() <= 0) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
         boolean yearCoefficientMissing = r.getYearConfigs().stream().anyMatch(y -> y == null
                 || y.getUseYear() == null
                 || y.getTotalPriceUpperCoefficient() == null
@@ -96,10 +100,12 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
         if (monthRuleValueMissing) {
             throw exception(ASSET_RESIDUAL_MONTH_RULE_VALUE_REQUIRED);
         }
+        boolean monthRuleInvalid = r.getMonthConfigs().stream().anyMatch(m -> m.getDepreciationRuleValue().compareTo(BigDecimal.ZERO) < 0);
+        if (monthRuleInvalid) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
     }
     private BigDecimal calcDep(Integer t,BigDecimal begin,BigDecimal v){ return AssetResidualCalculator.depreciationAmount(t, begin, v); }
     private List<AssetResidualYearConfigVO> emptyYears(){ List<AssetResidualYearConfigVO> l=new ArrayList<>(); for(int i=1;i<=3;i++){AssetResidualYearConfigVO v=new AssetResidualYearConfigVO();v.setUseYear(i);l.add(v);} return l; }
     private List<AssetResidualMonthConfigVO> emptyMonths(){ List<AssetResidualMonthConfigVO> l=new ArrayList<>(); for(int g=1;g<=36;g++){AssetResidualMonthConfigVO v=new AssetResidualMonthConfigVO();v.setGlobalMonth(g);v.setUseYear((g-1)/12+1);v.setUseMonth((g-1)%12+1);l.add(v);} return l; }
-    private AssetResidualYearConfigVO toYearVO(AssetResidualYearConfig y){ AssetResidualYearConfigVO v=new AssetResidualYearConfigVO(); v.setUseYear(y.getUseYear()); v.setTotalPriceUpperCoefficient(y.getTotalPriceUpperCoefficient()); v.setTotalPriceLowerCoefficient(y.getTotalPriceLowerCoefficient()); v.setYearBeginValue(y.getYearBeginValue()); v.setYearDepreciationAmount(y.getYearDepreciationAmount()); v.setYearEndResidualValue(y.getYearEndResidualValue()); v.setTotalPriceUpperLimit(y.getTotalPriceUpperLimit()); v.setTotalPriceLowerLimit(y.getTotalPriceLowerLimit()); return v; }
-    private AssetResidualMonthConfigVO toMonthVO(AssetResidualMonthConfig m){ AssetResidualMonthConfigVO v=new AssetResidualMonthConfigVO(); v.setUseYear(m.getUseYear()); v.setUseMonth(m.getUseMonth()); v.setGlobalMonth(m.getGlobalMonth()); v.setDepreciationRuleValue(m.getDepreciationRuleValue()); v.setBeginValue(m.getBeginValue()); v.setDepreciationAmount(m.getDepreciationAmount()); v.setResidualValue(m.getResidualValue()); v.setAccumulatedDepreciationAmount(m.getAccumulatedDepreciationAmount()); v.setCurrentPurchaseAmount(m.getCurrentPurchaseAmount()); return v; }
+    private AssetResidualYearConfigVO toYearVO(AssetResidualYearConfig y){ AssetResidualYearConfigVO v=new AssetResidualYearConfigVO(); v.setUseYear(y.getUseYear()); v.setTotalPriceUpperCoefficient(y.getTotalPriceUpperCoefficient()); v.setTotalPriceLowerCoefficient(y.getTotalPriceLowerCoefficient()); v.setYearBeginValue(toDisplayLong(y.getYearBeginValue())); v.setYearDepreciationAmount(toDisplayLong(y.getYearDepreciationAmount())); v.setYearEndResidualValue(toDisplayLong(y.getYearEndResidualValue())); v.setTotalPriceUpperLimit(toDisplayLong(y.getTotalPriceUpperLimit())); v.setTotalPriceLowerLimit(toDisplayLong(y.getTotalPriceLowerLimit())); return v; }
+    private AssetResidualMonthConfigVO toMonthVO(AssetResidualMonthConfig m){ AssetResidualMonthConfigVO v=new AssetResidualMonthConfigVO(); v.setUseYear(m.getUseYear()); v.setUseMonth(m.getUseMonth()); v.setGlobalMonth(m.getGlobalMonth()); v.setDepreciationRuleValue(m.getDepreciationRuleValue()); v.setBeginValue(toDisplayLong(m.getBeginValue())); v.setDepreciationAmount(toDisplayLong(m.getDepreciationAmount())); v.setResidualValue(toDisplayLong(m.getResidualValue())); v.setAccumulatedDepreciationAmount(toDisplayLong(m.getAccumulatedDepreciationAmount())); v.setCurrentPurchaseAmount(toDisplayLong(m.getCurrentPurchaseAmount())); return v; }
 }
