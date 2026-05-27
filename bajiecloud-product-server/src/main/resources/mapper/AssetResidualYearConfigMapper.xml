@@ -1,1 +1,64 @@
-<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><mapper namespace="com.bajiezu.cloud.product.dal.mapper.AssetResidualYearConfigMapper"><select id="selectByConfigId" resultType="com.bajiezu.cloud.product.dal.entity.AssetResidualYearConfig">select * from asset_residual_year_config where residual_config_id=#{configId} and partner_id=#{partnerId} and is_deleted=0 order by use_year asc</select><insert id="insertBatch">insert into asset_residual_year_config(residual_config_id,partner_id,use_year,upper_coefficient,lower_coefficient,year_begin_value,year_depreciation_amount,year_end_residual_value,total_price_upper_limit,total_price_lower_limit,create_by,update_by,create_time,update_time,is_deleted) values <foreach collection="list" item="item" separator=",">(#{item.residualConfigId},#{item.partnerId},#{item.useYear},#{item.upperCoefficient},#{item.lowerCoefficient},#{item.yearBeginValue},#{item.yearDepreciationAmount},#{item.yearEndResidualValue},#{item.totalPriceUpperLimit},#{item.totalPriceLowerLimit},#{item.createBy},#{item.updateBy},#{item.createTime},#{item.updateTime},#{item.isDeleted})</foreach></insert><update id="logicDelByConfigId">update asset_residual_year_config set is_deleted=1,update_by=#{updateBy},update_time=#{updateTime} where residual_config_id=#{configId} and partner_id=#{partnerId} and is_deleted=0</update></mapper>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bajiezu.cloud.product.dal.mapper.AssetResidualYearConfigMapper">
+
+    <select id="selectByConfigId" resultType="com.bajiezu.cloud.product.dal.entity.AssetResidualYearConfig">
+        select *
+        from asset_residual_year_config
+        where config_id = #{configId}
+          and partner_id = #{partnerId}
+          and is_deleted = 0
+        order by use_year asc
+    </select>
+
+    <insert id="insertBatch">
+        insert into asset_residual_year_config(
+            config_id,
+            partner_id,
+            use_year,
+            upper_coefficient,
+            lower_coefficient,
+            year_begin_value,
+            year_depreciation_amount,
+            year_end_residual_value,
+            total_price_upper_limit,
+            total_price_lower_limit,
+            create_by,
+            update_by,
+            create_time,
+            update_time,
+            is_deleted
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.residualConfigId},
+                #{item.partnerId},
+                #{item.useYear},
+                #{item.upperCoefficient},
+                #{item.lowerCoefficient},
+                #{item.yearBeginValue},
+                #{item.yearDepreciationAmount},
+                #{item.yearEndResidualValue},
+                #{item.totalPriceUpperLimit},
+                #{item.totalPriceLowerLimit},
+                #{item.createBy},
+                #{item.updateBy},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.isDeleted}
+            )
+        </foreach>
+    </insert>
+
+    <update id="logicDelByConfigId">
+        update asset_residual_year_config
+        set is_deleted = 1,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where config_id = #{configId}
+          and partner_id = #{partnerId}
+          and is_deleted = 0
+    </update>
+
+</mapper>
