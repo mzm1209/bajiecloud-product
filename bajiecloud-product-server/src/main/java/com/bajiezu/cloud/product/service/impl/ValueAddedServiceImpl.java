@@ -157,7 +157,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         if (NumberUtils.INTEGER_ONE.equals(valueAdded.getIsDeleted())) {
             throw exception(VALUE_ADDED_DELETED);
         }
-
+        log.info("valueAdded mod CompensationLevel: {}", reqVO.getCompensationLevel());
         // 更新增值服务
         normalizeAndValidate(reqVO);
         Date now = new Date();
