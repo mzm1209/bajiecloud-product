@@ -11,16 +11,9 @@
         limit 1
     </select>
 
-    <delete id="physicalDelDeletedBySkuId">
-        delete from asset_residual_config
-        where standard_product_sku_id = #{skuId}
-          and partner_id = #{partnerId}
-          and is_deleted = 1
-    </delete>
-
     <update id="logicDelBySkuId">
         update asset_residual_config
-        set is_deleted = 1,
+        set is_deleted = id,
             update_by = #{updateBy},
             update_time = #{updateTime}
         where standard_product_sku_id = #{skuId}

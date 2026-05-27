@@ -16,6 +16,4 @@ public interface AssetResidualConfigMapper extends BaseMapper<AssetResidualConfi
             @Param("partnerId") Long partnerId,
             @Param("updateBy") Long updateBy,
             @Param("updateTime") Date updateTime);
-
-    void physicalDelDeletedBySkuId(@Param("skuId") Long skuId, @Param("partnerId") Long partnerId);
 }
