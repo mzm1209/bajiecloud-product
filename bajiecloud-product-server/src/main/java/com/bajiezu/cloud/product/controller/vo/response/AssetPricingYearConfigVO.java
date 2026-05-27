@@ -7,15 +7,15 @@ import java.math.BigDecimal;
 @Data
 public class AssetPricingYearConfigVO {
     private Integer useYear;
-    private BigDecimal deviceValue;
-    private BigDecimal annualDepreciationAmount;
+    private Long deviceValue;
+    private Long annualDepreciationAmount;
     private BigDecimal deviceTotalPriceCoefficient;
-    private BigDecimal deviceTotalPrice;
+    private Long deviceTotalPrice;
     private BigDecimal totalRentCoefficient;
-    private BigDecimal totalRent;
-    private BigDecimal monthlyRent;
-    private BigDecimal dailyRent;
-    private BigDecimal expirationPurchaseAmount;
+    private Long totalRent;
+    private Long monthlyRent;
+    private Long dailyRent;
+    private Long expirationPurchaseAmount;
     private Boolean riskWarning;
     private String riskWarningMsg;
 }

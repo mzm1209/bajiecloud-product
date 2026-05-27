@@ -5,7 +5,7 @@
         select * from asset_pricing_config where standard_product_sku_id=#{skuId} and partner_id=#{partnerId} and is_deleted=0 order by lease_mode,use_year
     </select>
     <update id="logicDelBySkuAndKeys">
-        update asset_pricing_config set is_deleted=1,update_by=#{updateBy},update_time=#{updateTime}
+        update asset_pricing_config set is_deleted=id,update_by=#{updateBy},update_time=#{updateTime}
         where standard_product_sku_id=#{skuId} and partner_id=#{partnerId} and lease_mode=#{leaseMode} and use_year=#{useYear} and is_deleted=0
     </update>
 </mapper>

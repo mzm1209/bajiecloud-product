@@ -1,1 +1,24 @@
-<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><mapper namespace="com.bajiezu.cloud.product.dal.mapper.AssetResidualConfigMapper"><select id="selectBySkuId" resultType="com.bajiezu.cloud.product.dal.entity.AssetResidualConfig">select * from asset_residual_config where standard_product_sku_id=#{skuId} and partner_id=#{partnerId} and is_deleted=0 limit 1</select><update id="logicDelBySkuId">update asset_residual_config set is_deleted=1,update_by=#{updateBy},update_time=#{updateTime} where standard_product_sku_id=#{skuId} and partner_id=#{partnerId} and is_deleted=0</update></mapper>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bajiezu.cloud.product.dal.mapper.AssetResidualConfigMapper">
+
+    <select id="selectBySkuId" resultType="com.bajiezu.cloud.product.dal.entity.AssetResidualConfig">
+        select *
+        from asset_residual_config
+        where standard_product_sku_id = #{skuId}
+          and partner_id = #{partnerId}
+          and is_deleted = 0
+        limit 1
+    </select>
+
+    <update id="logicDelBySkuId">
+        update asset_residual_config
+        set is_deleted = id,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where standard_product_sku_id = #{skuId}
+          and partner_id = #{partnerId}
+          and is_deleted = 0
+    </update>
+
+</mapper>

@@ -10,7 +10,7 @@ public class AssetResidualConfigDetailRespVO {
 
     private Long standardSpuId;
     private Long standardProductSkuId;
-    private BigDecimal officialPrice;
+    private Long officialPrice;
     private Integer depreciationRuleType;
     private Integer depreciationRuleSubType;
     private String remark;
