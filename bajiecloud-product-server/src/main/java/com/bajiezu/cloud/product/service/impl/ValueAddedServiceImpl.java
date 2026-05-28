@@ -504,7 +504,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             if (reqVO.getCompensationLevelLimits().contains(3)) validateRatio(reqVO.getSevereCompensationRatio());
             if (reqVO.getCompensationLevelLimits().contains(4)) validateRatio(reqVO.getScrapCompensationRatio());
         } else if (Objects.equals(reqVO.getCompensationStandard(), 1) && Objects.equals(reqVO.getCompensationLevel(), 1)) {
-            reqVO.setCompensationLevelLimits(Collections.emptyList());
+//            reqVO.setCompensationLevelLimits(Collections.emptyList());
             reqVO.setSlightCompensationRatio(null);
             reqVO.setMediumCompensationRatio(null);
             reqVO.setSevereCompensationRatio(null);
@@ -518,7 +518,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             if (reqVO.getCompensationAmount() == null) { throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_REQUIRED); }
             if (reqVO.getCompensationAmountRatio() == null) { throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_RATIO_REQUIRED); }
             validateRatio(reqVO.getCompensationAmountRatio());
-            reqVO.setCompensationLevel(null);
+            reqVO.setCompensationLevel(0);
             reqVO.setCompensationLevelLimits(Collections.emptyList());
             reqVO.setSlightCompensationRatio(null);
             reqVO.setMediumCompensationRatio(null);
