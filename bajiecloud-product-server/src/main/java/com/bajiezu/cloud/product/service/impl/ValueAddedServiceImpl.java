@@ -151,13 +151,14 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         log.info("valueAdded mod dto: {},operatorId:{}", reqVO, loginUser.getId());
         ValueAdded valueAdded = valueAddedMapper.selectById(reqVO.getId());
+        log.info("valueAdded mod CompensationLevel: {}", reqVO.getCompensationLevel());
         if (valueAdded == null) {
             throw exception(VALUE_ADDED_NOT_EXIST);
         }
         if (NumberUtils.INTEGER_ONE.equals(valueAdded.getIsDeleted())) {
             throw exception(VALUE_ADDED_DELETED);
         }
-        log.info("valueAdded mod CompensationLevel: {}", reqVO.getCompensationLevel());
+
         // 更新增值服务
         normalizeAndValidate(reqVO);
         Date now = new Date();
