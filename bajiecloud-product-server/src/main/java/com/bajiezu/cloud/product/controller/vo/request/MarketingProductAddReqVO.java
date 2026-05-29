@@ -1,6 +1,7 @@
 package com.bajiezu.cloud.product.controller.vo.request;
 
 import com.bajiezu.cloud.product.controller.vo.MarketingProductPropertyVO;
+import com.bajiezu.cloud.product.controller.vo.MarketingProductRentalMethodVO;
 import com.bajiezu.cloud.product.controller.vo.MarketingProductSkuVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -64,6 +65,9 @@ public class MarketingProductAddReqVO {
     private Integer flexibleReturnPeriod;*/
 
     private List<MarketingProductPropertyVO> spuProperties;
+
+    @Schema(description = "租赁方式配置")
+    private List<MarketingProductRentalMethodVO> rentalMethods;
 
     /**************************  回收商品 *************************/
     @Schema(description = "最低回收价")

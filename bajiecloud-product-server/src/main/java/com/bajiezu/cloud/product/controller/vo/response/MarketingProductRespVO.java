@@ -1,6 +1,7 @@
 package com.bajiezu.cloud.product.controller.vo.response;
 
 import com.bajiezu.cloud.product.controller.vo.MarketingProductPropertyVO;
+import com.bajiezu.cloud.product.controller.vo.MarketingProductRentalMethodVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -33,6 +34,9 @@ public class MarketingProductRespVO {
 
     @Schema(description = "商品属性")
     private List<MarketingProductPropertyVO> properties;
+
+    @Schema(description = "租赁方式配置")
+    private List<MarketingProductRentalMethodVO> rentalMethods;
 
     @Schema(description = "库存")
     private Long stock;
