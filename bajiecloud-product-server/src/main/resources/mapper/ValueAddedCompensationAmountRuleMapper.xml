@@ -8,7 +8,6 @@
         <result column="compensation_amount" property="compensationAmount" />
         <result column="compensation_amount_ratio" property="compensationAmountRatio" />
         <result column="sort_order" property="sortOrder" />
-        <result column="partner_id" property="partnerId" />
         <result column="create_by" property="createBy" />
         <result column="update_by" property="updateBy" />
         <result column="create_time" property="createTime" />
@@ -18,7 +17,7 @@
 
     <insert id="batchInsert">
         insert into value_added_compensation_amount_rule
-            (value_added_id, compensation_amount, compensation_amount_ratio, sort_order, partner_id,
+            (value_added_id, compensation_amount, compensation_amount_ratio, sort_order,
              create_by, update_by, create_time, update_time, is_deleted)
         values
         <foreach collection="rules" item="item" separator=",">
