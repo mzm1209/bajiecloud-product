@@ -21,7 +21,7 @@
              create_by, update_by, create_time, update_time, is_deleted)
         values
         <foreach collection="rules" item="item" separator=",">
-            (#{item.valueAddedId}, #{item.compensationAmount}, #{item.compensationAmountRatio}, #{item.sortOrder}, #{item.partnerId},
+            (#{item.valueAddedId}, #{item.compensationAmount}, #{item.compensationAmountRatio}, #{item.sortOrder},
              #{item.createBy}, #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted})
         </foreach>
     </insert>
