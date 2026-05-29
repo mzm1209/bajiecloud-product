@@ -3,6 +3,8 @@ package com.bajiezu.cloud.product.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.List;
+
 @Schema(description = "增值服务响应参数")
 @Data
 public class ValueAddedRespDto {
@@ -43,8 +45,14 @@ public class ValueAddedRespDto {
     private Integer mediumCompensationRatio;
     private Integer severeCompensationRatio;
     private Integer scrapCompensationRatio;
+    @Schema(description = "赔付金额，历史兼容字段；取金额赔付规则第一条")
     private Long compensationAmount;
+
+    @Schema(description = "金额赔付时平台赔付比例，历史兼容字段；取金额赔付规则第一条")
     private Integer compensationAmountRatio;
+
+    @Schema(description = "金额赔付规则列表")
+    private List<ValueAddedCompensationAmountRuleRespDto> compensationAmountRules;
     private String saleLimits;
     private Integer annualLimitPurchaseCount;
     private Integer monthlyLimitPurchaseCount;

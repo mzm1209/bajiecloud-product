@@ -49,8 +49,14 @@ public class ValueAddedAddReqVO {
     private Integer mediumCompensationRatio;
     private Integer severeCompensationRatio;
     private Integer scrapCompensationRatio;
+    @Schema(description = "赔付金额，历史兼容字段；新逻辑使用 compensationAmountRules")
     private Long compensationAmount;
+
+    @Schema(description = "金额赔付时平台赔付比例，历史兼容字段；新逻辑使用 compensationAmountRules")
     private Integer compensationAmountRatio;
+
+    @Schema(description = "金额赔付规则列表，赔付标准为金额时必填")
+    private List<ValueAddedCompensationAmountRuleReqVO> compensationAmountRules;
     private List<Integer> saleLimits;
     private Integer annualLimitPurchaseCount;
     private Integer monthlyLimitPurchaseCount;

@@ -38,6 +38,7 @@ public interface ErrorCodeConstants {
     ErrorCode VALUE_ADDED_ACCESS_BREACH_COUNT_REQUIRED = new ErrorCode(1_003_007_008, "选择违约次数时，违约次数不能为空");
     ErrorCode VALUE_ADDED_COMPENSATION_AMOUNT_REQUIRED = new ErrorCode(1_003_007_009, "赔付标准为金额时，赔付金额不能为空");
     ErrorCode VALUE_ADDED_COMPENSATION_AMOUNT_RATIO_REQUIRED = new ErrorCode(1_003_007_010, "赔付标准为金额时，平台赔付比例不能为空");
+    ErrorCode VALUE_ADDED_COMPENSATION_AMOUNT_DUPLICATE = new ErrorCode(1_003_007_011, "赔付金额不能重复");
 
     // ========== 营销商品 1-003-008-000 ==========
     ErrorCode MARKETING_PRODUCT_NOT_EXIST = new ErrorCode(1_003_008_001, "营销商品不存在");
