@@ -8,9 +8,11 @@ import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedAddReqVO;
+import com.bajiezu.cloud.product.controller.vo.request.ValueAddedCompensationAmountRuleReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedListReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedModReqVO;
 import com.bajiezu.cloud.product.controller.vo.request.ValueAddedStatusChangeReqVO;
+import com.bajiezu.cloud.product.controller.vo.response.ValueAddedCompensationAmountRuleRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSimpleInfoRespVO;
 import com.bajiezu.cloud.product.controller.vo.response.ValueAddedSkuRespVO;
@@ -19,6 +21,7 @@ import com.bajiezu.cloud.product.dal.entity.*;
 import com.bajiezu.cloud.product.dal.mapper.*;
 import com.bajiezu.cloud.product.dto.PropertyVO;
 import com.bajiezu.cloud.product.dto.PropertyValueVO;
+import com.bajiezu.cloud.product.dto.ValueAddedCompensationAmountRuleRespDto;
 import com.bajiezu.cloud.product.dto.ValueAddedRespDto;
 import com.bajiezu.cloud.product.service.ValueAddedService;
 import com.bajiezu.cloud.product.util.SequenceGenerator;
@@ -52,6 +55,8 @@ public class ValueAddedServiceImpl implements ValueAddedService {
     private ValueAddedMapper valueAddedMapper;
     @Resource
     private ValueAddedProductMapper valueAddedProductMapper;
+    @Resource
+    private ValueAddedCompensationAmountRuleMapper valueAddedCompensationAmountRuleMapper;
     @Resource
     private MarketingProductSkuPropertyValueMapper skuPropertyValueMapper;
     @Resource
@@ -99,6 +104,8 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             valueAddedProductsMap = valueAddedProducts.stream().collect(Collectors.groupingBy(ValueAddedProduct::getValueAddedId));
         }
 
+        Map<Long, List<ValueAddedCompensationAmountRule>> compensationAmountRulesMap = queryCompensationAmountRulesMap(valueAddedIds);
+
         List<ValueAddedRespVO> valueAddedRespVOS = Lists.newArrayList();
         for (ValueAdded valueAdded : valueAddedList) {
             ValueAddedRespVO valueAddedRespVO = new ValueAddedRespVO();
@@ -118,6 +125,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             }
             valueAddedRespVO.setStatus(valueAdded.getStatus());
             fillExtendFields(valueAddedRespVO, valueAdded);
+            fillCompensationAmountRules(valueAddedRespVO, compensationAmountRulesMap.get(valueAdded.getId()));
             valueAddedRespVO.setCreateTime(valueAdded.getCreateTime());
             valueAddedRespVO.setCreatorName(userId2NameMap.get(valueAdded.getCreateBy()));
             valueAddedRespVO.setUpdateTime(valueAdded.getUpdateTime());
@@ -137,6 +145,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         normalizeAndValidate(reqVO);
         ValueAdded valueAdded = buildValueAdded(reqVO, loginUser, now);
         valueAddedMapper.insert(valueAdded);
+        saveCompensationAmountRules(valueAdded.getId(), reqVO.getCompensationAmountRules(), loginUser, now);
 
         if (CollUtil.isNotEmpty(reqVO.getMarketingProductSkuIds())) {
             List<ValueAddedProduct> valueAddedProducts = buildValueAddedProducts(reqVO.getMarketingProductSkuIds(),
@@ -196,6 +205,8 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAdded.setUpdateTime(now);
         valueAdded.setUpdateBy(loginUser.getId());
         valueAddedMapper.updateById(valueAdded);
+        valueAddedCompensationAmountRuleMapper.logicDelByValueAddedId(valueAdded.getId(), loginUser.getId(), now);
+        saveCompensationAmountRules(valueAdded.getId(), reqVO.getCompensationAmountRules(), loginUser, now);
 
         // 处理关联的商品
         List<Long> existMarketingProductSkuIds = valueAddedProductMapper.queryMarketingProductSkuIdsByValueAddedId(reqVO.getId());
@@ -236,6 +247,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAddedRespVO.setPicUrls(List.of(StringUtils.split(valueAdded.getPicUrl(), ",")));
         valueAddedRespVO.setStatus(valueAdded.getStatus());
         fillExtendFields(valueAddedRespVO, valueAdded);
+        fillCompensationAmountRules(valueAddedRespVO, queryCompensationAmountRulesMap(List.of(id)).get(id));
 
         List<ValueAddedSkuRespVO> valueAddedSkus = buildValueAddedSkus(id);
         valueAddedRespVO.setSkuRespVOList(valueAddedSkus);
@@ -333,6 +345,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         valueAddedMapper.updateById(valueAdded);
 
         valueAddedProductMapper.logicDelByValueAddedId(id, loginUser.getId(), now);
+        valueAddedCompensationAmountRuleMapper.logicDelByValueAddedId(id, loginUser.getId(), now);
     }
 
     @Override
@@ -381,10 +394,12 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             return Collections.emptyList();
         }
 
-        return valueAddedList.stream().map(this::toValueAddedRespDto).toList();
+        List<Long> valueAddedIds = valueAddedList.stream().map(ValueAdded::getId).toList();
+        Map<Long, List<ValueAddedCompensationAmountRule>> compensationAmountRulesMap = queryCompensationAmountRulesMap(valueAddedIds);
+        return valueAddedList.stream().map(valueAdded -> toValueAddedRespDto(valueAdded, compensationAmountRulesMap.get(valueAdded.getId()))).toList();
     }
 
-    private ValueAddedRespDto toValueAddedRespDto(ValueAdded valueAdded) {
+    private ValueAddedRespDto toValueAddedRespDto(ValueAdded valueAdded, List<ValueAddedCompensationAmountRule> compensationAmountRules) {
         ValueAddedRespDto respDto = new ValueAddedRespDto();
         respDto.setId(valueAdded.getId());
         respDto.setCode(valueAdded.getCode());
@@ -406,6 +421,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         respDto.setScrapCompensationRatio(valueAdded.getScrapCompensationRatio());
         respDto.setCompensationAmount(valueAdded.getCompensationAmount());
         respDto.setCompensationAmountRatio(valueAdded.getCompensationAmountRatio());
+        fillCompensationAmountRules(respDto, compensationAmountRules);
         respDto.setSaleLimits(valueAdded.getSaleLimits());
         respDto.setAnnualLimitPurchaseCount(valueAdded.getAnnualLimitPurchaseCount());
         respDto.setMonthlyLimitPurchaseCount(valueAdded.getMonthlyLimitPurchaseCount());
@@ -496,6 +512,7 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         validateNonNegative(reqVO.getAccessConditionBreachAmount());
         validateNonNegative(reqVO.getAccessConditionBreachCount());
         validateNonNegative(reqVO.getCompensationAmount());
+        normalizeCompensationAmountRules(reqVO);
 
         if (Objects.equals(reqVO.getCompensationStandard(), 1) && Objects.equals(reqVO.getCompensationLevel(), 2)) {
             if (CollUtil.isEmpty(reqVO.getCompensationLevelLimits())) { throw exception(VALUE_ADDED_COMPENSATION_LEVEL_LIMIT_REQUIRED); }
@@ -514,10 +531,9 @@ public class ValueAddedServiceImpl implements ValueAddedService {
         if (Objects.equals(reqVO.getCompensationStandard(), 1)) {
             reqVO.setCompensationAmount(null);
             reqVO.setCompensationAmountRatio(null);
+            reqVO.setCompensationAmountRules(Collections.emptyList());
         } else if (Objects.equals(reqVO.getCompensationStandard(), 2)) {
-            if (reqVO.getCompensationAmount() == null) { throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_REQUIRED); }
-            if (reqVO.getCompensationAmountRatio() == null) { throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_RATIO_REQUIRED); }
-            validateRatio(reqVO.getCompensationAmountRatio());
+            validateCompensationAmountRules(reqVO);
             reqVO.setCompensationLevel(0);
             reqVO.setCompensationLevelLimits(Collections.emptyList());
             reqVO.setSlightCompensationRatio(null);
@@ -535,6 +551,117 @@ public class ValueAddedServiceImpl implements ValueAddedService {
             reqVO.setAccessConditionBreachAmount(null);
             reqVO.setAccessConditionBreachCount(null);
         }
+    }
+
+
+    private Map<Long, List<ValueAddedCompensationAmountRule>> queryCompensationAmountRulesMap(List<Long> valueAddedIds) {
+        if (CollUtil.isEmpty(valueAddedIds)) {
+            return Collections.emptyMap();
+        }
+        List<ValueAddedCompensationAmountRule> rules = valueAddedCompensationAmountRuleMapper.selectListByValueAddedIds(valueAddedIds);
+        if (CollUtil.isEmpty(rules)) {
+            return Collections.emptyMap();
+        }
+        return rules.stream().collect(Collectors.groupingBy(ValueAddedCompensationAmountRule::getValueAddedId, LinkedHashMap::new, Collectors.toList()));
+    }
+
+    private void saveCompensationAmountRules(Long valueAddedId,
+                                             List<ValueAddedCompensationAmountRuleReqVO> reqRules,
+                                             LoginUser<?> loginUser,
+                                             Date now) {
+        if (CollUtil.isEmpty(reqRules)) {
+            return;
+        }
+        List<ValueAddedCompensationAmountRule> rules = Lists.newArrayList();
+        for (int i = 0; i < reqRules.size(); i++) {
+            ValueAddedCompensationAmountRuleReqVO reqRule = reqRules.get(i);
+            ValueAddedCompensationAmountRule rule = new ValueAddedCompensationAmountRule();
+            rule.setValueAddedId(valueAddedId);
+            rule.setCompensationAmount(reqRule.getCompensationAmount());
+            rule.setCompensationAmountRatio(reqRule.getCompensationAmountRatio());
+            rule.setSortOrder(i + 1);
+            rule.setPartnerId(loginUser.getPartnerId());
+            rule.setCreateBy(loginUser.getId());
+            rule.setUpdateBy(loginUser.getId());
+            rule.setCreateTime(now);
+            rule.setUpdateTime(now);
+            rule.setIsDeleted(0);
+            rules.add(rule);
+        }
+        valueAddedCompensationAmountRuleMapper.batchInsert(rules);
+    }
+
+    private void fillCompensationAmountRules(ValueAddedRespVO respVO, List<ValueAddedCompensationAmountRule> rules) {
+        if (CollUtil.isEmpty(rules)) {
+            respVO.setCompensationAmountRules(Collections.emptyList());
+            return;
+        }
+        List<ValueAddedCompensationAmountRuleRespVO> ruleRespVOS = rules.stream().map(rule -> {
+            ValueAddedCompensationAmountRuleRespVO ruleRespVO = new ValueAddedCompensationAmountRuleRespVO();
+            ruleRespVO.setId(rule.getId());
+            ruleRespVO.setCompensationAmount(rule.getCompensationAmount());
+            ruleRespVO.setCompensationAmountRatio(rule.getCompensationAmountRatio());
+            ruleRespVO.setSortOrder(rule.getSortOrder());
+            return ruleRespVO;
+        }).toList();
+        respVO.setCompensationAmountRules(ruleRespVOS);
+        respVO.setCompensationAmount(ruleRespVOS.get(0).getCompensationAmount());
+        respVO.setCompensationAmountRatio(ruleRespVOS.get(0).getCompensationAmountRatio());
+    }
+
+    private void fillCompensationAmountRules(ValueAddedRespDto respDto, List<ValueAddedCompensationAmountRule> rules) {
+        if (CollUtil.isEmpty(rules)) {
+            respDto.setCompensationAmountRules(Collections.emptyList());
+            return;
+        }
+        List<ValueAddedCompensationAmountRuleRespDto> ruleRespDtos = rules.stream().map(rule -> {
+            ValueAddedCompensationAmountRuleRespDto ruleRespDto = new ValueAddedCompensationAmountRuleRespDto();
+            ruleRespDto.setId(rule.getId());
+            ruleRespDto.setCompensationAmount(rule.getCompensationAmount());
+            ruleRespDto.setCompensationAmountRatio(rule.getCompensationAmountRatio());
+            ruleRespDto.setSortOrder(rule.getSortOrder());
+            return ruleRespDto;
+        }).toList();
+        respDto.setCompensationAmountRules(ruleRespDtos);
+        respDto.setCompensationAmount(ruleRespDtos.get(0).getCompensationAmount());
+        respDto.setCompensationAmountRatio(ruleRespDtos.get(0).getCompensationAmountRatio());
+    }
+
+    private void normalizeCompensationAmountRules(ValueAddedAddReqVO reqVO) {
+        if (CollUtil.isEmpty(reqVO.getCompensationAmountRules())
+                && reqVO.getCompensationAmount() != null
+                && reqVO.getCompensationAmountRatio() != null) {
+            ValueAddedCompensationAmountRuleReqVO rule = new ValueAddedCompensationAmountRuleReqVO();
+            rule.setCompensationAmount(reqVO.getCompensationAmount());
+            rule.setCompensationAmountRatio(reqVO.getCompensationAmountRatio());
+            reqVO.setCompensationAmountRules(List.of(rule));
+        }
+    }
+
+    private void validateCompensationAmountRules(ValueAddedAddReqVO reqVO) {
+        if (CollUtil.isEmpty(reqVO.getCompensationAmountRules())) {
+            throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_REQUIRED);
+        }
+        Set<Long> amountSet = Sets.newHashSet();
+        for (ValueAddedCompensationAmountRuleReqVO rule : reqVO.getCompensationAmountRules()) {
+            if (rule == null || rule.getCompensationAmount() == null) {
+                throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_REQUIRED);
+            }
+            validateNonNegative(rule.getCompensationAmount());
+            if (!amountSet.add(rule.getCompensationAmount())) {
+                throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_DUPLICATE);
+            }
+            if (rule.getCompensationAmountRatio() == null) {
+                throw exception(VALUE_ADDED_COMPENSATION_AMOUNT_RATIO_REQUIRED);
+            }
+            validateRatio(rule.getCompensationAmountRatio());
+        }
+        reqVO.setCompensationAmountRules(reqVO.getCompensationAmountRules().stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(ValueAddedCompensationAmountRuleReqVO::getCompensationAmount))
+                .toList());
+        reqVO.setCompensationAmount(reqVO.getCompensationAmountRules().get(0).getCompensationAmount());
+        reqVO.setCompensationAmountRatio(reqVO.getCompensationAmountRules().get(0).getCompensationAmountRatio());
     }
 
     private void validateRatio(Integer ratio) {

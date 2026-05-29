@@ -66,8 +66,14 @@ public class ValueAddedRespVO {
     private Integer mediumCompensationRatio;
     private Integer severeCompensationRatio;
     private Integer scrapCompensationRatio;
+    @Schema(description = "赔付金额，历史兼容字段；取金额赔付规则第一条")
     private Long compensationAmount;
+
+    @Schema(description = "金额赔付时平台赔付比例，历史兼容字段；取金额赔付规则第一条")
     private Integer compensationAmountRatio;
+
+    @Schema(description = "金额赔付规则列表")
+    private List<ValueAddedCompensationAmountRuleRespVO> compensationAmountRules;
     private List<Integer> saleLimits;
     private Integer annualLimitPurchaseCount;
     private Integer monthlyLimitPurchaseCount;
