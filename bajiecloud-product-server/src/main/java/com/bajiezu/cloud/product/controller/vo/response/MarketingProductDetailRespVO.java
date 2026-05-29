@@ -2,6 +2,7 @@ package com.bajiezu.cloud.product.controller.vo.response;
 
 import com.bajiezu.cloud.product.controller.vo.AreaCodeAndNameVO;
 import com.bajiezu.cloud.product.controller.vo.MarketingProductPropertyVO;
+import com.bajiezu.cloud.product.controller.vo.MarketingProductRentalMethodVO;
 import com.bajiezu.cloud.product.controller.vo.MarketingProductSkuVO;
 import com.bajiezu.cloud.product.controller.vo.IdAndNameVO;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -70,6 +71,9 @@ public class MarketingProductDetailRespVO {
     private Integer flexibleReturnPeriod;*/
 
     private List<MarketingProductPropertyVO> spuProperties;
+
+    @Schema(description = "租赁方式配置")
+    private List<MarketingProductRentalMethodVO> rentalMethods;
 
     /**************************  回收商品 *************************/
     @Schema(description = "最低回收价")

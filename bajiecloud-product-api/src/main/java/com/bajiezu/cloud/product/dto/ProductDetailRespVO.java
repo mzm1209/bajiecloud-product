@@ -30,6 +30,9 @@ public class ProductDetailRespVO {
     @Schema(description = "商品属性")
     private List<PropertyVO> properties;
 
+    @Schema(description = "租赁方式配置")
+    private List<MarketingProductRentalMethodDto> rentalMethods;
+
     @Schema(description = "商品SPU主图")
     private List<String> mainPics;
 }

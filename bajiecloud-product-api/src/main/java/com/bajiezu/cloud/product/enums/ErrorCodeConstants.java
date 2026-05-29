@@ -51,4 +51,7 @@ public interface ErrorCodeConstants {
     ErrorCode MARKETING_PROPERTY_OUT_OF_STANDARD_SCOPE = new ErrorCode(1_003_008_008, "营销商品属性超出标准商品范围");
     ErrorCode MARKETING_PROPERTY_VALUE_OUT_OF_STANDARD_SCOPE = new ErrorCode(1_003_008_009, "营销商品属性值超出标准商品范围");
     ErrorCode STANDARD_PRODUCT_PROPERTY_SCOPE_EMPTY = new ErrorCode(1_003_008_010, "标准商品属性范围为空");
+    ErrorCode RENTAL_METHOD_INVALID = new ErrorCode(1_003_008_011, "租赁方式不合法");
+    ErrorCode RENTAL_PERIOD_INVALID = new ErrorCode(1_003_008_012, "租期不合法，仅支持3、6、12个月");
+    ErrorCode RENTAL_METHOD_PERIOD_REQUIRED = new ErrorCode(1_003_008_013, "租赁商品需配置租赁方式和租期");
 }
