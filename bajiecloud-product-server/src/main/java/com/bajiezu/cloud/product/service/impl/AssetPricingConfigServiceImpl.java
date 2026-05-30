@@ -173,7 +173,7 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
                 : (y == null ? null : y.getYearBeginValue());
         BigDecimal deviceValueDecimal = toAmountDecimal(deviceValue);
 
-        log.info("deviceValue: {},deviceValueDecimal:{},OfficialPrice:{}", deviceValue, deviceValueDecimal,residualConfig.getOfficialPrice());
+        log.info("deviceValue: {},deviceValueDecimal:{},OfficialPrice:{},di:{}", deviceValue, deviceValueDecimal,residualConfig.getOfficialPrice(),residualConfig.getId());
         if (deviceValue == null || deviceValueDecimal == null || (item.getUseYear() > 1 && y == null)) {
             throw exception(ASSET_PRICING_RESIDUAL_VALUE_REQUIRED);
         }
