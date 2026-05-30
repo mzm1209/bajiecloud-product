@@ -39,9 +39,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class AssetPricingConfigServiceImpl implements AssetPricingConfigService {
 
@@ -169,22 +172,31 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
                 ? (residualConfig == null ? null : residualConfig.getOfficialPrice())
                 : (y == null ? null : y.getYearBeginValue());
         BigDecimal deviceValueDecimal = toAmountDecimal(deviceValue);
+
+        log.info("deviceValue: {},deviceValueDecimal:{}", deviceValue, deviceValueDecimal);
         if (deviceValue == null || deviceValueDecimal == null || (item.getUseYear() > 1 && y == null)) {
             throw exception(ASSET_PRICING_RESIDUAL_VALUE_REQUIRED);
         }
 
+        log.info("DeviceTotalPriceCoefficient: {}", item.getDeviceTotalPriceCoefficient());
         if (item.getDeviceTotalPriceCoefficient().compareTo(BigDecimal.ZERO) <= 0) {
             throw exception(ASSET_PRICING_TOTAL_PRICE_COEFFICIENT_INVALID);
         }
+
         BigDecimal deviceTotalPrice = deviceValueDecimal.multiply(item.getDeviceTotalPriceCoefficient()).setScale(4, RoundingMode.HALF_UP);
         Long deviceTotalPriceLong = toAmountLong(deviceTotalPrice);
+
+        log.info("deviceTotalPrice: {},deviceTotalPriceLong:{}", deviceTotalPrice,deviceTotalPriceLong);
         if (deviceTotalPrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw exception(ASSET_PRICING_TOTAL_PRICE_INVALID);
         }
 
+        log.info("TotalPriceLowerLimit: {}", y.getTotalPriceLowerLimit());
         if (y != null && y.getTotalPriceLowerLimit() != null && deviceTotalPriceLong < y.getTotalPriceLowerLimit()) {
             throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_LOW);
         }
+
+        log.info("TotalPriceUpperLimit: {}", y.getTotalPriceUpperLimit());
         if (y != null && y.getTotalPriceUpperLimit() != null && deviceTotalPriceLong > y.getTotalPriceUpperLimit()) {
             throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_HIGH);
         }
