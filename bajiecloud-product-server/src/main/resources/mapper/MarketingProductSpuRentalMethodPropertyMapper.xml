@@ -47,7 +47,7 @@
 
     <update id="logicDeleteByMarketingSpuId">
         update marketing_product_spu_rental_method_property
-        set is_deleted = 1,
+        set is_deleted = id,
             update_by = #{updateBy},
             update_time = #{updateTime}
         where marketing_spu_id = #{marketingSpuId}
@@ -56,7 +56,7 @@
 
     <update id="logicDeleteByMarketingSpuIds">
         update marketing_product_spu_rental_method_property
-        set is_deleted = 1,
+        set is_deleted = id,
             update_by = #{updateBy},
             update_time = #{updateTime}
         where is_deleted = 0
