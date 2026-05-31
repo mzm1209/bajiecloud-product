@@ -20,9 +20,17 @@ public class AppProductSpuDetailRespVO {
     private Long officialPrice;
     private Long strikethroughPrice;
     private List<AppProductSkuRespVO.PropertyValueItem> properties;
+    private List<RentalMethodItem> rentalMethods;
     private List<ValueAddedItem> valueAddedList;
 
-        @Data
+    @Data
+    public static class RentalMethodItem {
+        private Integer rentalMethod;
+        private String rentalMethodName;
+        private List<Integer> rentalPeriods;
+    }
+
+    @Data
     public static class ValueAddedItem {
         private Long id;
         private String name;
@@ -39,6 +47,7 @@ public class AppProductSpuDetailRespVO {
         private Integer scrapCompensationRatio;
         private Long compensationAmount;
         private Integer compensationAmountRatio;
+        private List<CompensationAmountRuleItem> compensationAmountRules;
         private String saleLimits;
         private Integer annualLimitPurchaseCount;
         private Integer monthlyLimitPurchaseCount;
@@ -47,5 +56,13 @@ public class AppProductSpuDetailRespVO {
         private String accessConditionLimits;
         private Long accessConditionBreachAmount;
         private Integer accessConditionBreachCount;
+    }
+
+    @Data
+    public static class CompensationAmountRuleItem {
+        private Long id;
+        private Long compensationAmount;
+        private Integer compensationAmountRatio;
+        private Integer sortOrder;
     }
 }

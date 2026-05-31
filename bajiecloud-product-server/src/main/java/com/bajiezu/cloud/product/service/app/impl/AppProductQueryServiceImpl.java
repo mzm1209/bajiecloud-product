@@ -12,18 +12,23 @@ import com.bajiezu.cloud.product.controller.vo.app.response.AppProductSpuPageRes
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSku;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSkuPropertyValue;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpu;
+import com.bajiezu.cloud.product.dal.entity.MarketingProductSpuRentalMethodProperty;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpuPropertyValue;
 import com.bajiezu.cloud.product.dal.entity.ProductProperty;
 import com.bajiezu.cloud.product.dal.entity.ProductPropertyValue;
 import com.bajiezu.cloud.product.dal.entity.ValueAdded;
+import com.bajiezu.cloud.product.dal.entity.ValueAddedCompensationAmountRule;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSkuMapper;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSkuPropertyValueMapper;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSpuMapper;
+import com.bajiezu.cloud.product.dal.mapper.MarketingProductSpuRentalMethodPropertyMapper;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSpuPropertyValueMapper;
 import com.bajiezu.cloud.product.dal.mapper.ProductPropertyMapper;
 import com.bajiezu.cloud.product.dal.mapper.ProductPropertyValueMapper;
 import com.bajiezu.cloud.product.dal.mapper.ValueAddedMapper;
+import com.bajiezu.cloud.product.dal.mapper.ValueAddedCompensationAmountRuleMapper;
 import com.bajiezu.cloud.product.enums.ApproveStatusEnum;
+import com.bajiezu.cloud.product.enums.RentalMethodEnum;
 import com.bajiezu.cloud.product.enums.ShelvesStatusEnum;
 import com.bajiezu.cloud.product.service.app.AppProductQueryService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -57,6 +62,10 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
     private ProductPropertyValueMapper productPropertyValueMapper;
     @Resource
     private ValueAddedMapper valueAddedMapper;
+    @Resource
+    private MarketingProductSpuRentalMethodPropertyMapper rentalMethodPropertyMapper;
+    @Resource
+    private ValueAddedCompensationAmountRuleMapper compensationAmountRuleMapper;
 
     @Override
     public PageResult<AppProductSpuPageRespVO> spuPage(AppProductSpuPageReqVO req) {
@@ -119,13 +128,18 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
         resp.setOfficialPrice(defaultSku.getOfficialPrice());
         resp.setStrikethroughPrice(defaultSku.getStrikethroughPrice());
         resp.setProperties(buildSkuProps(defaultSku.getId()));
+        resp.setRentalMethods(buildRentalMethods(spu.getId()));
 
         if (StringUtils.isNotBlank(spu.getValueAddedIds())) {
             List<Long> ids = Arrays.stream(spu.getValueAddedIds().split(","))
                     .filter(StringUtils::isNotBlank)
                     .map(Long::valueOf)
                     .toList();
+            if (CollectionUtil.isEmpty(ids)) {
+                return resp;
+            }
             List<ValueAdded> values = valueAddedMapper.selectListByIds(ids);
+            Map<Long, List<ValueAddedCompensationAmountRule>> ruleMap = buildCompensationAmountRuleMap(ids);
             resp.setValueAddedList(values.stream().map(v -> {
                 AppProductSpuDetailRespVO.ValueAddedItem item = new AppProductSpuDetailRespVO.ValueAddedItem();
                 item.setId(v.getId());
@@ -143,6 +157,7 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
                 item.setScrapCompensationRatio(v.getScrapCompensationRatio());
                 item.setCompensationAmount(v.getCompensationAmount());
                 item.setCompensationAmountRatio(v.getCompensationAmountRatio());
+                item.setCompensationAmountRules(buildCompensationAmountRules(ruleMap.get(v.getId())));
                 item.setSaleLimits(v.getSaleLimits());
                 item.setAnnualLimitPurchaseCount(v.getAnnualLimitPurchaseCount());
                 item.setMonthlyLimitPurchaseCount(v.getMonthlyLimitPurchaseCount());
@@ -155,6 +170,60 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
             }).toList());
         }
         return resp;
+    }
+
+    private List<AppProductSpuDetailRespVO.RentalMethodItem> buildRentalMethods(Long spuId) {
+        List<MarketingProductSpuRentalMethodProperty> rentalMethodProperties =
+                rentalMethodPropertyMapper.selectListByMarketingSpuId(spuId);
+        if (CollectionUtil.isEmpty(rentalMethodProperties)) {
+            return Collections.emptyList();
+        }
+
+        return rentalMethodProperties.stream()
+                .collect(Collectors.groupingBy(MarketingProductSpuRentalMethodProperty::getRentalMethod))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> {
+                    AppProductSpuDetailRespVO.RentalMethodItem item = new AppProductSpuDetailRespVO.RentalMethodItem();
+                    item.setRentalMethod(entry.getKey());
+                    RentalMethodEnum rentalMethodEnum = RentalMethodEnum.get(entry.getKey());
+                    item.setRentalMethodName(rentalMethodEnum == null ? null : rentalMethodEnum.getDesc());
+                    item.setRentalPeriods(entry.getValue().stream()
+                            .map(MarketingProductSpuRentalMethodProperty::getRentalPeriodMonth)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .sorted()
+                            .toList());
+                    return item;
+                }).toList();
+    }
+
+    private Map<Long, List<ValueAddedCompensationAmountRule>> buildCompensationAmountRuleMap(List<Long> valueAddedIds) {
+        if (CollectionUtil.isEmpty(valueAddedIds)) {
+            return Collections.emptyMap();
+        }
+        List<ValueAddedCompensationAmountRule> rules = compensationAmountRuleMapper.selectListByValueAddedIds(valueAddedIds);
+        if (CollectionUtil.isEmpty(rules)) {
+            return Collections.emptyMap();
+        }
+        return rules.stream().collect(Collectors.groupingBy(ValueAddedCompensationAmountRule::getValueAddedId));
+    }
+
+    private List<AppProductSpuDetailRespVO.CompensationAmountRuleItem> buildCompensationAmountRules(
+            List<ValueAddedCompensationAmountRule> rules) {
+        if (CollectionUtil.isEmpty(rules)) {
+            return Collections.emptyList();
+        }
+        return rules.stream().map(rule -> {
+            AppProductSpuDetailRespVO.CompensationAmountRuleItem item =
+                    new AppProductSpuDetailRespVO.CompensationAmountRuleItem();
+            item.setId(rule.getId());
+            item.setCompensationAmount(rule.getCompensationAmount());
+            item.setCompensationAmountRatio(rule.getCompensationAmountRatio());
+            item.setSortOrder(rule.getSortOrder());
+            return item;
+        }).toList();
     }
 
     @Override
