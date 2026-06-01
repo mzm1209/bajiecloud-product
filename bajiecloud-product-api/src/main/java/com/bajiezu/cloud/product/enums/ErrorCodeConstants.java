@@ -54,4 +54,6 @@ public interface ErrorCodeConstants {
     ErrorCode RENTAL_METHOD_INVALID = new ErrorCode(1_003_008_011, "租赁方式不合法");
     ErrorCode RENTAL_PERIOD_INVALID = new ErrorCode(1_003_008_012, "租期不合法，仅支持3、6、12个月");
     ErrorCode RENTAL_METHOD_PERIOD_REQUIRED = new ErrorCode(1_003_008_013, "租赁商品需配置租赁方式和租期");
+    ErrorCode RENTAL_PRICE_NOT_EXIST = new ErrorCode(1_003_008_014, "该租赁方式与租期组合不存在");
+    ErrorCode RENTAL_STOCK_NOT_ENOUGH = new ErrorCode(1_003_008_015, "库存不足");
 }

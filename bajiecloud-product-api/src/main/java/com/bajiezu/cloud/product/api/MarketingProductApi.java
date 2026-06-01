@@ -3,6 +3,8 @@ package com.bajiezu.cloud.product.api;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
 import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
+import com.bajiezu.cloud.product.dto.SkuRentalPriceRespDto;
+import com.bajiezu.cloud.product.dto.SkuRentalStockReqDto;
 import com.bajiezu.cloud.product.dto.SkuRespDto;
 import com.bajiezu.cloud.product.enums.ProductApiConstants;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,4 +31,19 @@ public interface MarketingProductApi {
     @GetMapping(PREFIX + "/getSkuInfoById")
     @Operation(summary = "根据skuId获取sku信息")
     CommonResult<SkuRespDto> getSkuInfoById(@RequestParam("skuId") Long skuId);
+
+    @GetMapping(PREFIX + "/getSkuRentalPrice")
+    @Operation(summary = "按租赁方式+租期获取SKU价格与库存")
+    CommonResult<SkuRentalPriceRespDto> getSkuRentalPrice(
+            @RequestParam("skuId") Long skuId,
+            @RequestParam("rentalMethod") Integer rentalMethod,
+            @RequestParam("rentalPeriodMonth") Integer rentalPeriodMonth);
+
+    @PostMapping(PREFIX + "/deductRentalStock")
+    @Operation(summary = "扣减租期维度库存（原子，库存不足返回失败）")
+    CommonResult<Boolean> deductRentalStock(@RequestBody SkuRentalStockReqDto reqDto);
+
+    @PostMapping(PREFIX + "/restoreRentalStock")
+    @Operation(summary = "回补租期维度库存（订单取消/超时/创单回滚）")
+    CommonResult<Boolean> restoreRentalStock(@RequestBody SkuRentalStockReqDto reqDto);
 }

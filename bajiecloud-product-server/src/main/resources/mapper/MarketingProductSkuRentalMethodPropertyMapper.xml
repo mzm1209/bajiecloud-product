@@ -65,6 +65,37 @@
         order by marketing_sku_id asc, rental_method asc, rental_period_month asc, id asc
     </select>
 
+    <select id="selectByMethodAndPeriod" resultMap="BaseResultMap">
+        select *
+        from marketing_product_sku_rental_method_property
+        where is_deleted = 0
+          and marketing_sku_id = #{marketingSkuId}
+          and rental_method = #{rentalMethod}
+          and rental_period_month = #{rentalPeriodMonth}
+        limit 1
+    </select>
+
+    <update id="deductStock">
+        update marketing_product_sku_rental_method_property
+        set stock = stock - #{quantity},
+            update_time = #{updateTime}
+        where is_deleted = 0
+          and marketing_sku_id = #{marketingSkuId}
+          and rental_method = #{rentalMethod}
+          and rental_period_month = #{rentalPeriodMonth}
+          and stock >= #{quantity}
+    </update>
+
+    <update id="restoreStock">
+        update marketing_product_sku_rental_method_property
+        set stock = stock + #{quantity},
+            update_time = #{updateTime}
+        where is_deleted = 0
+          and marketing_sku_id = #{marketingSkuId}
+          and rental_method = #{rentalMethod}
+          and rental_period_month = #{rentalPeriodMonth}
+    </update>
+
     <update id="logicDeleteByMarketingSpuId">
         update marketing_product_sku_rental_method_property
         set is_deleted = id,

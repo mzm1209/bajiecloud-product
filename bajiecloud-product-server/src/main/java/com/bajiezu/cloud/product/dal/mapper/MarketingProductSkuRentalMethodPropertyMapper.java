@@ -23,6 +23,22 @@ public interface MarketingProductSkuRentalMethodPropertyMapper extends BaseMappe
 
     List<MarketingProductSkuRentalMethodProperty> selectListByMarketingSkuIds(@Param("marketingSkuIds") Collection<Long> marketingSkuIds);
 
+    MarketingProductSkuRentalMethodProperty selectByMethodAndPeriod(@Param("marketingSkuId") Long marketingSkuId,
+                                                                    @Param("rentalMethod") Integer rentalMethod,
+                                                                    @Param("rentalPeriodMonth") Integer rentalPeriodMonth);
+
+    int deductStock(@Param("marketingSkuId") Long marketingSkuId,
+                    @Param("rentalMethod") Integer rentalMethod,
+                    @Param("rentalPeriodMonth") Integer rentalPeriodMonth,
+                    @Param("quantity") Integer quantity,
+                    @Param("updateTime") Date updateTime);
+
+    int restoreStock(@Param("marketingSkuId") Long marketingSkuId,
+                     @Param("rentalMethod") Integer rentalMethod,
+                     @Param("rentalPeriodMonth") Integer rentalPeriodMonth,
+                     @Param("quantity") Integer quantity,
+                     @Param("updateTime") Date updateTime);
+
     void logicDeleteByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId,
                                      @Param("updateBy") Long updateBy,
                                      @Param("updateTime") Date updateTime);

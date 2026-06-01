@@ -1514,6 +1514,46 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     }
 
     @Override
+    public SkuRentalPriceRespDto getSkuRentalPrice(Long skuId, Integer rentalMethod, Integer rentalPeriodMonth) {
+        MarketingProductSkuRentalMethodProperty row =
+                skuRentalMethodPropertyMapper.selectByMethodAndPeriod(skuId, rentalMethod, rentalPeriodMonth);
+        if (row == null) {
+            throw exception(RENTAL_PRICE_NOT_EXIST);
+        }
+        SkuRentalPriceRespDto dto = new SkuRentalPriceRespDto();
+        dto.setId(row.getId());
+        dto.setMarketingSpuId(row.getMarketingSpuId());
+        dto.setMarketingSkuId(row.getMarketingSkuId());
+        dto.setRentalMethod(row.getRentalMethod());
+        dto.setRentalPeriodMonth(row.getRentalPeriodMonth());
+        dto.setTotalRent(row.getTotalRent());
+        dto.setMonthlyRent(row.getMonthlyRent());
+        dto.setDailyRent(row.getDailyRent());
+        dto.setBuyoutAmount(row.getBuyoutAmount());
+        dto.setPremium(row.getPremium());
+        dto.setStock(row.getStock());
+        return dto;
+    }
+
+    @Override
+    public boolean deductRentalStock(SkuRentalStockReqDto reqDto) {
+        int affected = skuRentalMethodPropertyMapper.deductStock(
+                reqDto.getSkuId(), reqDto.getRentalMethod(), reqDto.getRentalPeriodMonth(),
+                reqDto.getQuantity(), new Date());
+        log.info("扣减租期库存,reqDto:{},affected:{}", reqDto, affected);
+        return affected > 0;
+    }
+
+    @Override
+    public boolean restoreRentalStock(SkuRentalStockReqDto reqDto) {
+        int affected = skuRentalMethodPropertyMapper.restoreStock(
+                reqDto.getSkuId(), reqDto.getRentalMethod(), reqDto.getRentalPeriodMonth(),
+                reqDto.getQuantity(), new Date());
+        log.info("回补租期库存,reqDto:{},affected:{}", reqDto, affected);
+        return affected > 0;
+    }
+
+    @Override
     public List<MarketingAvailablePropertyVO> availablePropertiesByStandardSpuId(Long standardProductSpuId) {
         List<MarketingAvailablePropertyVO> properties = queryAvailablePropertiesByStandardSpuId(standardProductSpuId);
         if (CollectionUtil.isEmpty(properties)) {

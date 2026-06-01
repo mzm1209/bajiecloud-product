@@ -66,4 +66,33 @@ public class MarketingProductApiImpl implements MarketingProductApi {
 
         return CommonResult.success(skuRespDto);
     }
+
+    @Override
+    public CommonResult<SkuRentalPriceRespDto> getSkuRentalPrice(Long skuId, Integer rentalMethod, Integer rentalPeriodMonth) {
+        log.info("[getSkuRentalPrice] skuId:{},rentalMethod:{},rentalPeriodMonth:{}", skuId, rentalMethod, rentalPeriodMonth);
+        if (skuId == null) {
+            return CommonResult.error(ErrorCodeConstants.SKU_ID_IS_NULL);
+        }
+        if (rentalMethod == null || rentalPeriodMonth == null) {
+            return CommonResult.error(ErrorCodeConstants.RENTAL_METHOD_PERIOD_REQUIRED);
+        }
+        return CommonResult.success(
+                marketingProductService.getSkuRentalPrice(skuId, rentalMethod, rentalPeriodMonth));
+    }
+
+    @Override
+    public CommonResult<Boolean> deductRentalStock(SkuRentalStockReqDto reqDto) {
+        log.info("[deductRentalStock] reqDto:{}", reqDto);
+        boolean success = marketingProductService.deductRentalStock(reqDto);
+        if (!success) {
+            return CommonResult.error(ErrorCodeConstants.RENTAL_STOCK_NOT_ENOUGH);
+        }
+        return CommonResult.success(true);
+    }
+
+    @Override
+    public CommonResult<Boolean> restoreRentalStock(SkuRentalStockReqDto reqDto) {
+        log.info("[restoreRentalStock] reqDto:{}", reqDto);
+        return CommonResult.success(marketingProductService.restoreRentalStock(reqDto));
+    }
 }
