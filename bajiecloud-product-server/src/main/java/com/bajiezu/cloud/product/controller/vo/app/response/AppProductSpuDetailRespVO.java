@@ -21,6 +21,7 @@ public class AppProductSpuDetailRespVO {
     private Long strikethroughPrice;
     private List<AppProductSkuRespVO.PropertyValueItem> properties;
     private List<RentalMethodItem> rentalMethods;
+    private List<SkuRentalMethodPropertyItem> skuRentalMethodProperties;
     private List<ValueAddedItem> valueAddedList;
 
     @Data
@@ -28,6 +29,20 @@ public class AppProductSpuDetailRespVO {
         private Integer rentalMethod;
         private String rentalMethodName;
         private List<Integer> rentalPeriods;
+    }
+
+    @Data
+    public static class SkuRentalMethodPropertyItem {
+        private Long skuId;
+        private Integer rentalMethod;
+        private String rentalMethodName;
+        private Integer rentalPeriodMonth;
+        private Long totalRent;
+        private Long monthlyRent;
+        private Long dailyRent;
+        private Long buyoutAmount;
+        private Long premium;
+        private Integer stock;
     }
 
     @Data

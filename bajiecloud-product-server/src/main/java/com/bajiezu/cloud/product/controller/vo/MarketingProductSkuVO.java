@@ -61,5 +61,8 @@ public class MarketingProductSkuVO {
     @Schema(description = "SKU属性")
     private List<SkuPropertyValueVO> propertyValues;
 
+    @Schema(description = "SKU租赁方式租期价格库存配置")
+    private List<MarketingProductSkuRentalMethodPropertyVO> rentalMethodProperties;
+
     private String skuCode;
 }

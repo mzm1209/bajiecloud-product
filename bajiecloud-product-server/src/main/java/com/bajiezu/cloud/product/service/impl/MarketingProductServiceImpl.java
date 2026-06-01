@@ -88,6 +88,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     private ExpressTemplateMapper expressTemplateMapper;
     @Resource
     private MarketingProductSpuRentalMethodPropertyMapper rentalMethodPropertyMapper;
+    @Resource
+    private MarketingProductSkuRentalMethodPropertyMapper skuRentalMethodPropertyMapper;
 
     @Resource
     private MarketingChannelApi marketingChannelApi;
@@ -243,6 +245,8 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         List<MarketingProductSkuPropertyValue> skuPropertyValues = buildMarketingProductSkuPropertyValues(normalizedSkus,
                 skuCode2IdMap, spuPropertyValues, loginUser, marketingProductSpuId, now);
         skuPropertyValueMapper.insertBatch(skuPropertyValues);
+
+        saveSkuRentalMethodProperties(marketingProductSpuId, normalizedSkus, skus, loginUser, now);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -263,6 +267,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 租赁方式配置独立维护，编辑时先逻辑删除再按最新提交重建
         rentalMethodPropertyMapper.logicDeleteByMarketingSpuId(reqVO.getId(), loginUser.getId(), now);
+        skuRentalMethodPropertyMapper.logicDeleteByMarketingSpuId(reqVO.getId(), loginUser.getId(), now);
         saveRentalMethods(reqVO.getId(), reqVO.getType(), reqVO.getRentalMethods(), loginUser, now);
 
         // 编辑保存商品SPU
@@ -606,6 +611,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             skuMapper.logicDelByIds(deleteSkuIds, loginUser.getId(), now);
             skuPropertyValueMapper.logicDelBySkuIds(deleteSkuIds, loginUser.getId(), now);
         }
+
+        List<MarketingProductSku> savedSkus = Lists.newArrayList();
+        savedSkus.addAll(addSkus);
+        savedSkus.addAll(updateSkus);
+        saveSkuRentalMethodProperties(reqVO.getId(), incomingSkus, savedSkus, loginUser, now);
     }
 
     @Override
@@ -797,6 +807,9 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         List<MarketingProductSku> skus = skuMapper.selectListByMarketingSpuId(marketingProductSpu.getId());
         List<MarketingProductSkuPropertyValue> skuPropertyValues = skuPropertyValueMapper.selectListByMarketingSpuId(marketingProductSpu.getId());
         Map<Long, List<MarketingProductSkuPropertyValue>> skuId2SkuPropertyValues = skuPropertyValues.stream().collect(Collectors.groupingBy(MarketingProductSkuPropertyValue::getMarketingProductSkuId));
+        Map<Long, List<MarketingProductSkuRentalMethodProperty>> skuId2RentalProperties =
+                skuRentalMethodPropertyMapper.selectListByMarketingSpuId(marketingProductSpu.getId()).stream()
+                        .collect(Collectors.groupingBy(MarketingProductSkuRentalMethodProperty::getMarketingSkuId));
 
         List<MarketingProductSkuVO> skuVOS = Lists.newArrayList();
         for (MarketingProductSku sku : skus) {
@@ -838,6 +851,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
             }
             skuVO.setPropertyValues(skuPropertyValueVOS);
+            skuVO.setRentalMethodProperties(convertSkuRentalMethodPropertyVOs(skuId2RentalProperties.get(sku.getId())));
         }
         detailRespVO.setSkus(skuVOS);
 
@@ -860,6 +874,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         skuMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), now);
         skuPropertyValueMapper.logicDelByMarketingSpuIds(ids, loginUser.getId(), now);
         rentalMethodPropertyMapper.logicDeleteByMarketingSpuIds(ids, loginUser.getId(), now);
+        skuRentalMethodPropertyMapper.logicDeleteByMarketingSpuIds(ids, loginUser.getId(), now);
 
     }
 
@@ -1675,6 +1690,88 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         if (CollectionUtil.isNotEmpty(rentalMethodProperties)) {
             rentalMethodPropertyMapper.insertBatch(rentalMethodProperties);
         }
+    }
+
+    private void saveSkuRentalMethodProperties(Long marketingSpuId, List<MarketingProductSkuVO> skuVOS,
+                                               List<MarketingProductSku> savedSkus, LoginUser<?> loginUser, Date now) {
+        List<MarketingProductSkuRentalMethodProperty> skuRentalMethodProperties = buildSkuRentalMethodProperties(
+                marketingSpuId, skuVOS, savedSkus, loginUser, now);
+        if (CollectionUtil.isNotEmpty(skuRentalMethodProperties)) {
+            skuRentalMethodPropertyMapper.insertBatch(skuRentalMethodProperties);
+        }
+    }
+
+    private List<MarketingProductSkuRentalMethodProperty> buildSkuRentalMethodProperties(Long marketingSpuId,
+                                                                                         List<MarketingProductSkuVO> skuVOS,
+                                                                                         List<MarketingProductSku> savedSkus,
+                                                                                         LoginUser<?> loginUser,
+                                                                                         Date now) {
+        if (CollectionUtil.isEmpty(skuVOS) || CollectionUtil.isEmpty(savedSkus)) {
+            return Collections.emptyList();
+        }
+        Map<String, Long> skuCode2IdMap = savedSkus.stream()
+                .filter(sku -> StringUtils.isNotBlank(sku.getSkuCode()))
+                .collect(Collectors.toMap(MarketingProductSku::getSkuCode, MarketingProductSku::getId, (first, duplicate) -> first));
+        Set<Long> savedSkuIds = savedSkus.stream().map(MarketingProductSku::getId).collect(Collectors.toSet());
+
+        List<MarketingProductSkuRentalMethodProperty> result = Lists.newArrayList();
+        for (MarketingProductSkuVO skuVO : skuVOS) {
+            if (skuVO == null || CollectionUtil.isEmpty(skuVO.getRentalMethodProperties())) {
+                continue;
+            }
+            Long marketingSkuId = skuVO.getId();
+            if (marketingSkuId == null && StringUtils.isNotBlank(skuVO.getSkuCode())) {
+                marketingSkuId = skuCode2IdMap.get(skuVO.getSkuCode());
+            }
+            if (marketingSkuId == null || !savedSkuIds.contains(marketingSkuId)) {
+                continue;
+            }
+            for (MarketingProductSkuRentalMethodPropertyVO propertyVO : skuVO.getRentalMethodProperties()) {
+                if (propertyVO == null) {
+                    continue;
+                }
+                MarketingProductSkuRentalMethodProperty property = new MarketingProductSkuRentalMethodProperty();
+                result.add(property);
+                property.setMarketingSpuId(marketingSpuId);
+                property.setMarketingSkuId(marketingSkuId);
+                property.setRentalMethod(propertyVO.getRentalMethod());
+                property.setRentalPeriodMonth(propertyVO.getRentalPeriodMonth());
+                property.setTotalRent(propertyVO.getTotalRent());
+                property.setMonthlyRent(propertyVO.getMonthlyRent());
+                property.setDailyRent(propertyVO.getDailyRent());
+                property.setBuyoutAmount(propertyVO.getBuyoutAmount());
+                property.setPremium(propertyVO.getPremium());
+                property.setStock(propertyVO.getStock());
+                property.setPartnerId(loginUser.getPartnerId());
+                property.setCreateBy(loginUser.getId());
+                property.setUpdateBy(loginUser.getId());
+                property.setCreateTime(now);
+                property.setUpdateTime(now);
+                property.setIsDeleted(NumberUtils.INTEGER_ZERO);
+            }
+        }
+        return result;
+    }
+
+    private List<MarketingProductSkuRentalMethodPropertyVO> convertSkuRentalMethodPropertyVOs(
+            List<MarketingProductSkuRentalMethodProperty> properties) {
+        if (CollectionUtil.isEmpty(properties)) {
+            return Collections.emptyList();
+        }
+        return properties.stream().map(property -> {
+            MarketingProductSkuRentalMethodPropertyVO vo = new MarketingProductSkuRentalMethodPropertyVO();
+            vo.setRentalMethod(property.getRentalMethod());
+            RentalMethodEnum rentalMethodEnum = RentalMethodEnum.get(property.getRentalMethod());
+            vo.setRentalMethodName(rentalMethodEnum == null ? null : rentalMethodEnum.getDesc());
+            vo.setRentalPeriodMonth(property.getRentalPeriodMonth());
+            vo.setTotalRent(property.getTotalRent());
+            vo.setMonthlyRent(property.getMonthlyRent());
+            vo.setDailyRent(property.getDailyRent());
+            vo.setBuyoutAmount(property.getBuyoutAmount());
+            vo.setPremium(property.getPremium());
+            vo.setStock(property.getStock());
+            return vo;
+        }).toList();
     }
 
     private List<MarketingProductSpuRentalMethodProperty> buildRentalMethodProperties(Long marketingSpuId, Integer productType,

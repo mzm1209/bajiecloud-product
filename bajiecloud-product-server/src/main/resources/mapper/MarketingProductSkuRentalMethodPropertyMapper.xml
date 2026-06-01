@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bajiezu.cloud.product.dal.mapper.MarketingProductSkuRentalMethodPropertyMapper">
+
+    <resultMap id="BaseResultMap" type="com.bajiezu.cloud.product.dal.entity.MarketingProductSkuRentalMethodProperty">
+        <id column="id" property="id" />
+        <result column="marketing_spu_id" property="marketingSpuId" />
+        <result column="marketing_sku_id" property="marketingSkuId" />
+        <result column="rental_method" property="rentalMethod" />
+        <result column="rental_period_month" property="rentalPeriodMonth" />
+        <result column="total_rent" property="totalRent" />
+        <result column="monthly_rent" property="monthlyRent" />
+        <result column="daily_rent" property="dailyRent" />
+        <result column="buyout_amount" property="buyoutAmount" />
+        <result column="premium" property="premium" />
+        <result column="stock" property="stock" />
+        <result column="partner_id" property="partnerId" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="isDeleted" />
+    </resultMap>
+
+    <insert id="insertBatch">
+        insert into marketing_product_sku_rental_method_property
+            (marketing_spu_id, marketing_sku_id, rental_method, rental_period_month,
+             total_rent, monthly_rent, daily_rent, buyout_amount, premium, stock,
+             partner_id, create_by, update_by, create_time, update_time, is_deleted)
+        values
+        <foreach item="item" collection="list" separator=",">
+            (#{item.marketingSpuId}, #{item.marketingSkuId}, #{item.rentalMethod}, #{item.rentalPeriodMonth},
+             #{item.totalRent}, #{item.monthlyRent}, #{item.dailyRent}, #{item.buyoutAmount}, #{item.premium}, #{item.stock},
+             #{item.partnerId}, #{item.createBy}, #{item.updateBy}, #{item.createTime}, #{item.updateTime}, #{item.isDeleted})
+        </foreach>
+    </insert>
+
+    <select id="selectListByMarketingSpuId" resultMap="BaseResultMap">
+        select *
+        from marketing_product_sku_rental_method_property
+        where is_deleted = 0
+          and marketing_spu_id = #{marketingSpuId}
+        order by marketing_sku_id asc, rental_method asc, rental_period_month asc, id asc
+    </select>
+
+    <select id="selectListByMarketingSpuIds" resultMap="BaseResultMap">
+        select *
+        from marketing_product_sku_rental_method_property
+        where is_deleted = 0
+          and marketing_spu_id in
+        <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by marketing_spu_id asc, marketing_sku_id asc, rental_method asc, rental_period_month asc, id asc
+    </select>
+
+    <select id="selectListByMarketingSkuIds" resultMap="BaseResultMap">
+        select *
+        from marketing_product_sku_rental_method_property
+        where is_deleted = 0
+          and marketing_sku_id in
+        <foreach item="id" collection="marketingSkuIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by marketing_sku_id asc, rental_method asc, rental_period_month asc, id asc
+    </select>
+
+    <update id="logicDeleteByMarketingSpuId">
+        update marketing_product_sku_rental_method_property
+        set is_deleted = id,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where marketing_spu_id = #{marketingSpuId}
+          and is_deleted = 0
+    </update>
+
+    <update id="logicDeleteByMarketingSpuIds">
+        update marketing_product_sku_rental_method_property
+        set is_deleted = id,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        where is_deleted = 0
+          and marketing_spu_id in
+        <foreach item="id" collection="marketingSpuIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

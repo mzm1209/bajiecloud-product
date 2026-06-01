@@ -11,6 +11,7 @@ import com.bajiezu.cloud.product.controller.vo.app.response.AppProductSpuDetailR
 import com.bajiezu.cloud.product.controller.vo.app.response.AppProductSpuPageRespVO;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSku;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSkuPropertyValue;
+import com.bajiezu.cloud.product.dal.entity.MarketingProductSkuRentalMethodProperty;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpu;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpuRentalMethodProperty;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSpuPropertyValue;
@@ -20,6 +21,7 @@ import com.bajiezu.cloud.product.dal.entity.ValueAdded;
 import com.bajiezu.cloud.product.dal.entity.ValueAddedCompensationAmountRule;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSkuMapper;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSkuPropertyValueMapper;
+import com.bajiezu.cloud.product.dal.mapper.MarketingProductSkuRentalMethodPropertyMapper;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSpuMapper;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSpuRentalMethodPropertyMapper;
 import com.bajiezu.cloud.product.dal.mapper.MarketingProductSpuPropertyValueMapper;
@@ -64,6 +66,8 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
     private ValueAddedMapper valueAddedMapper;
     @Resource
     private MarketingProductSpuRentalMethodPropertyMapper rentalMethodPropertyMapper;
+    @Resource
+    private MarketingProductSkuRentalMethodPropertyMapper skuRentalMethodPropertyMapper;
     @Resource
     private ValueAddedCompensationAmountRuleMapper compensationAmountRuleMapper;
 
@@ -129,6 +133,7 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
         resp.setStrikethroughPrice(defaultSku.getStrikethroughPrice());
         resp.setProperties(buildSkuProps(defaultSku.getId()));
         resp.setRentalMethods(buildRentalMethods(spu.getId()));
+        resp.setSkuRentalMethodProperties(buildSkuRentalMethodProperties(spu.getId()));
 
         if (StringUtils.isNotBlank(spu.getValueAddedIds())) {
             List<Long> ids = Arrays.stream(spu.getValueAddedIds().split(","))
@@ -197,6 +202,30 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
                             .toList());
                     return item;
                 }).toList();
+    }
+
+    private List<AppProductSpuDetailRespVO.SkuRentalMethodPropertyItem> buildSkuRentalMethodProperties(Long spuId) {
+        List<MarketingProductSkuRentalMethodProperty> properties =
+                skuRentalMethodPropertyMapper.selectListByMarketingSpuId(spuId);
+        if (CollectionUtil.isEmpty(properties)) {
+            return Collections.emptyList();
+        }
+        return properties.stream().map(property -> {
+            AppProductSpuDetailRespVO.SkuRentalMethodPropertyItem item =
+                    new AppProductSpuDetailRespVO.SkuRentalMethodPropertyItem();
+            item.setSkuId(property.getMarketingSkuId());
+            item.setRentalMethod(property.getRentalMethod());
+            RentalMethodEnum rentalMethodEnum = RentalMethodEnum.get(property.getRentalMethod());
+            item.setRentalMethodName(rentalMethodEnum == null ? null : rentalMethodEnum.getDesc());
+            item.setRentalPeriodMonth(property.getRentalPeriodMonth());
+            item.setTotalRent(property.getTotalRent());
+            item.setMonthlyRent(property.getMonthlyRent());
+            item.setDailyRent(property.getDailyRent());
+            item.setBuyoutAmount(property.getBuyoutAmount());
+            item.setPremium(property.getPremium());
+            item.setStock(property.getStock());
+            return item;
+        }).toList();
     }
 
     private Map<Long, List<ValueAddedCompensationAmountRule>> buildCompensationAmountRuleMap(List<Long> valueAddedIds) {
