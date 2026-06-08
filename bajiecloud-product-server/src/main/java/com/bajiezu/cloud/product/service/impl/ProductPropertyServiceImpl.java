@@ -16,6 +16,7 @@ import com.bajiezu.cloud.product.dal.entity.ProductProperty;
 import com.bajiezu.cloud.product.dal.entity.ProductPropertyValue;
 import com.bajiezu.cloud.product.dal.mapper.ProductPropertyMapper;
 import com.bajiezu.cloud.product.dal.mapper.ProductPropertyValueMapper;
+import com.bajiezu.cloud.product.dal.mapper.StandardProductSpuPropertyMapper;
 import com.bajiezu.cloud.product.service.ProductPropertyService;
 import com.bajiezu.cloud.system.api.user.AdminUserApi;
 import com.bajiezu.cloud.system.dto.AdminUserRespDTO;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 import static com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil.exception;
 import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PROPERTY_ALREADY_EXIST;
 import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PROPERTY_NOT_EXIST;
+import static com.bajiezu.cloud.product.enums.ErrorCodeConstants.PROPERTY_USED_BY_STANDARD_PRODUCT;
 
 @Slf4j
 @Service
@@ -43,6 +45,10 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
 
     @Resource
     private ProductPropertyValueMapper propertyValueMapper;
+
+    @Resource
+    private StandardProductSpuPropertyMapper standardProductSpuPropertyMapper;
+
     @Resource
     private AdminUserApi adminUserApi;
 
@@ -123,6 +129,11 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
         if (property == null) {
             throw exception(PROPERTY_NOT_EXIST);
         }
+        Long usedCount = standardProductSpuPropertyMapper.selectCountByProductPropertyId(property.getId());
+        if (usedCount != null && usedCount > 0) {
+            throw exception(PROPERTY_USED_BY_STANDARD_PRODUCT);
+        }
+
         Date now = new Date();
         propertyMapper.logicDelById(property.getId(), loginUser.getId(), now);
         propertyValueMapper.logicDelByPropertyId(property.getId(), loginUser.getId(), now);

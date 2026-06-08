@@ -5,5 +5,6 @@
         <foreach collection="list" item="item" separator=",">(#{item.standardSpuId},#{item.productPropertyId},#{item.sort},#{item.isAddPropertyPic},#{item.isAddMarketingCorner},#{item.isSkuProperty},#{item.partnerId},#{item.createBy},#{item.updateBy},#{item.createTime},#{item.updateTime},#{item.isDeleted})</foreach>
     </insert>
     <select id="selectListByStandardSpuId" resultType="com.bajiezu.cloud.product.dal.entity.StandardProductSpuProperty">select * from standard_product_spu_property where standard_spu_id=#{standardSpuId} and is_deleted=0</select>
+    <select id="selectCountByProductPropertyId" resultType="java.lang.Long">select count(*) from standard_product_spu_property where product_property_id=#{productPropertyId} and is_deleted=0</select>
     <update id="logicDelByStandardSpuId">update standard_product_spu_property set is_deleted=1,update_by=#{updateBy},update_time=#{updateTime} where standard_spu_id=#{standardSpuId} and is_deleted=0</update>
 </mapper>
