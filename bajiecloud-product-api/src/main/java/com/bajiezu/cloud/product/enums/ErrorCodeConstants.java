@@ -15,6 +15,7 @@ public interface ErrorCodeConstants {
     // ========== 商品属性 模块 1-003-003-000 ==========
     ErrorCode PROPERTY_ALREADY_EXIST = new ErrorCode(1_003_003_001, "属性已存在");
     ErrorCode PROPERTY_NOT_EXIST = new ErrorCode(1_003_003_002, "属性不存在");
+    ErrorCode PROPERTY_USED_BY_STANDARD_PRODUCT = new ErrorCode(1_003_003_003, "该属性已被标准商品使用，不允许删除");
 
     // ========== 商品标签 模块 1-003-004-000 ==========
     ErrorCode PRODUCT_TAG_NOT_EXIST = new ErrorCode(1_003_004_004, "商品标签不存在");

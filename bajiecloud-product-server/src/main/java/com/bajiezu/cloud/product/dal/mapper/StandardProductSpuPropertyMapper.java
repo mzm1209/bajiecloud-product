@@ -13,5 +13,6 @@ import java.util.List;
 public interface StandardProductSpuPropertyMapper extends BaseMapper<StandardProductSpuProperty> {
     void insertBatch(@Param("list") Collection<StandardProductSpuProperty> list);
     List<StandardProductSpuProperty> selectListByStandardSpuId(@Param("standardSpuId") Long standardSpuId);
+    Long selectCountByProductPropertyId(@Param("productPropertyId") Long productPropertyId);
     void logicDelByStandardSpuId(@Param("standardSpuId") Long standardSpuId, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 }
