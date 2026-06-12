@@ -19,7 +19,7 @@ public class AssetResidualConfigSaveReqVO {
     private Long standardProductSkuId;
 
     @NotNull
-        private Long officialPrice;
+    private BigDecimal officialPrice;
 
     @NotNull
     private Integer depreciationRuleType;

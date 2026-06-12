@@ -11,9 +11,9 @@ public class AssetResidualMonthConfigVO {
     private Integer useMonth;
     private Integer globalMonth;
     private BigDecimal depreciationRuleValue;
-    private Long beginValue;
-    private Long depreciationAmount;
-    private Long residualValue;
-    private Long accumulatedDepreciationAmount;
-    private Long currentPurchaseAmount;
+    private BigDecimal beginValue;
+    private BigDecimal depreciationAmount;
+    private BigDecimal residualValue;
+    private BigDecimal accumulatedDepreciationAmount;
+    private BigDecimal currentPurchaseAmount;
 }
