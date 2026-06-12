@@ -146,10 +146,11 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
         }
 
         AssetResidualConfig residualConfig = residualConfigMapper.selectBySkuId(reqVO.getStandardProductSkuId(), reqVO.getPartnerId());
-        Map<Integer, AssetResidualYearConfig> yearMap = residualConfig == null
-                ? Collections.emptyMap()
-                : residualYearConfigMapper.selectByConfigId(residualConfig.getId(), reqVO.getPartnerId())
-                        .stream().collect(Collectors.toMap(AssetResidualYearConfig::getUseYear, y -> y));
+        if (residualConfig == null) {
+            throw exception(ASSET_PRICING_RESIDUAL_VALUE_REQUIRED);
+        }
+        Map<Integer, AssetResidualYearConfig> yearMap = residualYearConfigMapper.selectByConfigId(residualConfig.getId(), reqVO.getPartnerId())
+                .stream().collect(Collectors.toMap(AssetResidualYearConfig::getUseYear, y -> y));
 
         Date now = new Date();
         for (AssetPricingItemSaveReqVO item : reqVO.getConfigs()) {
@@ -173,10 +174,11 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
                 : (y == null ? null : y.getYearBeginValue());
         BigDecimal deviceValueDecimal = toAmountDecimal(deviceValue);
 
-        log.info("deviceValue: {},deviceValueDecimal:{},OfficialPrice:{},di:{}", deviceValue, deviceValueDecimal,residualConfig.getOfficialPrice(),residualConfig.getId());
-        if (deviceValue == null || deviceValueDecimal == null || (item.getUseYear() > 1 && y == null)) {
+        if (deviceValue == null || deviceValueDecimal == null || y == null) {
             throw exception(ASSET_PRICING_RESIDUAL_VALUE_REQUIRED);
         }
+        log.info("deviceValue: {},deviceValueDecimal:{},OfficialPrice:{},di:{}", deviceValue, deviceValueDecimal,
+                residualConfig.getOfficialPrice(), residualConfig.getId());
 
         log.info("DeviceTotalPriceCoefficient: {}", item.getDeviceTotalPriceCoefficient());
         if (item.getDeviceTotalPriceCoefficient().compareTo(BigDecimal.ZERO) <= 0) {
@@ -192,12 +194,12 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
         }
 
         log.info("TotalPriceLowerLimit: {}", y.getTotalPriceLowerLimit());
-        if (y != null && y.getTotalPriceLowerLimit() != null && deviceTotalPriceLong < y.getTotalPriceLowerLimit()) {
+        if (y.getTotalPriceLowerLimit() != null && deviceTotalPriceLong < y.getTotalPriceLowerLimit()) {
             throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_LOW);
         }
 
         log.info("TotalPriceUpperLimit: {}", y.getTotalPriceUpperLimit());
-        if (y != null && y.getTotalPriceUpperLimit() != null && deviceTotalPriceLong > y.getTotalPriceUpperLimit()) {
+        if (y.getTotalPriceUpperLimit() != null && deviceTotalPriceLong > y.getTotalPriceUpperLimit()) {
             throw exception(ASSET_PRICING_TOTAL_PRICE_TOO_HIGH);
         }
 
@@ -216,7 +218,10 @@ public class AssetPricingConfigServiceImpl implements AssetPricingConfigService 
             throw exception(ASSET_PRICING_MONTHLY_OR_DAILY_RENT_INVALID);
         }
 
-        Long annualDep = y == null ? 0L : y.getYearDepreciationAmount();
+        Long annualDep = y.getYearDepreciationAmount();
+        if (annualDep == null) {
+            throw exception(ASSET_PRICING_RESIDUAL_VALUE_REQUIRED);
+        }
         Long expiration = deviceTotalPriceLong - annualDep;
         if (expiration < 0) {
             throw exception(ASSET_PRICING_EXPIRATION_PURCHASE_INVALID);
