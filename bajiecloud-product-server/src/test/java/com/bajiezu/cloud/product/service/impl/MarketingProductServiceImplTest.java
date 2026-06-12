@@ -47,6 +47,36 @@ class MarketingProductServiceImplTest {
         assertEquals("营销SKU与SKU属性组合不一致，请按SKU属性组合重新提交", exception.getMessage());
     }
 
+
+    @Test
+    void normalizeMarketingCornerTextRejectsBlankTextWhenCornerEnabled() {
+        MarketingProductServiceImpl service = new MarketingProductServiceImpl();
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> invokeNormalizeMarketingCornerText(service, " ", 1));
+
+        assertEquals("开启营销角标时，营销角标文案不能为空", exception.getMessage());
+    }
+
+    @Test
+    void normalizeMarketingCornerTextRejectsTooLongTextWhenCornerEnabled() {
+        MarketingProductServiceImpl service = new MarketingProductServiceImpl();
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> invokeNormalizeMarketingCornerText(service, "文".repeat(65), 1));
+
+        assertEquals("营销角标文案不能超过64个字符", exception.getMessage());
+    }
+
+    @Test
+    void normalizeMarketingCornerTextClearsTextWhenCornerDisabled() throws Exception {
+        MarketingProductServiceImpl service = new MarketingProductServiceImpl();
+
+        String normalizedText = invokeNormalizeMarketingCornerText(service, null, 0);
+
+        assertEquals("", normalizedText);
+    }
+
     @SuppressWarnings("unchecked")
     private List<MarketingProductSkuVO> invokeBuildSkuCombinations(MarketingProductServiceImpl service,
                                                                     List<MarketingProductPropertyVO> skuProperties,
@@ -55,6 +85,22 @@ class MarketingProductServiceImplTest {
         method.setAccessible(true);
         try {
             return (List<MarketingProductSkuVO>) method.invoke(service, skuProperties, incomingSkus);
+        } catch (InvocationTargetException exception) {
+            Throwable targetException = exception.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw exception;
+        }
+    }
+
+    private String invokeNormalizeMarketingCornerText(MarketingProductServiceImpl service,
+                                                       String marketingCornerText,
+                                                       Integer isAddMarketingCorner) throws Exception {
+        Method method = MarketingProductServiceImpl.class.getDeclaredMethod("normalizeMarketingCornerText", String.class, Integer.class);
+        method.setAccessible(true);
+        try {
+            return (String) method.invoke(service, marketingCornerText, isAddMarketingCorner);
         } catch (InvocationTargetException exception) {
             Throwable targetException = exception.getTargetException();
             if (targetException instanceof RuntimeException runtimeException) {

@@ -2054,8 +2054,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         if (!NumberUtils.INTEGER_ONE.equals(defaultSwitch(isAddMarketingCorner))) {
             return StringUtils.EMPTY;
         }
+        if (StringUtils.isBlank(marketingCornerText)) {
+            throw exception(MARKETING_CORNER_TEXT_REQUIRED);
+        }
         if (StringUtils.length(marketingCornerText) > MARKETING_CORNER_TEXT_MAX_LENGTH) {
-            throw new IllegalArgumentException("marketingCornerText length must <= 64");
+            throw exception(MARKETING_CORNER_TEXT_TOO_LONG);
         }
         return marketingCornerText;
     }
