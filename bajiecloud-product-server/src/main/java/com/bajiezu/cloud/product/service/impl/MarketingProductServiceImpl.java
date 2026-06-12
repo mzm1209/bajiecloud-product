@@ -2149,10 +2149,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                     return first;
                 }));
 
-        List<String> expectedKeys = expectedCombinations.stream().map(this::buildSkuCombinationKey).toList();
-        if (!normalizedIncomingSkuMap.keySet().equals(new HashSet<>(expectedKeys))) {
-            log.warn("incoming marketing skus mismatch with generated sku combinations by isSkuProperty. expected:{}, actual:{}",
-                    expectedKeys, normalizedIncomingSkuMap.keySet());
+        Set<String> expectedKeySet = expectedCombinations.stream().map(this::buildSkuCombinationKey).collect(Collectors.toSet());
+        Set<String> actualKeySet = normalizedIncomingSkuMap.keySet();
+        if (!expectedKeySet.containsAll(actualKeySet)) {
+            log.warn("incoming marketing skus exceed generated sku combinations by isSkuProperty. expected:{}, actual:{}",
+                    expectedKeySet, actualKeySet);
             throw new IllegalArgumentException("营销SKU与SKU属性组合不一致，请按SKU属性组合重新提交");
         }
 
@@ -2160,8 +2161,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         for (List<SkuPropertyValueVO> combination : expectedCombinations) {
             String key = buildSkuCombinationKey(combination);
             MarketingProductSkuVO targetSku = normalizedIncomingSkuMap.get(key);
-            targetSku.setPropertyValues(combination);
-            result.add(targetSku);
+            if (targetSku != null) {
+                targetSku.setPropertyValues(combination);
+                result.add(targetSku);
+            }
         }
         return result;
     }
