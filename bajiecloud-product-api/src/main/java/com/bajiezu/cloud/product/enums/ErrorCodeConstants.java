@@ -57,4 +57,6 @@ public interface ErrorCodeConstants {
     ErrorCode RENTAL_METHOD_PERIOD_REQUIRED = new ErrorCode(1_003_008_013, "租赁商品需配置租赁方式和租期");
     ErrorCode RENTAL_PRICE_NOT_EXIST = new ErrorCode(1_003_008_014, "该租赁方式与租期组合不存在");
     ErrorCode RENTAL_STOCK_NOT_ENOUGH = new ErrorCode(1_003_008_015, "库存不足");
+    ErrorCode MARKETING_CORNER_TEXT_REQUIRED = new ErrorCode(1_003_008_016, "开启营销角标时，营销角标文案不能为空");
+    ErrorCode MARKETING_CORNER_TEXT_TOO_LONG = new ErrorCode(1_003_008_017, "营销角标文案不能超过64个字符");
 }
