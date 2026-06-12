@@ -40,7 +40,7 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
         resp.setStandardProductSkuId(skuId);
         AssetResidualConfig c=configMapper.selectBySkuId(skuId,u.getPartnerId());
         if(c==null){ resp.setYearConfigs(emptyYears()); resp.setMonthConfigs(emptyMonths()); return resp; }
-        resp.setOfficialPrice(toDisplayLong(c.getOfficialPrice())); resp.setDepreciationRuleType(c.getDepreciationRuleType()); resp.setDepreciationRuleSubType(c.getDepreciationRuleSubType()); resp.setRemark(c.getRemark()); resp.setStatus(c.getStatus());
+        resp.setOfficialPrice(toDisplayAmount(c.getOfficialPrice())); resp.setDepreciationRuleType(c.getDepreciationRuleType()); resp.setDepreciationRuleSubType(c.getDepreciationRuleSubType()); resp.setRemark(c.getRemark()); resp.setStatus(c.getStatus());
         resp.setYearConfigs(yearMapper.selectByConfigId(c.getId(),u.getPartnerId()).stream().map(this::toYearVO).toList());
         resp.setMonthConfigs(monthMapper.selectByConfigId(c.getId(),u.getPartnerId()).stream().map(this::toMonthVO).toList());
         return resp;
@@ -80,13 +80,13 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
     }
     private static final BigDecimal AMOUNT_SCALE = BigDecimal.valueOf(10000);
     private BigDecimal toAmountDecimal(Long v){ return v==null?null:BigDecimal.valueOf(v).divide(AMOUNT_SCALE,4,RoundingMode.HALF_UP); }
-    private BigDecimal toYuanDecimal(Long v){ return v==null?null:BigDecimal.valueOf(v).setScale(4,RoundingMode.HALF_UP); }
+    private BigDecimal toYuanDecimal(BigDecimal v){ return v==null?null:v.setScale(4,RoundingMode.HALF_UP); }
     private Long toAmountLong(BigDecimal v){ return v==null?null:v.multiply(AMOUNT_SCALE).setScale(0,RoundingMode.HALF_UP).longValue(); }
-    private Long toDisplayLong(Long storedValue){ return toAmountDecimal(storedValue).setScale(0,RoundingMode.HALF_UP).longValue(); }
+    private BigDecimal toDisplayAmount(Long storedValue){ return storedValue==null?null:toAmountDecimal(storedValue).setScale(4,RoundingMode.HALF_UP); }
 
     private void validate(AssetResidualConfigSaveReqVO r){
         if(r.getYearConfigs().size()!=3||r.getMonthConfigs().size()!=36) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
-        if (r.getOfficialPrice() == null || r.getOfficialPrice() <= 0) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
+        if (r.getOfficialPrice() == null || r.getOfficialPrice().compareTo(BigDecimal.ZERO) <= 0) throw exception(ASSET_RESIDUAL_PARAM_INVALID);
         boolean yearCoefficientMissing = r.getYearConfigs().stream().anyMatch(y -> y == null
                 || y.getUseYear() == null
                 || y.getTotalPriceUpperCoefficient() == null
@@ -106,6 +106,6 @@ public class AssetResidualConfigServiceImpl implements AssetResidualConfigServic
     private BigDecimal calcDep(Integer t,BigDecimal begin,BigDecimal v){ return AssetResidualCalculator.depreciationAmount(t, begin, v); }
     private List<AssetResidualYearConfigVO> emptyYears(){ List<AssetResidualYearConfigVO> l=new ArrayList<>(); for(int i=1;i<=3;i++){AssetResidualYearConfigVO v=new AssetResidualYearConfigVO();v.setUseYear(i);l.add(v);} return l; }
     private List<AssetResidualMonthConfigVO> emptyMonths(){ List<AssetResidualMonthConfigVO> l=new ArrayList<>(); for(int g=1;g<=36;g++){AssetResidualMonthConfigVO v=new AssetResidualMonthConfigVO();v.setGlobalMonth(g);v.setUseYear((g-1)/12+1);v.setUseMonth((g-1)%12+1);l.add(v);} return l; }
-    private AssetResidualYearConfigVO toYearVO(AssetResidualYearConfig y){ AssetResidualYearConfigVO v=new AssetResidualYearConfigVO(); v.setUseYear(y.getUseYear()); v.setTotalPriceUpperCoefficient(y.getTotalPriceUpperCoefficient()); v.setTotalPriceLowerCoefficient(y.getTotalPriceLowerCoefficient()); v.setYearBeginValue(toDisplayLong(y.getYearBeginValue())); v.setYearDepreciationAmount(toDisplayLong(y.getYearDepreciationAmount())); v.setYearEndResidualValue(toDisplayLong(y.getYearEndResidualValue())); v.setTotalPriceUpperLimit(toDisplayLong(y.getTotalPriceUpperLimit())); v.setTotalPriceLowerLimit(toDisplayLong(y.getTotalPriceLowerLimit())); return v; }
-    private AssetResidualMonthConfigVO toMonthVO(AssetResidualMonthConfig m){ AssetResidualMonthConfigVO v=new AssetResidualMonthConfigVO(); v.setUseYear(m.getUseYear()); v.setUseMonth(m.getUseMonth()); v.setGlobalMonth(m.getGlobalMonth()); v.setDepreciationRuleValue(m.getDepreciationRuleValue()); v.setBeginValue(toDisplayLong(m.getBeginValue())); v.setDepreciationAmount(toDisplayLong(m.getDepreciationAmount())); v.setResidualValue(toDisplayLong(m.getResidualValue())); v.setAccumulatedDepreciationAmount(toDisplayLong(m.getAccumulatedDepreciationAmount())); v.setCurrentPurchaseAmount(toDisplayLong(m.getCurrentPurchaseAmount())); return v; }
+    private AssetResidualYearConfigVO toYearVO(AssetResidualYearConfig y){ AssetResidualYearConfigVO v=new AssetResidualYearConfigVO(); v.setUseYear(y.getUseYear()); v.setTotalPriceUpperCoefficient(y.getTotalPriceUpperCoefficient()); v.setTotalPriceLowerCoefficient(y.getTotalPriceLowerCoefficient()); v.setYearBeginValue(toDisplayAmount(y.getYearBeginValue())); v.setYearDepreciationAmount(toDisplayAmount(y.getYearDepreciationAmount())); v.setYearEndResidualValue(toDisplayAmount(y.getYearEndResidualValue())); v.setTotalPriceUpperLimit(toDisplayAmount(y.getTotalPriceUpperLimit())); v.setTotalPriceLowerLimit(toDisplayAmount(y.getTotalPriceLowerLimit())); return v; }
+    private AssetResidualMonthConfigVO toMonthVO(AssetResidualMonthConfig m){ AssetResidualMonthConfigVO v=new AssetResidualMonthConfigVO(); v.setUseYear(m.getUseYear()); v.setUseMonth(m.getUseMonth()); v.setGlobalMonth(m.getGlobalMonth()); v.setDepreciationRuleValue(m.getDepreciationRuleValue()); v.setBeginValue(toDisplayAmount(m.getBeginValue())); v.setDepreciationAmount(toDisplayAmount(m.getDepreciationAmount())); v.setResidualValue(toDisplayAmount(m.getResidualValue())); v.setAccumulatedDepreciationAmount(toDisplayAmount(m.getAccumulatedDepreciationAmount())); v.setCurrentPurchaseAmount(toDisplayAmount(m.getCurrentPurchaseAmount())); return v; }
 }
