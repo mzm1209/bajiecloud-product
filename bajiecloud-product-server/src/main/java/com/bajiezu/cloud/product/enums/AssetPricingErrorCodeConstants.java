@@ -13,5 +13,5 @@ public interface AssetPricingErrorCodeConstants {
     ErrorCode ASSET_PRICING_TOTAL_RENT_INVALID = new ErrorCode(1_006_002_007, "总租金计算结果为负数，请检查系数");
     ErrorCode ASSET_PRICING_MONTHLY_OR_DAILY_RENT_INVALID = new ErrorCode(1_006_002_008, "月租金 / 日租金不能为负数，请检查总租金系数");
     ErrorCode ASSET_PRICING_EXPIRATION_PURCHASE_INVALID = new ErrorCode(1_006_002_009, "到期购买金不能为负数，请检查总价或折旧配置");
-    ErrorCode ASSET_PRICING_RESIDUAL_VALUE_REQUIRED = new ErrorCode(1_006_002_010, "第二/三年缺少资产残值配置，请先完成资产残值配置");
+    ErrorCode ASSET_PRICING_RESIDUAL_VALUE_REQUIRED = new ErrorCode(1_006_002_010, "未正确配置资产残值信息");
 }
