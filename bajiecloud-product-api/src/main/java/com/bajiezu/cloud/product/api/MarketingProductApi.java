@@ -46,4 +46,16 @@ public interface MarketingProductApi {
     @PostMapping(PREFIX + "/restoreRentalStock")
     @Operation(summary = "回补租期维度库存（订单取消/超时/创单回滚）")
     CommonResult<Boolean> restoreRentalStock(@RequestBody SkuRentalStockReqDto reqDto);
+
+    @GetMapping(PREFIX + "/getResidualAmount")
+    @Operation(summary = "按营销SKU+已用月数查询精确残值（当期购买金）")
+    CommonResult<Long> getResidualAmount(
+            @RequestParam("skuId") Long skuId,
+            @RequestParam("globalMonth") Integer globalMonth);
+
+    @GetMapping(PREFIX + "/listSkuRentalPrices")
+    @Operation(summary = "按营销SKU+租赁方式查询所有可用租期价格列表")
+    CommonResult<List<SkuRentalPriceRespDto>> listSkuRentalPrices(
+            @RequestParam("skuId") Long skuId,
+            @RequestParam("rentalMethod") Integer rentalMethod);
 }

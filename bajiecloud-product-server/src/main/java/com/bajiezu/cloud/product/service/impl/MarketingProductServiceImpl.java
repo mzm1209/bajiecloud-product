@@ -90,6 +90,12 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     private MarketingProductSpuRentalMethodPropertyMapper rentalMethodPropertyMapper;
     @Resource
     private MarketingProductSkuRentalMethodPropertyMapper skuRentalMethodPropertyMapper;
+    @Resource
+    private StandardProductSkuPropertyValueMapper standardProductSkuPropertyValueMapper;
+    @Resource
+    private AssetResidualConfigMapper assetResidualConfigMapper;
+    @Resource
+    private AssetResidualMonthConfigMapper assetResidualMonthConfigMapper;
 
     @Resource
     private MarketingChannelApi marketingChannelApi;
@@ -1560,6 +1566,173 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             throw exception(STANDARD_PRODUCT_PROPERTY_SCOPE_EMPTY);
         }
         return properties;
+    }
+
+    @Override
+    public Long getResidualAmount(Long marketingSkuId, Integer globalMonth) {
+        log.info("[getResidualAmount] start, marketingSkuId={}, globalMonth={}", marketingSkuId, globalMonth);
+        if (marketingSkuId == null || globalMonth == null || globalMonth < 1) {
+            return null;
+        }
+        Long standardProductSkuId = resolveStandardProductSkuId(marketingSkuId);
+        if (standardProductSkuId == null) {
+            log.info("[getResidualAmount] standard sku not resolved, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        MarketingProductSku marketingSku = skuMapper.selectById(marketingSkuId);
+        if (marketingSku == null || marketingSku.getPartnerId() == null) {
+            log.info("[getResidualAmount] marketingSku not found or partnerId null, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        Long partnerId = marketingSku.getPartnerId();
+        AssetResidualConfig config = assetResidualConfigMapper.selectBySkuId(standardProductSkuId, partnerId);
+        if (config == null) {
+            log.info("[getResidualAmount] asset residual config not found, standardSkuId={}, partnerId={}",
+                    standardProductSkuId, partnerId);
+            return null;
+        }
+        List<AssetResidualMonthConfig> months = assetResidualMonthConfigMapper.selectByConfigId(
+                config.getId(), partnerId);
+        if (CollectionUtil.isEmpty(months)) {
+            log.info("[getResidualAmount] month configs empty, configId={}, partnerId={}", config.getId(), partnerId);
+            return null;
+        }
+        for (AssetResidualMonthConfig row : months) {
+            if (Objects.equals(row.getGlobalMonth(), globalMonth)) {
+                log.info("[getResidualAmount] found, marketingSkuId={}, standardSkuId={}, globalMonth={}, amount={}",
+                        marketingSkuId, standardProductSkuId, globalMonth, row.getCurrentPurchaseAmount());
+                return row.getCurrentPurchaseAmount();
+            }
+        }
+        log.info("[getResidualAmount] globalMonth not in residual table, marketingSkuId={}, globalMonth={}, maxMonth={}",
+                marketingSkuId, globalMonth, months.get(months.size() - 1).getGlobalMonth());
+        return null;
+    }
+
+    @Override
+    public List<SkuRentalPriceRespDto> listSkuRentalPrices(Long skuId, Integer rentalMethod) {
+        log.info("[listSkuRentalPrices] skuId={}, rentalMethod={}", skuId, rentalMethod);
+        if (skuId == null || rentalMethod == null) {
+            return List.of();
+        }
+        List<MarketingProductSkuRentalMethodProperty> rows = skuRentalMethodPropertyMapper
+                .selectListByMarketingSkuIds(List.of(skuId));
+        if (CollectionUtil.isEmpty(rows)) {
+            log.info("[listSkuRentalPrices] no rental rows found, skuId={}", skuId);
+            return List.of();
+        }
+        List<SkuRentalPriceRespDto> result = new ArrayList<>();
+        for (MarketingProductSkuRentalMethodProperty row : rows) {
+            if (!Objects.equals(row.getRentalMethod(), rentalMethod)) {
+                continue;
+            }
+            SkuRentalPriceRespDto dto = new SkuRentalPriceRespDto();
+            dto.setId(row.getId());
+            dto.setMarketingSpuId(row.getMarketingSpuId());
+            dto.setMarketingSkuId(row.getMarketingSkuId());
+            dto.setRentalMethod(row.getRentalMethod());
+            dto.setRentalPeriodMonth(row.getRentalPeriodMonth());
+            dto.setTotalRent(row.getTotalRent());
+            dto.setMonthlyRent(row.getMonthlyRent());
+            dto.setDailyRent(row.getDailyRent());
+            dto.setBuyoutAmount(row.getBuyoutAmount());
+            dto.setPremium(row.getPremium());
+            dto.setStock(row.getStock());
+            result.add(dto);
+        }
+        result.sort(Comparator.comparingInt(o -> o.getRentalPeriodMonth() == null ? 0 : o.getRentalPeriodMonth()));
+        log.info("[listSkuRentalPrices] skuId={}, rentalMethod={}, resultSize={}", skuId, rentalMethod, result.size());
+        return result;
+    }
+
+    /**
+     * 营销SKU → 标品SKU 桥接：
+     * 1. 通过营销SKU取所属营销SPU；2. 取标品SPU；3. 取该营销SKU的属性值列表 → product_property_value_id 集合；
+     * 4. 在标品SPU属性值表中按 product_property_value_id 反查，得到标品SPU属性值ID集合；
+     * 5. 在标品SKU属性值表中找同时拥有这些属性值的标品SKU。
+     * 任一步缺失返回 null。
+     */
+    private Long resolveStandardProductSkuId(Long marketingSkuId) {
+        MarketingProductSku marketingSku = skuMapper.selectById(marketingSkuId);
+        if (marketingSku == null || marketingSku.getMarketingSpuId() == null) {
+            log.info("[resolveStdSku] marketingSku not found, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        MarketingProductSpu marketingSpu = marketingProductSpuMapper.selectById(marketingSku.getMarketingSpuId());
+        if (marketingSpu == null || marketingSpu.getStandardProductSpuId() == null) {
+            log.info("[resolveStdSku] marketingSpu not found or no standardSpuId, marketingSpuId={}",
+                    marketingSku.getMarketingSpuId());
+            return null;
+        }
+        Long standardSpuId = marketingSpu.getStandardProductSpuId();
+
+        List<MarketingProductSkuPropertyValue> mkSkuPVList = skuPropertyValueMapper
+                .selectListBySkuIds(List.of(marketingSkuId));
+        if (CollectionUtil.isEmpty(mkSkuPVList)) {
+            log.info("[resolveStdSku] sku property values empty, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        Set<Long> mkSpuPropertyValueIds = mkSkuPVList.stream()
+                .map(MarketingProductSkuPropertyValue::getMarketingSpuPropertyValueId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (mkSpuPropertyValueIds.isEmpty()) {
+            log.info("[resolveStdSku] mkSpuPropertyValueIds empty after filter, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        List<MarketingProductSpuPropertyValue> mkSpuPVList = spuPropertyValueMapper
+                .selectListByIds(mkSpuPropertyValueIds);
+        if (CollectionUtil.isEmpty(mkSpuPVList)) {
+            log.info("[resolveStdSku] spu property values not found for ids={}", mkSpuPropertyValueIds);
+            return null;
+        }
+        Set<Long> productPropertyValueIds = mkSpuPVList.stream()
+                .map(MarketingProductSpuPropertyValue::getProductPropertyValueId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (productPropertyValueIds.isEmpty()) {
+            log.info("[resolveStdSku] productPropertyValueIds empty, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        List<StandardProductSpuPropertyValue> stdSpuPVList = standardProductSpuPropertyValueMapper
+                .selectListByStandardSpuId(standardSpuId);
+        if (CollectionUtil.isEmpty(stdSpuPVList)) {
+            log.info("[resolveStdSku] standard spu property values empty, standardSpuId={}", standardSpuId);
+            return null;
+        }
+        Set<Long> stdSpuPropertyValueIds = stdSpuPVList.stream()
+                .filter(pv -> pv.getProductPropertyValueId() != null
+                        && productPropertyValueIds.contains(pv.getProductPropertyValueId()))
+                .map(StandardProductSpuPropertyValue::getId)
+                .collect(Collectors.toSet());
+        if (stdSpuPropertyValueIds.isEmpty()) {
+            log.info("[resolveStdSku] no matching standard property values, standardSpuId={}, productPVIds={}",
+                    standardSpuId, productPropertyValueIds);
+            return null;
+        }
+        List<StandardProductSkuPropertyValue> stdSkuPVList = standardProductSkuPropertyValueMapper
+                .selectListByStandardSpuId(standardSpuId);
+        if (CollectionUtil.isEmpty(stdSkuPVList)) {
+            log.info("[resolveStdSku] standard sku property values empty, standardSpuId={}", standardSpuId);
+            return null;
+        }
+        Map<Long, Set<Long>> stdSkuToPVs = new HashMap<>();
+        for (StandardProductSkuPropertyValue pv : stdSkuPVList) {
+            if (pv.getStandardProductSkuId() == null || pv.getStandardSpuPropertyValueId() == null) {
+                continue;
+            }
+            stdSkuToPVs.computeIfAbsent(pv.getStandardProductSkuId(), k -> new HashSet<>())
+                    .add(pv.getStandardSpuPropertyValueId());
+        }
+        for (Map.Entry<Long, Set<Long>> entry : stdSkuToPVs.entrySet()) {
+            if (entry.getValue().containsAll(stdSpuPropertyValueIds)) {
+                log.info("[resolveStdSku] resolved, marketingSkuId={} → standardSkuId={}", marketingSkuId, entry.getKey());
+                return entry.getKey();
+            }
+        }
+        log.info("[resolveStdSku] no matching standard sku found, marketingSkuId={}, standardSpuId={}, requiredPVIds={}",
+                marketingSkuId, standardSpuId, stdSpuPropertyValueIds);
+        return null;
     }
 
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {

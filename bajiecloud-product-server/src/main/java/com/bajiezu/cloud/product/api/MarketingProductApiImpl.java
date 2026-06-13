@@ -95,4 +95,23 @@ public class MarketingProductApiImpl implements MarketingProductApi {
         log.info("[restoreRentalStock] reqDto:{}", reqDto);
         return CommonResult.success(marketingProductService.restoreRentalStock(reqDto));
     }
+
+    @Override
+    public CommonResult<Long> getResidualAmount(Long skuId, Integer globalMonth) {
+        log.info("[getResidualAmount] skuId:{}, globalMonth:{}", skuId, globalMonth);
+        if (skuId == null || globalMonth == null || globalMonth < 1) {
+            return CommonResult.success(null);
+        }
+        Long amount = marketingProductService.getResidualAmount(skuId, globalMonth);
+        return CommonResult.success(amount);
+    }
+
+    @Override
+    public CommonResult<List<SkuRentalPriceRespDto>> listSkuRentalPrices(Long skuId, Integer rentalMethod) {
+        log.info("[listSkuRentalPrices] skuId:{}, rentalMethod:{}", skuId, rentalMethod);
+        if (skuId == null || rentalMethod == null) {
+            return CommonResult.success(List.of());
+        }
+        return CommonResult.success(marketingProductService.listSkuRentalPrices(skuId, rentalMethod));
+    }
 }

@@ -63,4 +63,15 @@ public interface MarketingProductService {
     boolean restoreRentalStock(SkuRentalStockReqDto reqDto);
 
     List<MarketingAvailablePropertyVO> availablePropertiesByStandardSpuId(Long standardProductSpuId);
+
+    /**
+     * 按营销SKU+已用月数查询精确残值（当期购买金）。
+     * 内部做营销SKU→标品SKU桥接，再查资产残值月配置表。找不到返回null。
+     */
+    Long getResidualAmount(Long marketingSkuId, Integer globalMonth);
+
+    /**
+     * 按营销SKU+租赁方式查询所有可用的租期价格列表。
+     */
+    List<SkuRentalPriceRespDto> listSkuRentalPrices(Long skuId, Integer rentalMethod);
 }
