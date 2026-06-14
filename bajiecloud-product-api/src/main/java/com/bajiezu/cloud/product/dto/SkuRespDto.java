@@ -67,6 +67,14 @@ public class SkuRespDto {
     @Schema(description = "sku对应的spu信息")
     private SpuRespDto spuInfo;
 
+    /**
+     * 营销 SPU ID（marketing_product_spu.id）。
+     * 与 spuInfo.id（标品 SPU ID）刻意区分：spuInfo.id 历史上塞的是 standard_product_spu_id，
+     * 不能用作反查 marketing_product_spu，本字段才是营销 SPU 的真实主键。
+     */
+    @Schema(description = "营销 SPU ID（marketing_product_spu.id）")
+    private Long marketingSpuId;
+
     @Schema(description = "租赁期数")
     private Integer leaseTermCount;
 

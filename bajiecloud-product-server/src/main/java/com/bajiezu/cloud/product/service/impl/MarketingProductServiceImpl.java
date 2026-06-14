@@ -1438,6 +1438,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         // 基本信息
         SkuRespDto skuRespDto = new SkuRespDto();
         skuRespDto.setId(marketingProductSku.getId());
+        skuRespDto.setMarketingSpuId(marketingProductSku.getMarketingSpuId());
         skuRespDto.setOfficialPrice(marketingProductSku.getOfficialPrice());
         skuRespDto.setTotalPriceFactor(marketingProductSku.getTotalPriceFactor());
         skuRespDto.setTotalRentFactor(marketingProductSku.getTotalRentFactor());
