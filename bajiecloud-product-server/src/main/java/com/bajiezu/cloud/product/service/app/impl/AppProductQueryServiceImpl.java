@@ -239,6 +239,8 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
                     item.setName(v.getName());
                     item.setPrice(v.getSalePrice());
                     item.setIsDefault(Objects.equals(spu.getDefaultSelectedValueAddedId(), v.getId()) ? 1 : 0);
+                    item.setServiceOverview(v.getServiceOverview());
+                    item.setServiceContent(v.getServiceContent());
                     item.setServiceTypes(v.getServiceTypes());
                     item.setEffectiveChannels(v.getEffectiveChannels());
                     item.setCompensationStandard(v.getCompensationStandard());

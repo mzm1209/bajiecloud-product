@@ -108,6 +108,8 @@ public class AppProductSpuDetailRespVO {
         private String name;
         private Long price;
         private Integer isDefault;
+        private String serviceOverview;
+        private String serviceContent;
         private String serviceTypes;
         private String effectiveChannels;
         private Integer compensationStandard;
