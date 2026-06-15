@@ -409,9 +409,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
                     if (!unqKey2NewPropertyValueMap.containsKey(existSpuPropertyValue.getUnqKey())) {
                         deleteSpuPropertyValueIds.add(existSpuPropertyValue.getId());
                     } else {
-                        if (!Objects.equals(existSpuPropertyValue.getPicUrl(), unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl())) {
-                            existSpuPropertyValue.setPicUrl(normalizePicUrl(unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl(),
-                                    reqPropertyMap.get(productPropertyId).getIsAddPropertyPic()));
+                        String normalizedPicUrl = normalizePicUrl(unqKey2NewPropertyValueMap.get(existSpuPropertyValue.getUnqKey()).getPicUrl(),
+                                reqPropertyMap.get(productPropertyId).getIsAddPropertyPic());
+                        if (!Objects.equals(existSpuPropertyValue.getPicUrl(), normalizedPicUrl)) {
+                            existSpuPropertyValue.setPicUrl(normalizedPicUrl);
                             existSpuPropertyValue.setUpdateTime(now);
                             existSpuPropertyValue.setUpdateBy(loginUser.getId());
                             needUpdateSpuPropertyValues.add(existSpuPropertyValue);
