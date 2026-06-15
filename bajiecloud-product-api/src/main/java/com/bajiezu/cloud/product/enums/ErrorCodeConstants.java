@@ -59,4 +59,7 @@ public interface ErrorCodeConstants {
     ErrorCode RENTAL_STOCK_NOT_ENOUGH = new ErrorCode(1_003_008_015, "库存不足");
     ErrorCode MARKETING_CORNER_TEXT_REQUIRED = new ErrorCode(1_003_008_016, "开启营销角标时，营销角标文案不能为空");
     ErrorCode MARKETING_CORNER_TEXT_TOO_LONG = new ErrorCode(1_003_008_017, "营销角标文案不能超过64个字符");
+    ErrorCode RENTAL_STOCK_DUPLICATE = new ErrorCode(1_003_008_018, "同一SKU租赁方式租期库存不能重复提交");
+    ErrorCode RENTAL_STOCK_NOT_EXIST = new ErrorCode(1_003_008_019, "该SKU租赁方式租期库存配置不存在");
+    ErrorCode RENTAL_STOCK_INVALID = new ErrorCode(1_003_008_020, "库存数量不能为负数");
 }

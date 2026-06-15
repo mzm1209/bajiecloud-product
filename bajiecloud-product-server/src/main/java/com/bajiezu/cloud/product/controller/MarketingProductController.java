@@ -126,7 +126,7 @@ public class MarketingProductController {
 
     @PostMapping("/updateSkuStock")
     @Operation(summary = "更新SKU库存")
-    public CommonResult<Boolean> updateSkuStock(@Valid @RequestBody List<UpdateSkuStockReqVO> reqVO) {
+    public CommonResult<Boolean> updateSkuStock(@Valid @RequestBody List<@Valid UpdateSkuStockReqVO> reqVO) {
         marketingProductService.updateSkuStock(reqVO);
         return success(true);
     }
