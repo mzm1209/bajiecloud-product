@@ -1,6 +1,7 @@
 package com.bajiezu.cloud.product.api;
 
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
+import com.bajiezu.cloud.product.dto.AssetConfigDto;
 import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
 import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
 import com.bajiezu.cloud.product.dto.SkuRentalPriceRespDto;
@@ -58,4 +59,8 @@ public interface MarketingProductApi {
     CommonResult<List<SkuRentalPriceRespDto>> listSkuRentalPrices(
             @RequestParam("skuId") Long skuId,
             @RequestParam("rentalMethod") Integer rentalMethod);
+
+    @GetMapping(PREFIX + "/getAssetConfig")
+    @Operation(summary = "按营销SKU查询关联的资产配置（残值+定价）全量数据")
+    CommonResult<AssetConfigDto> getAssetConfig(@RequestParam("marketingSkuId") Long marketingSkuId);
 }

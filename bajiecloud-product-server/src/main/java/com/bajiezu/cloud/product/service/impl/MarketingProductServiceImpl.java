@@ -96,6 +96,10 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     private AssetResidualConfigMapper assetResidualConfigMapper;
     @Resource
     private AssetResidualMonthConfigMapper assetResidualMonthConfigMapper;
+    @Resource
+    private AssetResidualYearConfigMapper assetResidualYearConfigMapper;
+    @Resource
+    private AssetPricingConfigMapper assetPricingConfigMapper;
 
     @Resource
     private MarketingChannelApi marketingChannelApi;
@@ -1778,6 +1782,102 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         log.info("[resolveStdSku] no matching standard sku found, marketingSkuId={}, standardSpuId={}, requiredPVIds={}",
                 marketingSkuId, standardSpuId, stdSpuPropertyValueIds);
         return null;
+    }
+
+    @Override
+    public AssetConfigDto getAssetConfig(Long marketingSkuId) {
+        log.info("[getAssetConfig] start, marketingSkuId={}", marketingSkuId);
+        Long standardProductSkuId = resolveStandardProductSkuId(marketingSkuId);
+        if (standardProductSkuId == null) {
+            log.warn("[getAssetConfig] standard sku not resolved, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        MarketingProductSku marketingSku = skuMapper.selectById(marketingSkuId);
+        if (marketingSku == null || marketingSku.getPartnerId() == null) {
+            log.warn("[getAssetConfig] marketingSku not found or partnerId null, marketingSkuId={}", marketingSkuId);
+            return null;
+        }
+        Long partnerId = marketingSku.getPartnerId();
+        MarketingProductSpu marketingSpu = marketingProductSpuMapper.selectById(marketingSku.getMarketingSpuId());
+        Long standardSpuId = marketingSpu != null ? marketingSpu.getStandardProductSpuId() : null;
+
+        AssetResidualConfig residualConfig = assetResidualConfigMapper.selectBySkuId(standardProductSkuId, partnerId);
+        if (residualConfig == null) {
+            log.warn("[getAssetConfig] residual config not found, standardSkuId={}, partnerId={}", standardProductSkuId, partnerId);
+            return null;
+        }
+
+        AssetConfigDto result = new AssetConfigDto();
+        result.setStandardSpuId(standardSpuId);
+        result.setStandardProductSkuId(standardProductSkuId);
+        result.setPartnerId(partnerId);
+        result.setOfficialPrice(residualConfig.getOfficialPrice());
+        result.setDepreciationRuleType(residualConfig.getDepreciationRuleType());
+        result.setDepreciationRuleSubType(residualConfig.getDepreciationRuleSubType());
+
+        List<AssetResidualYearConfig> yearRows = assetResidualYearConfigMapper.selectByConfigId(
+                residualConfig.getId(), partnerId);
+        List<AssetConfigYearDto> yearDtos = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(yearRows)) {
+            for (AssetResidualYearConfig row : yearRows) {
+                AssetConfigYearDto dto = new AssetConfigYearDto();
+                dto.setUseYear(row.getUseYear());
+                dto.setTotalPriceUpperCoefficient(row.getTotalPriceUpperCoefficient());
+                dto.setTotalPriceLowerCoefficient(row.getTotalPriceLowerCoefficient());
+                dto.setYearBeginValue(row.getYearBeginValue());
+                dto.setYearDepreciationAmount(row.getYearDepreciationAmount());
+                dto.setYearEndResidualValue(row.getYearEndResidualValue());
+                dto.setTotalPriceUpperLimit(row.getTotalPriceUpperLimit());
+                dto.setTotalPriceLowerLimit(row.getTotalPriceLowerLimit());
+                yearDtos.add(dto);
+            }
+        }
+        result.setYearConfigs(yearDtos);
+
+        List<AssetResidualMonthConfig> monthRows = assetResidualMonthConfigMapper.selectByConfigId(
+                residualConfig.getId(), partnerId);
+        List<AssetConfigMonthDto> monthDtos = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(monthRows)) {
+            for (AssetResidualMonthConfig row : monthRows) {
+                AssetConfigMonthDto dto = new AssetConfigMonthDto();
+                dto.setUseYear(row.getUseYear());
+                dto.setUseMonth(row.getUseMonth());
+                dto.setGlobalMonth(row.getGlobalMonth());
+                dto.setDepreciationRuleValue(row.getDepreciationRuleValue());
+                dto.setBeginValue(row.getBeginValue());
+                dto.setDepreciationAmount(row.getDepreciationAmount());
+                dto.setResidualValue(row.getResidualValue());
+                dto.setAccumulatedDepreciationAmount(row.getAccumulatedDepreciationAmount());
+                dto.setCurrentPurchaseAmount(row.getCurrentPurchaseAmount());
+                monthDtos.add(dto);
+            }
+        }
+        result.setMonthConfigs(monthDtos);
+
+        List<AssetPricingConfig> pricingRows = assetPricingConfigMapper.selectBySkuId(standardProductSkuId, partnerId);
+        List<AssetConfigPricingDto> pricingDtos = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(pricingRows)) {
+            for (AssetPricingConfig row : pricingRows) {
+                AssetConfigPricingDto dto = new AssetConfigPricingDto();
+                dto.setLeaseMode(row.getLeaseMode());
+                dto.setUseYear(row.getUseYear());
+                dto.setDeviceValue(row.getDeviceValue());
+                dto.setDeviceTotalPriceCoefficient(row.getDeviceTotalPriceCoefficient());
+                dto.setDeviceTotalPrice(row.getDeviceTotalPrice());
+                dto.setTotalRentCoefficient(row.getTotalRentCoefficient());
+                dto.setTotalRent(row.getTotalRent());
+                dto.setMonthlyRent(row.getMonthlyRent());
+                dto.setDailyRent(row.getDailyRent());
+                dto.setAnnualDepreciationAmount(row.getAnnualDepreciationAmount());
+                dto.setExpirationPurchaseAmount(row.getExpirationPurchaseAmount());
+                pricingDtos.add(dto);
+            }
+        }
+        result.setPricingConfigs(pricingDtos);
+
+        log.info("[getAssetConfig] success, marketingSkuId={}, standardSkuId={}, yearSize={}, monthSize={}, pricingSize={}",
+                marketingSkuId, standardProductSkuId, yearDtos.size(), monthDtos.size(), pricingDtos.size());
+        return result;
     }
 
     private List<MarketingProductRespVO> buildListResult(List<MarketingProductSpu> marketingProductSpus, Integer productType) {

@@ -4,6 +4,7 @@ import com.bajiezu.cloud.common.web.pojo.PageResult;
 import com.bajiezu.cloud.product.controller.vo.MarketingAvailablePropertyVO;
 import com.bajiezu.cloud.product.controller.vo.request.*;
 import com.bajiezu.cloud.product.controller.vo.response.*;
+import com.bajiezu.cloud.product.dto.AssetConfigDto;
 import com.bajiezu.cloud.product.dto.MarketingProductReqVO;
 import com.bajiezu.cloud.product.dto.ProductDetailRespVO;
 import com.bajiezu.cloud.product.dto.SkuRentalPriceRespDto;
@@ -74,4 +75,9 @@ public interface MarketingProductService {
      * 按营销SKU+租赁方式查询所有可用的租期价格列表。
      */
     List<SkuRentalPriceRespDto> listSkuRentalPrices(Long skuId, Integer rentalMethod);
+
+    /**
+     * 按营销SKU查询关联的资产配置（残值+定价）全量数据。
+     */
+    AssetConfigDto getAssetConfig(Long marketingSkuId);
 }

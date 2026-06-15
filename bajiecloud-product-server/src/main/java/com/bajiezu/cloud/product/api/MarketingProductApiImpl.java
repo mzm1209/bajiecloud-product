@@ -114,4 +114,14 @@ public class MarketingProductApiImpl implements MarketingProductApi {
         }
         return CommonResult.success(marketingProductService.listSkuRentalPrices(skuId, rentalMethod));
     }
+
+    @Override
+    public CommonResult<AssetConfigDto> getAssetConfig(Long marketingSkuId) {
+        log.info("[getAssetConfig] marketingSkuId:{}", marketingSkuId);
+        if (marketingSkuId == null) {
+            return CommonResult.success(null);
+        }
+        AssetConfigDto result = marketingProductService.getAssetConfig(marketingSkuId);
+        return CommonResult.success(result);
+    }
 }
