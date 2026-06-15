@@ -3,6 +3,10 @@ package com.bajiezu.cloud.product.service.app.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.common.web.pojo.PageResult;
+import com.bajiezu.cloud.framework.security.util.FeginMethodExecuteUtils;
+import com.bajiezu.cloud.marketing.api.channel.MarketingChannelApi;
+import com.bajiezu.cloud.marketing.dto.channel.req.MarketingChannelIdsReqDTO;
+import com.bajiezu.cloud.marketing.dto.channel.resp.MarketingChannelRespDTO;
 import com.bajiezu.cloud.product.controller.vo.app.request.AppProductSkuDetailReqVO;
 import com.bajiezu.cloud.product.controller.vo.app.request.AppProductSkuListReqVO;
 import com.bajiezu.cloud.product.controller.vo.app.request.AppProductSpuDetailReqVO;
@@ -99,6 +103,8 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
     private ValueAddedCompensationAmountRuleMapper compensationAmountRuleMapper;
     @Resource
     private AreaApi areaApi;
+    @Resource
+    private MarketingChannelApi marketingChannelApi;
 
     @Override
     public PageResult<AppProductSpuPageRespVO> spuPage(AppProductSpuPageReqVO req) {
@@ -116,6 +122,11 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
             return PageResult.empty();
         }
 
+        Map<Long, MarketingChannelRespDTO> channelMap = buildChannelMap(spus.stream()
+                .flatMap(spu -> parseLongList(spu.getShelvingChannelId()).stream())
+                .distinct()
+                .toList());
+
         List<AppProductSpuPageRespVO> list = new ArrayList<>();
         for (MarketingProductSpu spu : spus) {
             List<MarketingProductSku> skus = saleableSkusBySpu(spu.getId());
@@ -128,12 +139,43 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
             vo.setName(spu.getName());
             vo.setMainPicUrl(splitFirst(spu.getMainPicUrls()));
             vo.setDefaultSkuId(defaultSku.getId());
+            vo.setShelvingTime(spu.getShelvingTime());
+            vo.setShelvingChannels(buildShelvingChannels(spu.getShelvingChannelId(), channelMap));
             vo.setPriceText(defaultSku.getDailyRent() == null ? null : "¥" + defaultSku.getDailyRent() + "/天");
             vo.setStockStatus(defaultSku.getStock() != null && defaultSku.getStock() > 0 ? 1 : 0);
             vo.setShopButtonText("去下单");
             list.add(vo);
         }
         return new PageResult<>(list, count);
+    }
+
+    private Map<Long, MarketingChannelRespDTO> buildChannelMap(List<Long> channelIds) {
+        if (CollectionUtil.isEmpty(channelIds)) {
+            return Collections.emptyMap();
+        }
+        MarketingChannelIdsReqDTO reqDTO = new MarketingChannelIdsReqDTO();
+        reqDTO.setChannelIds(channelIds);
+        List<MarketingChannelRespDTO> channels = FeginMethodExecuteUtils.execute(
+                () -> marketingChannelApi.getChannelListByIdsApi(reqDTO), true);
+        if (CollectionUtil.isEmpty(channels)) {
+            return Collections.emptyMap();
+        }
+        return channels.stream().collect(Collectors.toMap(MarketingChannelRespDTO::getChannelId, Function.identity(), (a, b) -> a));
+    }
+
+    private List<AppProductSpuPageRespVO.IdNameItem> buildShelvingChannels(
+            String shelvingChannelIds, Map<Long, MarketingChannelRespDTO> channelMap) {
+        List<Long> channelIds = parseLongList(shelvingChannelIds);
+        if (CollectionUtil.isEmpty(channelIds)) {
+            return Collections.emptyList();
+        }
+        return channelIds.stream().map(channelId -> {
+            AppProductSpuPageRespVO.IdNameItem item = new AppProductSpuPageRespVO.IdNameItem();
+            item.setId(channelId);
+            MarketingChannelRespDTO channel = channelMap.get(channelId);
+            item.setName(channel == null ? null : channel.getChannelName());
+            return item;
+        }).toList();
     }
 
     @Override
