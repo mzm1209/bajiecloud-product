@@ -2359,6 +2359,9 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
     private List<MarketingProductSkuVO> buildSkuCombinationsBySkuProperties(List<MarketingProductPropertyVO> skuProperties,
                                                                             List<MarketingProductSkuVO> incomingSkus) {
+        if (CollUtil.isEmpty(skuProperties)) {
+            throw exception(MARKETING_SKU_PROPERTY_REQUIRED);
+        }
         List<List<SkuPropertyValueVO>> expectedCombinations = buildExpectedSkuCombinations(skuProperties);
         Set<Long> skuPropertyIds = Optional.ofNullable(skuProperties).orElse(Collections.emptyList())
                 .stream().map(MarketingProductPropertyVO::getPropertyId).collect(Collectors.toSet());

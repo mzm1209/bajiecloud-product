@@ -62,4 +62,5 @@ public interface ErrorCodeConstants {
     ErrorCode RENTAL_STOCK_DUPLICATE = new ErrorCode(1_003_008_018, "同一SKU租赁方式租期库存不能重复提交");
     ErrorCode RENTAL_STOCK_NOT_EXIST = new ErrorCode(1_003_008_019, "该SKU租赁方式租期库存配置不存在");
     ErrorCode RENTAL_STOCK_INVALID = new ErrorCode(1_003_008_020, "库存数量不能为负数");
+    ErrorCode MARKETING_SKU_PROPERTY_REQUIRED = new ErrorCode(1_003_008_021, "至少选择一个SKU属性");
 }
