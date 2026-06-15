@@ -47,6 +47,17 @@ class MarketingProductServiceImplTest {
         assertEquals("营销SKU与SKU属性组合不一致，请按SKU属性组合重新提交", exception.getMessage());
     }
 
+    @Test
+    void buildSkuCombinationsBySkuPropertiesRejectsEmptySkuProperties() {
+        MarketingProductServiceImpl service = new MarketingProductServiceImpl();
+        List<MarketingProductSkuVO> incomingSkus = List.of(
+                sku(1L, value(1L, 1L, "橙色"))
+        );
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> invokeBuildSkuCombinations(service, List.of(), incomingSkus));
+        assertEquals("至少选择一个SKU属性", exception.getMessage());
+    }
 
     @Test
     void normalizeMarketingCornerTextRejectsBlankTextWhenCornerEnabled() {
