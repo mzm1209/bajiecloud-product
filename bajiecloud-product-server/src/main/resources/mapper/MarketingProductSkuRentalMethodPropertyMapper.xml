@@ -96,6 +96,19 @@
           and rental_period_month = #{rentalPeriodMonth}
     </update>
 
+    <update id="updateSkuStock">
+        <foreach collection="updateSkuStockDTOS" item="it" separator=";">
+            update marketing_product_sku_rental_method_property
+            set stock = #{it.stock},
+                update_time = #{it.updateTime},
+                update_by = #{it.updateBy}
+            where is_deleted = 0
+              and marketing_sku_id = #{it.skuId}
+              and rental_method = #{it.rentalMethod}
+              and rental_period_month = #{it.rentalPeriodMonth}
+        </foreach>
+    </update>
+
     <update id="logicDeleteByMarketingSpuId">
         update marketing_product_sku_rental_method_property
         set is_deleted = id,

@@ -1504,21 +1504,64 @@ public class MarketingProductServiceImpl implements MarketingProductService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateSkuStock(List<UpdateSkuStockReqVO> reqVO) {
         LoginUser<?> loginUser = SecurityFrameworkUtils.getLoginUser();
         log.info("更新SKU库存,reqVO:{},operatorId:{}", reqVO, loginUser.getId());
 
+        if (CollUtil.isEmpty(reqVO)) {
+            return;
+        }
+        reqVO.forEach(this::validateUpdateSkuStockReq);
+
         Date now = new Date();
+        Set<String> uniqueKeys = Sets.newHashSet();
+        Set<Long> skuIds = reqVO.stream().map(UpdateSkuStockReqVO::getSkuId).collect(Collectors.toSet());
+        Map<String, MarketingProductSkuRentalMethodProperty> rentalStockMap = skuRentalMethodPropertyMapper
+                .selectListByMarketingSkuIds(skuIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        item -> buildSkuRentalStockKey(item.getMarketingSkuId(), item.getRentalMethod(), item.getRentalPeriodMonth()),
+                        Function.identity()));
         List<UpdateSkuStockDTO> updateSkuStockDTOS = Lists.newArrayList();
         reqVO.forEach(updateSkuStockDTO -> {
+            String uniqueKey = buildSkuRentalStockKey(updateSkuStockDTO.getSkuId(), updateSkuStockDTO.getRentalMethod(),
+                    updateSkuStockDTO.getRentalPeriodMonth());
+            if (!uniqueKeys.add(uniqueKey)) {
+                throw exception(RENTAL_STOCK_DUPLICATE);
+            }
+            if (!rentalStockMap.containsKey(uniqueKey)) {
+                throw exception(RENTAL_STOCK_NOT_EXIST);
+            }
             UpdateSkuStockDTO updateSkuStock = new UpdateSkuStockDTO();
-            updateSkuStock.setId(updateSkuStockDTO.getSkuId());
+            updateSkuStock.setSkuId(updateSkuStockDTO.getSkuId());
+            updateSkuStock.setRentalMethod(updateSkuStockDTO.getRentalMethod());
+            updateSkuStock.setRentalPeriodMonth(updateSkuStockDTO.getRentalPeriodMonth());
             updateSkuStock.setStock(updateSkuStockDTO.getStock());
             updateSkuStock.setUpdateBy(loginUser.getId());
             updateSkuStock.setUpdateTime(now);
             updateSkuStockDTOS.add(updateSkuStock);
         });
-        skuMapper.updateSkuStock(updateSkuStockDTOS);
+        skuRentalMethodPropertyMapper.updateSkuStock(updateSkuStockDTOS);
+    }
+
+    private void validateUpdateSkuStockReq(UpdateSkuStockReqVO reqVO) {
+        if (reqVO == null) {
+            throw exception(RENTAL_STOCK_NOT_EXIST);
+        }
+        if (reqVO.getSkuId() == null) {
+            throw exception(SKU_ID_IS_NULL);
+        }
+        if (reqVO.getRentalMethod() == null || reqVO.getRentalPeriodMonth() == null) {
+            throw exception(RENTAL_METHOD_PERIOD_REQUIRED);
+        }
+        if (reqVO.getStock() == null || reqVO.getStock() < 0) {
+            throw exception(RENTAL_STOCK_INVALID);
+        }
+    }
+
+    private String buildSkuRentalStockKey(Long skuId, Integer rentalMethod, Integer rentalPeriodMonth) {
+        return skuId + "_" + rentalMethod + "_" + rentalPeriodMonth;
     }
 
     @Override

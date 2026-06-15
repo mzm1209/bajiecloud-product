@@ -1,5 +1,6 @@
 package com.bajiezu.cloud.product.dal.mapper;
 
+import com.bajiezu.cloud.product.dal.dto.UpdateSkuStockDTO;
 import com.bajiezu.cloud.product.dal.entity.MarketingProductSkuRentalMethodProperty;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -38,6 +39,8 @@ public interface MarketingProductSkuRentalMethodPropertyMapper extends BaseMappe
                      @Param("rentalPeriodMonth") Integer rentalPeriodMonth,
                      @Param("quantity") Integer quantity,
                      @Param("updateTime") Date updateTime);
+
+    void updateSkuStock(@Param("updateSkuStockDTOS") Collection<UpdateSkuStockDTO> updateSkuStockDTOS);
 
     void logicDeleteByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId,
                                      @Param("updateBy") Long updateBy,

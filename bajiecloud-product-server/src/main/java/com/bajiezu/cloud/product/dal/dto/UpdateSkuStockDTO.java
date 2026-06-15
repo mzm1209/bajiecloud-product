@@ -9,6 +9,12 @@ public class UpdateSkuStockDTO {
 
     private Long id;
 
+    private Long skuId;
+
+    private Integer rentalMethod;
+
+    private Integer rentalPeriodMonth;
+
     private Integer stock;
 
     private Long updateBy;
