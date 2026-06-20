@@ -156,6 +156,25 @@
         select * from marketing_product_sku where marketing_spu_id = #{marketingSpuId} and is_deleted = 0
     </select>
 
+    <select id="selectSaleableListByMarketingSpuIdOrderByShelvingTimeDesc" resultMap="BaseResultMap">
+        select
+            sku.*
+        from
+            marketing_product_sku sku
+        inner join marketing_product_spu spu on sku.marketing_spu_id = spu.id
+        where
+            sku.marketing_spu_id = #{marketingSpuId}
+            and sku.is_deleted = 0
+            and sku.is_allow_order = 1
+            and sku.stock > 0
+            and spu.is_deleted = 0
+            and spu.shelves_status = 1
+            and spu.approval_status = 1
+        order by
+            spu.shelving_time desc,
+            sku.daily_rent asc
+    </select>
+
     <select id="selectListByIds" resultMap="BaseResultMap">
         select * from marketing_product_sku where id in
         <foreach item="id" collection="ids" separator="," open="(" close=")" index="">

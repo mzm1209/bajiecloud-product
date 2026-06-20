@@ -39,6 +39,8 @@ public interface MarketingProductSkuMapper extends BaseMapper<MarketingProductSk
 
     List<MarketingProductSku> selectListByMarketingSpuId(@Param("marketingSpuId") Long marketingSpuId);
 
+    List<MarketingProductSku> selectSaleableListByMarketingSpuIdOrderByShelvingTimeDesc(@Param("marketingSpuId") Long marketingSpuId);
+
     List<MarketingProductSku> selectListByIds(@Param("ids") Collection<Long> ids);
 
     List<MarketingProductSku> selectListByCondition(ProductQuery query);

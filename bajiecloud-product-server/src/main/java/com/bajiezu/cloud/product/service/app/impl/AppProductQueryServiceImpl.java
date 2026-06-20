@@ -114,7 +114,7 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
         }
 
         long count = spuMapper.selectCount(query);
-        query.orderByDesc(MarketingProductSpu::getCreateTime)
+        query.orderByDesc(MarketingProductSpu::getShelvingTime)
                 .last("limit " + ((req.getPageNo() - 1) * req.getPageSize()) + "," + req.getPageSize());
 
         List<MarketingProductSpu> spus = spuMapper.selectList(query);
@@ -614,12 +614,7 @@ public class AppProductQueryServiceImpl implements AppProductQueryService {
     }
 
     private List<MarketingProductSku> saleableSkusBySpu(Long spuId) {
-        return skuMapper.selectList(new LambdaQueryWrapper<MarketingProductSku>()
-                .eq(MarketingProductSku::getMarketingSpuId, spuId)
-                .eq(MarketingProductSku::getIsDeleted, false)
-                .eq(MarketingProductSku::getIsAllowOrder, 1)
-                .gt(MarketingProductSku::getStock, 0)
-                .orderByAsc(MarketingProductSku::getDailyRent));
+        return skuMapper.selectSaleableListByMarketingSpuIdOrderByShelvingTimeDesc(spuId);
     }
 
     private boolean isSkuSaleable(MarketingProductSku sku) {
