@@ -956,15 +956,18 @@ public class MarketingProductServiceImpl implements MarketingProductService {
             throw exception(MARKETING_PRODUCT_STATUS_NOT_WAIT_APPROVE);
         }
 
+        Date now = new Date();
         // 审批通过
         if (ApproveStatusEnum.APPROVE_PASS.getValue().equals(reqVO.getApproveStatus())) {
             if (ShelvingWayEnum.AUTO_SHELVES.getValue().equals(marketingProductSpu.getShelvingWay())) {
                 // 如果是自动上架，那么审批通过后将上架状态改为已上架
                 marketingProductSpu.setShelvesStatus(ShelvesStatusEnum.ON_SHELVES.getValue());
+                marketingProductSpu.setShelvingTime(now);
             } else if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(marketingProductSpu.getShelvingWay())) {
                 // 如果是预约上架，预约时间在当前时间之前，将上架状态改为已上架
-                if (marketingProductSpu.getShelvingTime().before(new Date())) {
+                if (marketingProductSpu.getShelvingTime().before(now)) {
                     marketingProductSpu.setShelvesStatus(ShelvesStatusEnum.ON_SHELVES.getValue());
+                    marketingProductSpu.setShelvingTime(now);
                 }
             }
         }
@@ -973,7 +976,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
         marketingProductSpu.setApproverId(loginUser.getId());
         marketingProductSpu.setApprovalStatus(reqVO.getApproveStatus());
         marketingProductSpu.setApprovalRemark(reqVO.getApprovalRemark());
-        marketingProductSpu.setUpdateTime(new Date());
+        marketingProductSpu.setUpdateTime(now);
         marketingProductSpu.setUpdateBy(loginUser.getId());
         marketingProductSpuMapper.updateById(marketingProductSpu);
     }
@@ -2277,9 +2280,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 商品上架信息
         marketingProductSpu.setShelvingWay(reqVO.getShelvingWay());
-        if (ShelvingWayEnum.AUTO_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
-            marketingProductSpu.setShelvingTime(now);
-        } else if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
+        if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
             marketingProductSpu.setShelvingTime(reqVO.getShelvingTime());
         }
         marketingProductSpu.setShelvingChannelId(joinLongList(reqVO.getShelvingChannelIds()));
@@ -2697,9 +2698,7 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 商品上架信息
         marketingProductSpu.setShelvingWay(reqVO.getShelvingWay());
-        if (ShelvingWayEnum.AUTO_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
-            marketingProductSpu.setShelvingTime(now);
-        } else if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
+        if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
             marketingProductSpu.setShelvingTime(reqVO.getShelvingTime());
         }
         marketingProductSpu.setShelvingChannelId(joinLongList(reqVO.getShelvingChannelIds()));
