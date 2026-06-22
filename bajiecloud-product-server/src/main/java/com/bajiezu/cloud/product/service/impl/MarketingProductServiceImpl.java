@@ -2277,7 +2277,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 商品上架信息
         marketingProductSpu.setShelvingWay(reqVO.getShelvingWay());
-        marketingProductSpu.setShelvingTime(reqVO.getShelvingTime());
+        if (ShelvingWayEnum.AUTO_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
+            marketingProductSpu.setShelvingTime(now);
+        } else if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
+            marketingProductSpu.setShelvingTime(reqVO.getShelvingTime());
+        }
         marketingProductSpu.setShelvingChannelId(joinLongList(reqVO.getShelvingChannelIds()));
 
         // 通用字段
@@ -2693,7 +2697,11 @@ public class MarketingProductServiceImpl implements MarketingProductService {
 
         // 商品上架信息
         marketingProductSpu.setShelvingWay(reqVO.getShelvingWay());
-        marketingProductSpu.setShelvingTime(reqVO.getShelvingTime());
+        if (ShelvingWayEnum.AUTO_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
+            marketingProductSpu.setShelvingTime(now);
+        } else if (ShelvingWayEnum.APPOINT_SHELVES.getValue().equals(reqVO.getShelvingWay())) {
+            marketingProductSpu.setShelvingTime(reqVO.getShelvingTime());
+        }
         marketingProductSpu.setShelvingChannelId(joinLongList(reqVO.getShelvingChannelIds()));
 
         // 通用字段
