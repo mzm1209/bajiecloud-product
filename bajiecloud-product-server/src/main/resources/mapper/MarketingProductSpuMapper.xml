@@ -111,6 +111,9 @@
             marketing_product_spu
         set
              shelves_status = #{shelvesStatus},
+             <if test="shelvesStatus == 1">
+                 shelving_time = now(),
+             </if>
              update_by = #{updateBy},
              update_time = now()
         where id in
